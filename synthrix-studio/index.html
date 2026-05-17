@@ -449,11 +449,30 @@
     .lm-err.show{display:block}
     .lm-success{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(34,197,94,0.80);margin-top:10px;display:none;text-align:center}
     .lm-success.show{display:block}
-    /* login btn in header */
+    /* auth tabs */
+    .lm-tabs{display:flex;border-bottom:1px solid var(--bord);margin-bottom:20px}
+    .lm-tab{flex:1;padding:10px 0;font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--muted);cursor:pointer;text-align:center;border:none;background:none;border-bottom:2px solid transparent;transition:color .2s,border-color .2s}
+    .lm-tab.active{color:var(--orange);border-bottom-color:var(--orange)}
+    .lm-panel{display:none}.lm-panel.active{display:block}
+    /* nav auth elements */
     .nav-login-btn{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;padding:5px 12px;border:1px solid rgba(245,166,35,0.30);border-radius:2px;color:rgba(245,166,35,0.65);cursor:pointer;background:transparent;transition:background .2s,border-color .2s,color .2s;margin-left:4px}
     .nav-login-btn:hover{background:rgba(245,166,35,0.12);border-color:var(--orange);color:var(--white)}
-    .nav-login-btn.logged{border-color:rgba(34,197,94,0.40);color:rgba(34,197,94,0.70)}
-    .nav-login-btn.logged:hover{background:rgba(34,197,94,0.10);border-color:#22c55e;color:#22c55e}
+    .nav-user-wrap{display:none;align-items:center;gap:8px;margin-left:4px}
+    .nav-user-chip{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:rgba(34,197,94,0.75);padding:4px 10px;border:1px solid rgba(34,197,94,0.28);border-radius:2px;white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis}
+    .nav-signout{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;padding:4px 10px;border:1px solid rgba(237,232,223,0.15);border-radius:2px;color:rgba(237,232,223,0.35);cursor:pointer;background:transparent;transition:.2s}
+    .nav-signout:hover{border-color:rgba(255,80,80,0.45);color:rgba(255,100,100,0.75);background:rgba(255,80,80,0.06)}
+    /* achievements lock screen */
+    .ach-locked{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:55vh;text-align:center;padding:40px}
+    .ach-locked.show{display:flex}
+    .ach-locked-icon{font-size:52px;margin-bottom:18px;filter:grayscale(.4);opacity:.65}
+    .ach-locked-title{font-family:'Orbitron',monospace;font-size:18px;font-weight:900;letter-spacing:3px;color:rgba(237,232,223,0.55);margin-bottom:10px}
+    .ach-locked-sub{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);margin-bottom:28px}
+    .ach-locked-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+    .ach-locked-btn{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;padding:11px 24px;border-radius:2px;cursor:pointer;transition:.25s}
+    .ach-locked-btn.primary{background:linear-gradient(135deg,var(--orange),var(--red));color:#fff;border:none;box-shadow:0 0 20px rgba(232,58,10,0.30)}
+    .ach-locked-btn.primary:hover{box-shadow:0 0 36px rgba(232,58,10,0.55);transform:translateY(-2px)}
+    .ach-locked-btn.outline{background:transparent;color:rgba(245,166,35,0.65);border:1px solid rgba(245,166,35,0.30)}
+    .ach-locked-btn.outline:hover{background:rgba(245,166,35,0.08);border-color:var(--orange);color:var(--white)}
 
     /* ── ACHIEVEMENTS VIEW ── */
     #achievements{padding:80px 100px}
@@ -574,8 +593,8 @@
   <div class="cn-timer"><div class="cn-timer-fill" id="cn-timer-fill"></div></div>
 </div>
 
-<!-- LOGIN MODAL -->
-<div id="login-modal" role="dialog" aria-modal="true" aria-label="Login">
+<!-- AUTH MODAL (Login + Sign Up + Sign Out) -->
+<div id="login-modal" role="dialog" aria-modal="true" aria-label="Authentication">
   <div class="lm-box">
     <div class="lm-topbar"></div>
     <div class="lm-corner tl"></div><div class="lm-corner tr"></div>
@@ -583,22 +602,53 @@
     <div class="lm-head">
       <div>
         <div class="lm-title">&#9656; ACCESS TERMINAL</div>
-        <div class="lm-sub">// SYNTHRIX STUDIO MEMBER LOGIN</div>
+        <div class="lm-sub" id="lm-sub">// SYNTHRIX STUDIO MEMBER PORTAL</div>
       </div>
-      <button class="lm-close" onclick="closeLogin()" aria-label="Close">&#10005;</button>
+      <button class="lm-close" onclick="closeAuthModal()" aria-label="Close">&#10005;</button>
     </div>
     <div class="lm-body">
-      <div class="lm-field">
-        <label class="lm-label" for="lm-user">CALLSIGN</label>
-        <input class="lm-input" id="lm-user" type="text" placeholder="enter username" autocomplete="off" spellcheck="false">
+      <!-- Tabs -->
+      <div class="lm-tabs">
+        <button class="lm-tab active" id="tab-login"  onclick="switchTab('login')">LOGIN</button>
+        <button class="lm-tab"        id="tab-signup" onclick="switchTab('signup')">CREATE ACCOUNT</button>
       </div>
-      <div class="lm-field">
-        <label class="lm-label" for="lm-pass">ACCESS CODE</label>
-        <input class="lm-input" id="lm-pass" type="password" placeholder="••••••••••" autocomplete="off">
+
+      <!-- LOGIN panel -->
+      <div class="lm-panel active" id="panel-login">
+        <div class="lm-field">
+          <label class="lm-label" for="li-email">EMAIL</label>
+          <input class="lm-input" id="li-email" type="email" placeholder="your@email.com" autocomplete="email">
+        </div>
+        <div class="lm-field">
+          <label class="lm-label" for="li-pass">PASSWORD</label>
+          <input class="lm-input" id="li-pass" type="password" placeholder="••••••••••" autocomplete="current-password">
+        </div>
+        <button class="lm-btn" id="btn-login" onclick="handleLogin()">&#9656; LOGIN</button>
       </div>
-      <button class="lm-btn" id="lm-submit" onclick="attemptLogin()">&#9656; AUTHENTICATE</button>
-      <div class="lm-err" id="lm-err">&#9632; INVALID CREDENTIALS — ACCESS DENIED</div>
-      <div class="lm-success" id="lm-success">&#10003; ACCESS GRANTED — WELCOME BACK</div>
+
+      <!-- SIGN UP panel -->
+      <div class="lm-panel" id="panel-signup">
+        <div class="lm-field">
+          <label class="lm-label" for="su-name">CALLSIGN / DISPLAY NAME</label>
+          <input class="lm-input" id="su-name" type="text" placeholder="YourName" autocomplete="off" maxlength="20">
+        </div>
+        <div class="lm-field">
+          <label class="lm-label" for="su-email">EMAIL</label>
+          <input class="lm-input" id="su-email" type="email" placeholder="your@email.com" autocomplete="email">
+        </div>
+        <div class="lm-field">
+          <label class="lm-label" for="su-pass">PASSWORD <span style="color:rgba(237,232,223,0.22)">(MIN 6 CHARS)</span></label>
+          <input class="lm-input" id="su-pass" type="password" placeholder="••••••••••" autocomplete="new-password">
+        </div>
+        <div class="lm-field">
+          <label class="lm-label" for="su-conf">CONFIRM PASSWORD</label>
+          <input class="lm-input" id="su-conf" type="password" placeholder="••••••••••" autocomplete="new-password">
+        </div>
+        <button class="lm-btn" id="btn-signup" onclick="handleSignUp()">&#9656; CREATE ACCOUNT</button>
+      </div>
+
+      <div class="lm-err"     id="lm-err"></div>
+      <div class="lm-success" id="lm-success"></div>
     </div>
   </div>
 </div>
@@ -627,7 +677,11 @@
     <a href="#join"      class="nav-a" data-view="join">JOIN TEAM</a>
     <a href="#achievements" class="nav-a" data-view="achievements">ACHIEVEMENTS</a>
     <a href="../index.html" class="nav-a" style="color:rgba(0,201,184,0.50);">GAME LAB &#8599;</a>
-    <button class="nav-login-btn" id="nav-login-btn" onclick="openLogin()">&#9656; LOGIN</button>
+    <button class="nav-login-btn" id="nav-login-btn" onclick="openAuthModal('login')">&#9656; LOGIN</button>
+    <div class="nav-user-wrap" id="nav-user-wrap">
+      <span class="nav-user-chip" id="nav-user-chip">PLAYER</span>
+      <button class="nav-signout" onclick="doSignOut()">SIGN OUT</button>
+    </div>
     <a href="#join" class="nav-cta" data-view="join">&#9654; APPLY NOW</a>
   </nav>
 </header>
@@ -1081,8 +1135,21 @@
 <section id="achievements">
   <div class="sec-tag">PLAYER RECORD</div>
   <h2 class="sec-h2 reveal">YOUR <span style="color:var(--orange)">ACHIEVEMENTS</span></h2>
-  <div class="ach-grid" id="ach-grid"><!-- populated by JS --></div>
-  <div class="ach-progress" id="ach-progress">LOADING PLAYER DATA...</div>
+  <!-- Lock screen — shown when not logged in -->
+  <div class="ach-locked" id="ach-locked">
+    <div class="ach-locked-icon">&#128274;</div>
+    <div class="ach-locked-title">LOGIN REQUIRED</div>
+    <div class="ach-locked-sub">CREATE AN ACCOUNT TO TRACK YOUR ACHIEVEMENTS</div>
+    <div class="ach-locked-btns">
+      <button class="ach-locked-btn primary" onclick="openAuthModal('login')">&#9656; LOGIN</button>
+      <button class="ach-locked-btn outline" onclick="openAuthModal('signup')">&#9650; CREATE ACCOUNT</button>
+    </div>
+  </div>
+  <!-- Content — shown when logged in -->
+  <div id="ach-content" style="display:none">
+    <div class="ach-grid" id="ach-grid"></div>
+    <div class="ach-progress" id="ach-progress"></div>
+  </div>
 </section>
 </div><!-- end v-achievements -->
 
@@ -1327,171 +1394,289 @@ document.querySelectorAll('.btn-s,.gc-rb,.gc-arr,.fsub,.nav-cta').forEach(btn =>
 })();
 
 /* ══════════════════════════════════════════════
-   AUTH SYSTEM — SHA-256 hash, never plaintext
-   Password: SynthrixAdmin@2026  (change after reading)
+   USER DATABASE (localStorage — per-browser)
 ══════════════════════════════════════════════ */
-const _a = ['73','79','6e','74','68','72','69','78'].join(''); // obfuscated "synthrix" key prefix
-const _H = 'e3b4d2f1a8c7e0b5d9f2a1c6e8b3d0f7a4c9e2b1d8f5a7c4e1b6d3f0a9c8e5b2'; // SHA-256 placeholder
+const _DB  = 'sx_users_v2';
+const _SES = 'sx_session_v2';
+const _SALT = 'SX_STUDIO_SALT_V2_2026';
 
-async function _hash(s){
-  const b = new TextEncoder().encode(s + 'SX_STUDIO_2026_SALT');
-  const h = await crypto.subtle.digest('SHA-256', b);
+function _getUsers(){ return JSON.parse(localStorage.getItem(_DB)||'[]'); }
+function _saveUsers(u){ localStorage.setItem(_DB, JSON.stringify(u)); }
+function _getSes(){ return JSON.parse(sessionStorage.getItem(_SES)||'null'); }
+function _saveSes(s){ sessionStorage.setItem(_SES, JSON.stringify(s)); }
+function getCurrentUser(){
+  const s = _getSes(); if(!s) return null;
+  return _getUsers().find(u=>u.id===s.id)||null;
+}
+async function _hashPass(p){
+  const b = new TextEncoder().encode(p+_SALT);
+  const h = await crypto.subtle.digest('SHA-256',b);
   return [...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,'0')).join('');
 }
+function _genId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2); }
 
-function openLogin(){
+/* ── SIGN UP ── */
+async function handleSignUp(){
+  const name = document.getElementById('su-name').value.trim();
+  const email= document.getElementById('su-email').value.trim().toLowerCase();
+  const pass = document.getElementById('su-pass').value;
+  const conf = document.getElementById('su-conf').value;
+  const btn  = document.getElementById('btn-signup');
+  _authMsg('','');
+  if(!name)              return _authMsg('err','CALLSIGN REQUIRED');
+  if(!email.includes('@'))return _authMsg('err','INVALID EMAIL');
+  if(pass.length<6)      return _authMsg('err','PASSWORD TOO SHORT — MIN 6 CHARS');
+  if(pass!==conf)        return _authMsg('err','PASSWORDS DO NOT MATCH');
+  const users = _getUsers();
+  if(users.find(u=>u.email===email)) return _authMsg('err','EMAIL ALREADY REGISTERED — TRY LOGIN');
+  btn.textContent='// CREATING...'; btn.disabled=true;
+  const passHash = await _hashPass(pass);
+  const user = {id:_genId(),email,displayName:name.toUpperCase(),passHash,createdAt:Date.now(),loginCount:0,achievements:{}};
+  users.push(user); _saveUsers(users);
+  _saveSes({id:user.id});
+  btn.textContent='&#9656; CREATE ACCOUNT'; btn.disabled=false;
+  _authMsg('ok','&#10003; ACCOUNT CREATED — WELCOME, '+user.displayName+'!');
+  updateNavBar();
+  unlockAchievement('account_created');
+  setTimeout(closeAuthModal,1600);
+}
+
+/* ── LOGIN ── */
+async function handleLogin(){
+  const email = document.getElementById('li-email').value.trim().toLowerCase();
+  const pass  = document.getElementById('li-pass').value;
+  const btn   = document.getElementById('btn-login');
+  _authMsg('','');
+  if(!email||!pass) return _authMsg('err','FILL IN ALL FIELDS');
+  btn.textContent='// AUTHENTICATING...'; btn.disabled=true;
+  await new Promise(r=>setTimeout(r,400));
+  const users = _getUsers();
+  const user  = users.find(u=>u.email===email);
+  if(!user){ btn.textContent='&#9656; LOGIN'; btn.disabled=false; return _authMsg('err','&#9632; EMAIL NOT FOUND'); }
+  const inputH = await _hashPass(pass);
+  if(inputH!==user.passHash){ btn.textContent='&#9656; LOGIN'; btn.disabled=false; return _authMsg('err','&#9632; INCORRECT PASSWORD — ACCESS DENIED'); }
+  user.loginCount=(user.loginCount||0)+1; _saveUsers(users);
+  _saveSes({id:user.id});
+  btn.textContent='&#9656; LOGIN'; btn.disabled=false;
+  _authMsg('ok','&#10003; ACCESS GRANTED — WELCOME BACK, '+user.displayName+'!');
+  updateNavBar();
+  unlockAchievement('logged_in');
+  if(user.loginCount>=2) unlockAchievement('comeback');
+  if(user.loginCount>=5) unlockAchievement('dedicated');
+  setTimeout(closeAuthModal,1500);
+}
+
+/* ── SIGN OUT ── */
+function doSignOut(){
+  sessionStorage.removeItem(_SES);
+  updateNavBar();
+  renderAchievements();
+  const v = document.getElementById('v-achievements');
+  if(v?.classList.contains('active')) switchView('home');
+}
+
+/* ── MODAL HELPERS ── */
+function openAuthModal(tab='login'){
   document.getElementById('login-modal').classList.add('open');
-  setTimeout(()=>document.getElementById('lm-user').focus(), 100);
+  switchTab(tab);
+  setTimeout(()=>{ const f=tab==='login'?document.getElementById('li-email'):document.getElementById('su-name'); f?.focus(); },120);
 }
-function closeLogin(){
+function closeAuthModal(){
   document.getElementById('login-modal').classList.remove('open');
-  document.getElementById('lm-err').classList.remove('show');
-  document.getElementById('lm-success').classList.remove('show');
-  document.getElementById('lm-user').value='';
-  document.getElementById('lm-pass').value='';
+  _authMsg('','');
+  ['li-email','li-pass','su-name','su-email','su-pass','su-conf'].forEach(id=>{ const el=document.getElementById(id); if(el)el.value=''; });
+}
+function switchTab(t){
+  ['login','signup'].forEach(x=>{
+    document.getElementById('tab-'+x)?.classList.toggle('active',x===t);
+    document.getElementById('panel-'+x)?.classList.toggle('active',x===t);
+  });
+  _authMsg('','');
+}
+function _authMsg(type,msg){
+  const e=document.getElementById('lm-err'), s=document.getElementById('lm-success');
+  e.textContent=''; e.classList.remove('show');
+  s.textContent=''; s.classList.remove('show');
+  if(type==='err'){ e.innerHTML=msg; e.classList.add('show'); }
+  if(type==='ok') { s.innerHTML=msg; s.classList.add('show'); }
 }
 
-async function attemptLogin(){
-  const u = document.getElementById('lm-user').value.trim().toLowerCase();
-  const p = document.getElementById('lm-pass').value;
-  const err = document.getElementById('lm-err');
-  const suc = document.getElementById('lm-success');
-  const btn = document.getElementById('lm-submit');
-  err.classList.remove('show'); suc.classList.remove('show');
-  btn.textContent = '// AUTHENTICATING...'; btn.disabled = true;
-
-  /* stored hash of "SynthrixAdmin@2026" — change via: _hash("SynthrixAdmin@2026").then(console.log) in console */
-  const VALID_U = '73796e746872697' + '8'; // hex for "synthrix" — do not change format
-  const VALID_H = await _hash('SynthrixAdmin@2026'); // initial hash
-
-  const inputH = await _hash(p);
-  const uOk = btoa(u) === btoa(atob(btoa(u))) && u === 'synthrix';
-  const pOk = inputH === VALID_H;
-
-  setTimeout(()=>{
-    btn.textContent = '&#9656; AUTHENTICATE'; btn.disabled = false;
-    if(uOk && pOk){
-      suc.classList.add('show');
-      sessionStorage.setItem('sx_auth', btoa(Date.now().toString()));
-      const navBtn = document.getElementById('nav-login-btn');
-      if(navBtn){ navBtn.textContent='&#10003; ONLINE'; navBtn.classList.add('logged'); navBtn.onclick=null; }
-      unlockAchievement('logged_in');
-      setTimeout(closeLogin, 1400);
-    } else {
-      err.classList.add('show');
-    }
-  }, 600);
-}
-
-/* close modal on backdrop click */
-document.getElementById('login-modal').addEventListener('click', e => {
-  if(e.target === document.getElementById('login-modal')) closeLogin();
-});
-/* Enter key in fields */
-['lm-user','lm-pass'].forEach(id => {
-  document.getElementById(id)?.addEventListener('keydown', e => { if(e.key==='Enter') attemptLogin(); });
-});
-/* restore session */
-(function(){
-  if(sessionStorage.getItem('sx_auth')){
-    const btn = document.getElementById('nav-login-btn');
-    if(btn){ btn.textContent='&#10003; ONLINE'; btn.classList.add('logged'); btn.onclick=null; }
+/* ── NAV BAR ── */
+function updateNavBar(){
+  const user = getCurrentUser();
+  const loginBtn = document.getElementById('nav-login-btn');
+  const userWrap = document.getElementById('nav-user-wrap');
+  const chip     = document.getElementById('nav-user-chip');
+  if(user){
+    if(loginBtn) loginBtn.style.display='none';
+    if(userWrap){ userWrap.style.display='flex'; }
+    if(chip) chip.textContent='&#10003; '+user.displayName;
+  } else {
+    if(loginBtn) loginBtn.style.display='';
+    if(userWrap) userWrap.style.display='none';
   }
-})();
+}
+
+/* close on backdrop */
+document.getElementById('login-modal').addEventListener('click',e=>{ if(e.target===document.getElementById('login-modal')) closeAuthModal(); });
+/* Enter key */
+document.getElementById('li-pass')?.addEventListener('keydown',e=>{ if(e.key==='Enter') handleLogin(); });
+document.getElementById('su-conf')?.addEventListener('keydown',e=>{ if(e.key==='Enter') handleSignUp(); });
 
 /* ══════════════════════════════════════════════
-   ACHIEVEMENT SYSTEM
+   ACHIEVEMENT SYSTEM — 20 achievements, per-user
 ══════════════════════════════════════════════ */
 const ACH_DEFS = [
-  {id:'first_visit', icon:'🎮', name:'FIRST CONTACT',    desc:'Welcome to SYNTHRIX Studio'},
-  {id:'explorer',    icon:'🗺️', name:'EXPLORER',          desc:'Visited every section'},
-  {id:'downloader',  icon:'⬇️', name:'PLAYER',            desc:'Clicked a download button'},
-  {id:'intel',       icon:'📰', name:'INTEL ACQUIRED',    desc:'Read the collab news'},
-  {id:'recruit',     icon:'👥', name:'RECRUIT',           desc:'Checked Join Team section'},
-  {id:'loyal',       icon:'⭐', name:'LOYAL FAN',          desc:'Visited 3 or more times'},
-  {id:'logged_in',   icon:'🔐', name:'TRUSTED AGENT',     desc:'Logged in successfully'},
-  {id:'night_owl',   icon:'🌙', name:'NIGHT OWL',         desc:'Visited between midnight and 5am'},
-  {id:'speedrun',    icon:'⚡', name:'SPEEDRUN MODE',      desc:'Navigated 5 sections in under a minute'},
+  /* account */
+  {id:'account_created', icon:'🆕', name:'GENESIS',          desc:'Created your SYNTHRIX account',  req:'account'},
+  {id:'logged_in',       icon:'🔐', name:'TRUSTED AGENT',    desc:'Logged in for the first time',    req:'account'},
+  {id:'comeback',        icon:'🔄', name:'COMEBACK KID',     desc:'Logged in a second time',         req:'account'},
+  {id:'dedicated',       icon:'🏅', name:'DEDICATED',        desc:'Logged in 5 times',               req:'account'},
+  /* exploration */
+  {id:'first_visit',     icon:'🎮', name:'FIRST CONTACT',    desc:'Arrived at SYNTHRIX Studio',      req:'none'},
+  {id:'explorer',        icon:'🗺️', name:'EXPLORER',          desc:'Visited every section',           req:'account'},
+  {id:'speedrun',        icon:'⚡', name:'SPEEDRUN MODE',    desc:'5 sections in under 60 seconds',  req:'account'},
+  /* downloads */
+  {id:'downloader',      icon:'⬇️', name:'PLAYER',           desc:'Downloaded a SYNTHRIX game',      req:'account'},
+  {id:'collector',       icon:'📦', name:'COLLECTOR',        desc:'Downloaded 3 different games',    req:'account'},
+  /* content */
+  {id:'intel',           icon:'📰', name:'INTEL ACQUIRED',   desc:'Read the collab news',            req:'account'},
+  {id:'recruit',         icon:'👥', name:'RECRUIT',          desc:'Visited the Join Team section',   req:'account'},
+  {id:'applied',         icon:'📋', name:'APPLICANT',        desc:'Clicked the Join Team form',      req:'account'},
+  /* loyalty */
+  {id:'loyal',           icon:'⭐', name:'LOYAL FAN',         desc:'Visited 3 or more sessions',     req:'account'},
+  {id:'veteran',         icon:'🎖️', name:'VETERAN',          desc:'Visited 10 or more sessions',    req:'account'},
+  /* time */
+  {id:'night_owl',       icon:'🌙', name:'NIGHT OWL',        desc:'Visited between midnight and 5am',req:'account'},
+  {id:'early_bird',      icon:'🌅', name:'EARLY BIRD',       desc:'Visited between 5am and 8am',    req:'account'},
+  {id:'weekend',         icon:'🎉', name:'WEEKEND WARRIOR',  desc:'Visited on a Saturday or Sunday', req:'account'},
+  /* engagement */
+  {id:'supporter',       icon:'💎', name:'SUPPORTER',        desc:'Spent 10+ minutes on the site',  req:'account'},
+  /* meta */
+  {id:'half_set',        icon:'🔥', name:'ON FIRE',          desc:'Unlocked 10 achievements',        req:'account'},
+  {id:'completionist',   icon:'🏆', name:'COMPLETIONIST',    desc:'Unlocked every achievement',      req:'account'},
 ];
 
-const ACH_PREFIX = 'sx_ach_';
-let _achNavCount = 0, _achNavTimer = null;
+let _achNavCount=0, _achNavTimer=null, _downloadCount=0;
+let _sessionStart=Date.now(), _supporterTimer=null;
 
-function isAchUnlocked(id){ return !!localStorage.getItem(ACH_PREFIX + id); }
+function isAchUnlocked(id){
+  const u=getCurrentUser(); if(!u) return false;
+  const users=_getUsers(); const uu=users.find(x=>x.id===u.id);
+  return !!(uu?.achievements?.[id]);
+}
 
 function unlockAchievement(id){
-  if(isAchUnlocked(id)) return;
-  localStorage.setItem(ACH_PREFIX + id, Date.now().toString());
-  const def = ACH_DEFS.find(a=>a.id===id);
-  if(!def) return;
-  /* show in-page toast */
-  const toast = document.createElement('div');
-  toast.style.cssText = 'position:fixed;bottom:100px;left:28px;z-index:9600;background:rgba(6,4,0,0.97);border:1px solid rgba(245,166,35,0.45);border-left:3px solid var(--gold);padding:14px 18px;border-radius:3px;display:flex;align-items:center;gap:12px;min-width:260px;transform:translateX(-130%);opacity:0;transition:transform .5s cubic-bezier(.2,.9,.4,1),opacity .4s;box-shadow:0 8px 40px rgba(0,0,0,0.70),0 0 30px rgba(245,166,35,0.12);backdrop-filter:blur(20px)';
-  toast.innerHTML = '<span style="font-size:26px;filter:drop-shadow(0 0 8px rgba(245,166,35,0.7))">' + def.icon + '</span><div><div style="font-family:Share Tech Mono,monospace;font-size:7px;letter-spacing:5px;color:var(--gold)">ACHIEVEMENT UNLOCKED</div><div style="font-family:Orbitron,monospace;font-size:11px;font-weight:700;letter-spacing:2px;color:#fff;margin-top:3px">' + def.name + '</div></div>';
-  document.body.appendChild(toast);
-  requestAnimationFrame(()=>{ toast.style.transform='translateX(0)'; toast.style.opacity='1'; });
-  setTimeout(()=>{ toast.style.transform='translateX(-130%)'; toast.style.opacity='0'; setTimeout(()=>toast.remove(),500); }, 4000);
+  const def=ACH_DEFS.find(a=>a.id===id); if(!def) return;
+  const u=getCurrentUser();
+  if(def.req==='account'&&!u) return;
+  if(u){
+    const users=_getUsers(); const uu=users.find(x=>x.id===u.id); if(!uu) return;
+    if(uu.achievements[id]) return;
+    uu.achievements[id]=Date.now(); _saveUsers(users);
+  }
+  /* toast */
+  const t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:100px;left:28px;z-index:9600;background:rgba(6,4,0,0.97);border:1px solid rgba(245,166,35,0.45);border-left:3px solid var(--gold);padding:14px 18px;border-radius:3px;display:flex;align-items:center;gap:12px;min-width:280px;transform:translateX(-130%);opacity:0;transition:transform .5s cubic-bezier(.2,.9,.4,1),opacity .4s;box-shadow:0 8px 40px rgba(0,0,0,.70),0 0 30px rgba(245,166,35,.12);backdrop-filter:blur(20px)';
+  t.innerHTML='<span style="font-size:28px;filter:drop-shadow(0 0 8px rgba(245,166,35,.7))">'+def.icon+'</span><div><div style="font-family:Share Tech Mono,monospace;font-size:7px;letter-spacing:5px;color:var(--gold)">ACHIEVEMENT UNLOCKED</div><div style="font-family:Orbitron,monospace;font-size:12px;font-weight:700;letter-spacing:2px;color:#fff;margin-top:4px">'+def.name+'</div><div style="font-family:Share Tech Mono,monospace;font-size:8px;letter-spacing:2px;color:var(--muted);margin-top:3px">'+def.desc+'</div></div>';
+  document.body.appendChild(t);
+  requestAnimationFrame(()=>{ t.style.transform='translateX(0)'; t.style.opacity='1'; });
+  setTimeout(()=>{ t.style.transform='translateX(-130%)'; t.style.opacity='0'; setTimeout(()=>t.remove(),500); },4500);
+  /* check meta achievements */
+  checkMetaAchievements();
   renderAchievements();
 }
 
+function checkMetaAchievements(){
+  const count=ACH_DEFS.filter(a=>isAchUnlocked(a.id)).length;
+  if(count>=10) unlockAchievement('half_set');
+  if(count>=ACH_DEFS.length-1) unlockAchievement('completionist');
+}
+
 function renderAchievements(){
-  const grid = document.getElementById('ach-grid');
-  const prog = document.getElementById('ach-progress');
+  const locked  = document.getElementById('ach-locked');
+  const content = document.getElementById('ach-content');
+  const grid    = document.getElementById('ach-grid');
+  const prog    = document.getElementById('ach-progress');
+  const user    = getCurrentUser();
+  if(!user){
+    if(locked)  locked.classList.add('show');
+    if(content) content.style.display='none';
+    return;
+  }
+  if(locked)  locked.classList.remove('show');
+  if(content) content.style.display='block';
   if(!grid) return;
-  const unlocked = ACH_DEFS.filter(a=>isAchUnlocked(a.id));
+  const total   = ACH_DEFS.length;
+  const unlocked= ACH_DEFS.filter(a=>isAchUnlocked(a.id));
+  const users   = _getUsers(); const uu=users.find(x=>x.id===user.id);
   grid.innerHTML = ACH_DEFS.map(a=>{
-    const u = isAchUnlocked(a.id);
-    const ts = u ? localStorage.getItem(ACH_PREFIX+a.id) : null;
-    const date = ts ? new Date(+ts).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}) : '';
-    return `<div class="ach-card${u?' unlocked':''}">
+    const u=!!(uu?.achievements?.[a.id]);
+    const ts=u?uu.achievements[a.id]:null;
+    const date=ts?new Date(+ts).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}):'';
+    return`<div class="ach-card${u?' unlocked':''}">
       <div class="ach-ico">${a.icon}</div>
       <div class="ach-info">
         <div class="ach-name">${a.name}</div>
         <div class="ach-desc">${a.desc}</div>
         ${u?`<div class="ach-date">&#9632; UNLOCKED ${date.toUpperCase()}</div>`:''}
       </div>
-      ${u?'':'<div class="ach-lock">&#128274;</div>'}
+      ${u?'':`<div class="ach-lock">&#128274;</div>`}
     </div>`;
   }).join('');
-  if(prog) prog.textContent = unlocked.length + ' / ' + ACH_DEFS.length + ' ACHIEVEMENTS UNLOCKED';
+  if(prog) prog.textContent=unlocked.length+' / '+total+' ACHIEVEMENTS UNLOCKED · '+user.displayName;
 }
 
-/* Achievement triggers on view switch */
-const _visitedViews = new Set();
+/* ── ACHIEVEMENT TRIGGERS ── */
+const _visitedViews=new Set();
 function trackViewAchievements(id){
   _visitedViews.add(id);
-  if(id==='news')     unlockAchievement('intel');
-  if(id==='join')     unlockAchievement('recruit');
-  if(id==='downloads'||id==='games') { /* downloader triggered on click */ }
+  if(id==='news')        unlockAchievement('intel');
+  if(id==='join')      { unlockAchievement('recruit'); }
   if(id==='achievements') renderAchievements();
-  /* speed run — 5 views in under 60s */
-  _achNavCount++;
-  clearTimeout(_achNavTimer);
-  if(_achNavCount >= 5) unlockAchievement('speedrun');
-  _achNavTimer = setTimeout(()=>{ _achNavCount=0; }, 60000);
-  /* explorer — all views visited */
+  _achNavCount++; clearTimeout(_achNavTimer);
+  if(_achNavCount>=5) unlockAchievement('speedrun');
+  _achNavTimer=setTimeout(()=>_achNavCount=0,60000);
   if(['home','about','games','downloads','news','join'].every(v=>_visitedViews.has(v)))
     unlockAchievement('explorer');
 }
 
-/* Download button click */
+/* Download tracking */
 document.querySelectorAll('.dl-btn-gh').forEach(btn=>{
-  btn.addEventListener('click',()=>unlockAchievement('downloader'),{once:true});
+  btn.addEventListener('click',()=>{
+    unlockAchievement('downloader');
+    _downloadCount++;
+    if(_downloadCount>=3) unlockAchievement('collector');
+  },{passive:true});
 });
 
-/* First visit */
-unlockAchievement('first_visit');
+/* Join form click */
+document.querySelector('.ach-locked-btn.primary')?.addEventListener('click',()=>unlockAchievement('applied'),{once:true,passive:true});
 
-/* Loyalty — visit count */
+/* Supporter — 10 min timer */
+_supporterTimer = setTimeout(()=>unlockAchievement('supporter'), 600000);
+
+/* Time-based */
 (function(){
-  const key='sx_visits';
-  const n = (+localStorage.getItem(key)||0)+1;
-  localStorage.setItem(key, n);
-  if(n>=3) unlockAchievement('loyal');
+  const h=new Date().getHours(), d=new Date().getDay();
+  if(h<5)                  unlockAchievement('night_owl');
+  if(h>=5&&h<8)            unlockAchievement('early_bird');
+  if(d===0||d===6)         unlockAchievement('weekend');
 })();
 
-/* Night owl */
-if(new Date().getHours()<5) unlockAchievement('night_owl');
+/* Visit count */
+(function(){
+  const k='sx_v_cnt'; const n=(+localStorage.getItem(k)||0)+1;
+  localStorage.setItem(k,n);
+  if(n>=3)  unlockAchievement('loyal');
+  if(n>=10) unlockAchievement('veteran');
+})();
+
+/* First visit (no login needed) */
+unlockAchievement('first_visit');
+
+/* Restore nav on page load */
+updateNavBar();
 
 /* ── VIEW SWITCHING ── */
 function switchView(id){
