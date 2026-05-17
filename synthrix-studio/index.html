@@ -291,6 +291,36 @@
     .footer-links a:hover{color:var(--orange)}
     .footer-copy{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(237,232,223,0.16)}
 
+    /* ── SECTION VIEWS (tab-based navigation) ── */
+    .sview{display:none;min-height:calc(100vh - 68px);position:relative;z-index:1}
+    .sview.active{display:block;animation:sviewIn .42s cubic-bezier(.4,0,.2,1)}
+    @keyframes sviewIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+    .nav-a.nav-active{color:var(--white)!important;background:rgba(245,166,35,0.12)!important}
+
+    /* ── DOWNLOADS SECTION ── */
+    #downloads{background:var(--bg2);padding:80px 100px}
+    .dl-table-wrap{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+    .dl-row{display:grid;grid-template-columns:56px 1fr auto auto auto;align-items:center;gap:20px;padding:18px 22px;background:rgba(255,255,255,0.03);border:1px solid var(--bord);border-radius:3px;position:relative;overflow:hidden;transition:border-color .3s,background .3s,transform .3s}
+    .dl-row:hover{border-color:var(--bordhi);background:rgba(245,166,35,0.04);transform:translateX(4px)}
+    .dl-row::before{content:'';position:absolute;top:0;left:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--orange),var(--gold));transform:scaleY(0);transform-origin:top;transition:transform .35s}
+    .dl-row:hover::before{transform:scaleY(1)}
+    .dl-row-coming{opacity:0.45;pointer-events:none}
+    .dl-thumb{width:56px;height:72px;border-radius:2px;object-fit:cover;object-position:top;flex-shrink:0}
+    .dl-thumb-placeholder{width:56px;height:72px;border-radius:2px;background:linear-gradient(135deg,#050a18,#081612);border:1px solid rgba(0,201,184,0.20);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+    .dl-info{min-width:0}
+    .dl-game-name{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;color:var(--white);margin-bottom:4px}
+    .dl-game-desc{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted)}
+    .dl-platform{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;padding:3px 10px;border-radius:2px;border:1px solid rgba(0,201,184,0.25);color:rgba(0,201,184,0.65);background:rgba(0,201,184,0.04);white-space:nowrap}
+    .dl-size{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted);white-space:nowrap;text-align:right}
+    .dl-btn-gh{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;padding:9px 18px;border-radius:2px;background:linear-gradient(135deg,var(--orange),var(--red));color:#fff;text-decoration:none;white-space:nowrap;border:none;cursor:pointer;transition:box-shadow .25s,transform .2s;box-shadow:0 0 14px rgba(232,58,10,0.28);position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:7px}
+    .dl-btn-gh::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);transform:translateX(-100%);transition:transform .5s}
+    .dl-btn-gh:hover{box-shadow:0 0 28px rgba(232,58,10,0.55);transform:translateY(-2px)}
+    .dl-btn-gh:hover::after{transform:translateX(100%)}
+    .dl-btn-itch{background:rgba(245,166,35,0.10);border:1px solid rgba(245,166,35,0.35);color:var(--gold);box-shadow:none}
+    .dl-btn-itch:hover{box-shadow:0 0 18px rgba(245,166,35,0.35)}
+    .dl-section-note{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(237,232,223,0.25);margin-top:20px;padding:14px 18px;border:1px solid rgba(245,166,35,0.10);border-radius:2px;line-height:1.9}
+    @media(max-width:900px){#downloads{padding:60px 24px}.dl-row{grid-template-columns:1fr auto;gap:12px}.dl-thumb,.dl-thumb-placeholder,.dl-platform,.dl-size{display:none}}
+
     /* ── REVEAL ── */
     .reveal{opacity:0;transform:translateY(32px) scale(.98);transition:opacity .75s cubic-bezier(.4,0,.2,1),transform .75s cubic-bezier(.4,0,.2,1)}
     .reveal.on{opacity:1;transform:none}
@@ -502,15 +532,19 @@
     <span class="logo-sub-txt">STUDIO</span>
   </a>
   <nav>
-    <a href="#about"  class="nav-a">ABOUT</a>
-    <a href="#games"  class="nav-a">GAMES</a>
-    <a href="#news"   class="nav-a">NEWS</a>
-    <a href="#join"   class="nav-a">JOIN TEAM</a>
+    <a href="#home"      class="nav-a" data-view="home">HOME</a>
+    <a href="#about"     class="nav-a" data-view="about">ABOUT</a>
+    <a href="#games"     class="nav-a" data-view="games">GAMES</a>
+    <a href="#downloads" class="nav-a" data-view="downloads">DOWNLOADS</a>
+    <a href="#news"      class="nav-a" data-view="news">NEWS</a>
+    <a href="#join"      class="nav-a" data-view="join">JOIN TEAM</a>
     <a href="../index.html" class="nav-a" style="color:rgba(0,201,184,0.50);">GAME LAB &#8599;</a>
-    <a href="#join"   class="nav-cta">&#9654; APPLY NOW</a>
+    <a href="#join" class="nav-cta" data-view="join">&#9654; APPLY NOW</a>
   </nav>
 </header>
 
+<!-- ═══════ VIEW: HOME ═══════ -->
+<div id="v-home" class="sview active">
 <!-- ═══════ HERO ═══════ -->
 <section class="hero" id="home">
   <canvas id="hero-canvas"></canvas>
@@ -564,6 +598,10 @@
   <div class="stat-item reveal"><div class="stat-num">BD</div><div class="stat-label">MADE IN BANGLADESH</div></div>
 </div>
 
+</div><!-- end v-home -->
+
+<!-- ═══════ VIEW: ABOUT ═══════ -->
+<div id="v-about" class="sview">
 <!-- ═══════ ABOUT ═══════ -->
 <section id="about">
   <div class="sec-tag">FOUNDER PROFILE</div>
@@ -608,6 +646,10 @@
   </div>
 </section>
 
+</section></div><!-- end v-about -->
+
+<!-- ═══════ VIEW: GAMES ═══════ -->
+<div id="v-games" class="sview">
 <!-- ═══════ GAMES ═══════ -->
 <section id="games">
   <div class="sec-tag">GAME LIBRARY</div>
@@ -698,6 +740,99 @@
   </div>
 </section>
 
+</section></div><!-- end v-games -->
+
+<!-- ═══════ VIEW: DOWNLOADS ═══════ -->
+<div id="v-downloads" class="sview">
+<section id="downloads">
+  <div class="sec-tag">FREE DOWNLOADS</div>
+  <h2 class="sec-h2 reveal">GET THE <span style="color:var(--orange)">GAMES</span></h2>
+
+  <div class="dl-table-wrap">
+
+    <!-- Escape the Bridge -->
+    <div class="dl-row reveal">
+      <img class="dl-thumb" src="https://img.itch.zone/aW1nLzIyOTExMzU0LnBuZw==/347x500/EotLYN.png" alt="Escape the Bridge" loading="lazy">
+      <div class="dl-info">
+        <div class="dl-game-name">ESCAPE THE BRIDGE</div>
+        <div class="dl-game-desc">ZOMBIE SURVIVAL &nbsp;·&nbsp; UNITY &nbsp;·&nbsp; FIRST PERSON</div>
+      </div>
+      <div class="dl-platform">&#8862; WINDOWS</div>
+      <div class="dl-size">1,004 MB</div>
+      <a class="dl-btn-gh" href="https://github.com/tamanpro26/synthrix-game-releases/releases/download/v1.0/ESCAPE-THE-BRIDGE-Zombie-Survival.exe">&#11015; DOWNLOAD</a>
+    </div>
+
+    <!-- BOOM -->
+    <div class="dl-row reveal">
+      <img class="dl-thumb" src="https://img.itch.zone/aW1nLzIzNTU4NjkyLnBuZw==/347x500/ggCuYf.png" alt="BOOM" loading="lazy">
+      <div class="dl-info">
+        <div class="dl-game-name">BOOM</div>
+        <div class="dl-game-desc">FPS ACTION &nbsp;·&nbsp; UNITY &nbsp;·&nbsp; HORROR</div>
+      </div>
+      <div class="dl-platform">&#8862; WINDOWS</div>
+      <div class="dl-size">194 MB</div>
+      <a class="dl-btn-gh dl-btn-itch" href="https://synthrix-studio.itch.io/boom101" target="_blank" rel="noopener">&#11015; GET FREE</a>
+    </div>
+
+    <!-- OVERDRIVE -->
+    <div class="dl-row reveal">
+      <img class="dl-thumb" src="https://img.itch.zone/aW1nLzIzNDYxNTI3LmpwZw==/original/NLTnuO.jpg" alt="OVERDRIVE" loading="lazy">
+      <div class="dl-info">
+        <div class="dl-game-name">OVERDRIVE</div>
+        <div class="dl-game-desc">ARCADE SPEED &nbsp;·&nbsp; UNITY &nbsp;·&nbsp; ACTION</div>
+      </div>
+      <div class="dl-platform">&#8862; WINDOWS</div>
+      <div class="dl-size">435 MB</div>
+      <a class="dl-btn-gh" href="https://github.com/tamanpro26/synthrix-game-releases/releases/download/v1.0/OVERDRIVE.zip">&#11015; DOWNLOAD</a>
+    </div>
+
+    <!-- SYNTHPAD 2.0 -->
+    <div class="dl-row reveal">
+      <img class="dl-thumb" src="https://img.itch.zone/aW1hZ2UvNDQwMjE5MC8yNjI0NjA1MS5wbmc=/794x1000/wMU1zn.png" alt="SYNTHPAD 2.0" loading="lazy">
+      <div class="dl-info">
+        <div class="dl-game-name">SYNTHPAD 2.0</div>
+        <div class="dl-game-desc">DEV TOOL &nbsp;·&nbsp; NOTEPAD &nbsp;·&nbsp; PORTABLE</div>
+      </div>
+      <div class="dl-platform">&#8862; WINDOWS</div>
+      <div class="dl-size">36 MB</div>
+      <a class="dl-btn-gh" href="https://github.com/tamanpro26/synthrix-game-releases/releases/download/v1.0/SYNTHPAD-2.0.exe">&#11015; DOWNLOAD</a>
+    </div>
+
+    <!-- SYNTHPAD 2.1 -->
+    <div class="dl-row reveal">
+      <img class="dl-thumb" src="https://img.itch.zone/aW1hZ2UvNDQwMjE5MC8yNjI0NjA1MS5wbmc=/794x1000/wMU1zn.png" alt="SYNTHPAD 2.1" loading="lazy">
+      <div class="dl-info">
+        <div class="dl-game-name">SYNTHPAD 2.1</div>
+        <div class="dl-game-desc">DEV TOOL &nbsp;·&nbsp; INSTALLER &nbsp;·&nbsp; UPDATED</div>
+      </div>
+      <div class="dl-platform">&#8862; WINDOWS</div>
+      <div class="dl-size">63 MB</div>
+      <a class="dl-btn-gh" href="https://github.com/tamanpro26/synthrix-game-releases/releases/download/v1.0/SYNTHPAD-2.1-Setup.exe">&#11015; DOWNLOAD</a>
+    </div>
+
+    <!-- RLP — Coming Soon -->
+    <div class="dl-row dl-row-coming reveal">
+      <div class="dl-thumb-placeholder">&#9650;</div>
+      <div class="dl-info">
+        <div class="dl-game-name">RHINO'S LAST PROTOCOL</div>
+        <div class="dl-game-desc">SCI-FI SHOOTER &nbsp;·&nbsp; UNREAL ENGINE &nbsp;·&nbsp; IN DEVELOPMENT</div>
+      </div>
+      <div class="dl-platform">&#8862; WINDOWS</div>
+      <div class="dl-size">TBA</div>
+      <span class="dl-btn-gh" style="background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.20);color:rgba(245,166,35,0.45);box-shadow:none;cursor:not-allowed">COMING SOON</span>
+    </div>
+
+  </div>
+
+  <div class="dl-section-note">
+    &#9632; ALL GAMES ARE FREE &nbsp;&middot;&nbsp; WINDOWS ONLY &nbsp;&middot;&nbsp; FILES HOSTED ON GITHUB RELEASES &nbsp;&middot;&nbsp; SYNTHRIX STUDIO · BANGLADESH · EST. 2025<br>
+    &#9632; IF WINDOWS DEFENDER WARNS YOU — CLICK "MORE INFO" &#8594; "RUN ANYWAY" &nbsp;&middot;&nbsp; INDIE BUILDS TRIGGER SMARTSCREEN
+  </div>
+</section>
+</div><!-- end v-downloads -->
+
+<!-- ═══════ VIEW: NEWS ═══════ -->
+<div id="v-news" class="sview">
 <!-- ═══════ NEWS ═══════ -->
 <section id="news">
   <div class="sec-tag">LATEST NEWS</div>
@@ -805,6 +940,10 @@
 
 </section>
 
+</section></div><!-- end v-news -->
+
+<!-- ═══════ VIEW: JOIN TEAM ═══════ -->
+<div id="v-join" class="sview">
 <!-- ═══════ JOIN TEAM ═══════ -->
 <section id="join">
   <div class="sec-tag">RECRUITMENT</div>
@@ -867,6 +1006,8 @@
 
   </div>
 </section>
+
+</section></div><!-- end v-join -->
 
 <!-- ═══════ FOOTER ═══════ -->
 <footer>
@@ -1105,6 +1246,34 @@ document.querySelectorAll('.btn-s,.gc-rb,.gc-arr,.fsub,.nav-cta').forEach(btn =>
     });
   }, {threshold:.5});
   headings.forEach(h => { obs.observe(h); h.addEventListener('mouseenter', () => doGlitch(h)); });
+})();
+
+/* ── VIEW SWITCHING ── */
+function switchView(id){
+  document.querySelectorAll('.sview').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-a[data-view]').forEach(a=>a.classList.remove('nav-active'));
+  const view = document.getElementById('v-'+id);
+  const link = document.querySelector('.nav-a[data-view="'+id+'"]');
+  if(view){ view.classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
+  if(link){ link.classList.add('nav-active'); }
+  revealCheck();
+  history.pushState(null,'','#'+id);
+}
+
+/* wire nav links */
+document.querySelectorAll('.nav-a[data-view],.nav-cta[data-view]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    e.preventDefault();
+    switchView(a.dataset.view);
+  });
+});
+
+/* handle page load with hash */
+(function(){
+  const hash = location.hash.replace('#','');
+  const validViews = ['home','about','games','downloads','news','join'];
+  if(hash && validViews.includes(hash)) switchView(hash);
+  else switchView('home');
 })();
 
 /* ── TIME-OF-DAY THEME ── */
