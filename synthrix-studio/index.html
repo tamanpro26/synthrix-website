@@ -512,6 +512,35 @@
     .rl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
     @media(max-width:900px){.roster-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}}
 
+    /* ── HOW WE WORK SECTION ── */
+    .hww-intro{color:rgba(237,232,223,0.62);font-size:16px;line-height:2;letter-spacing:.3px;margin-bottom:48px;max-width:760px}
+    .hww-intro strong{color:var(--orange);font-weight:600}
+    .hww-units{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:48px}
+    .hww-unit{background:rgba(255,255,255,0.025);border:1px solid var(--bord);border-radius:3px;padding:26px 28px;position:relative;overflow:hidden;transition:border-color .3s,background .3s,transform .3s}
+    .hww-unit:hover{border-color:var(--bordhi);background:rgba(245,166,35,0.04);transform:translateY(-3px)}
+    .hww-unit::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;transform:scaleX(0);transform-origin:left;transition:transform .4s}
+    .hww-unit:hover::before{transform:scaleX(1)}
+    .hww-unit:nth-child(1)::before{background:linear-gradient(90deg,var(--teal),var(--gold))}
+    .hww-unit:nth-child(2)::before{background:linear-gradient(90deg,var(--orange),var(--gold))}
+    .hww-unit:nth-child(3)::before{background:linear-gradient(90deg,rgba(59,130,246,0.9),var(--teal))}
+    .hww-unit:nth-child(4)::before{background:linear-gradient(90deg,rgba(139,92,246,0.9),var(--orange))}
+    .hww-unit-ico{font-size:26px;margin-bottom:12px}
+    .hww-unit-name{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:900;letter-spacing:2px;color:var(--white);margin-bottom:8px}
+    .hww-unit-sub{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--orange);margin-bottom:12px}
+    .hww-unit-desc{font-size:14px;color:rgba(237,232,223,0.55);line-height:1.9;letter-spacing:.2px}
+    .hww-unit-desc strong{color:var(--gold);font-weight:600}
+    /* philosophy */
+    .hww-philosophy{margin-bottom:48px}
+    .hww-phil-grid{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+    .hww-phil-row{display:flex;align-items:flex-start;gap:16px;padding:18px 22px;background:rgba(255,255,255,0.02);border:1px solid var(--bord);border-radius:3px;transition:border-color .3s,background .3s}
+    .hww-phil-row:hover{border-color:rgba(0,201,184,0.30);background:rgba(0,201,184,0.03)}
+    .hww-phil-ico{font-size:20px;flex-shrink:0;margin-top:2px}
+    .hww-phil-title{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--teal);margin-bottom:6px}
+    .hww-phil-text{font-size:14px;color:rgba(237,232,223,0.55);line-height:1.85}
+    .hww-phil-text strong{color:var(--white)}
+    .hww-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(245,166,35,0.20),transparent);margin:48px 0}
+    @media(max-width:900px){.hww-units{grid-template-columns:1fr}}
+
     /* ── NEWS / COLLAB SECTION ── */
     #news{background:var(--bg3);border-top:1px solid var(--bord)}
     #news::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--orange),var(--gold),var(--teal),transparent)}
@@ -1399,6 +1428,92 @@
 <section id="join">
   <div class="sec-tag">RECRUITMENT</div>
   <h2 class="sec-h2 reveal">JOIN THE <span style="color:var(--orange)">TEAM</span></h2>
+
+  <!-- ── HOW SYNTHRIX WORKS ── -->
+  <div class="reveal">
+    <div style="display:inline-flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:5px;color:var(--orange);border:1px solid rgba(255,107,53,0.32);padding:5px 16px;border-radius:2px;margin-bottom:20px">
+      <span style="color:rgba(255,107,53,0.40)">//</span> HOW SYNTHRIX STUDIOS WORKS
+    </div>
+    <p class="hww-intro">
+      Welcome to <strong>SYNTHRIX Studios</strong>. Founded in Bangladesh, we are an independent game development studio dedicated to building dark, gritty, atmospheric sci-fi worlds with relentless combat and deep, memorable narratives.<br><br>
+      We don't just follow industry trends — we build games with a <strong>distinct identity</strong>. Here is a breakdown of our ecosystem, operational framework, and how our specialized units collaborate to bring flagship titles like <strong>Rhino's Last Protocol</strong> to life.
+    </p>
+
+    <!-- Operational Units -->
+    <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:rgba(245,166,35,0.50);margin-bottom:16px">// OUR OPERATIONAL STRUCTURE</div>
+    <div class="hww-units">
+
+      <div class="hww-unit">
+        <div class="hww-unit-ico">💻</div>
+        <div class="hww-unit-name">CORE DEVELOPMENT UNIT</div>
+        <div class="hww-unit-sub">TECHNICAL BACKBONE</div>
+        <div class="hww-unit-desc">The technical backbone of our studio. Handles <strong>engine architecture</strong> (Unity URP/HDRP), writes clean C# scripting, optimizes graphics workflows for various hardware scales, and programs core gameplay mechanics.</div>
+      </div>
+
+      <div class="hww-unit">
+        <div class="hww-unit-ico">🎨</div>
+        <div class="hww-unit-name">DESIGN &amp; CONCEPT UNIT</div>
+        <div class="hww-unit-sub">ATMOSPHERE CREATORS</div>
+        <div class="hww-unit-desc">The creators of our games' unique atmosphere. Responsible for <strong>Game Design Documentation (GDD)</strong>, level blockouts (greyboxing), environmental lighting setups, and scripting environmental storytelling.</div>
+      </div>
+
+      <div class="hww-unit">
+        <div class="hww-unit-ico">🛠️</div>
+        <div class="hww-unit-name">WEB &amp; SYSTEMS UNIT</div>
+        <div class="hww-unit-sub">VANGUARD CORE · DIGITAL INFRASTRUCTURE</div>
+        <div class="hww-unit-desc">The engineers behind our digital infrastructure. Builds and optimizes <strong>official web portals</strong>, manages backend player databases, deploys gamified user dashboards, and runs technical SEO to secure our global footprint.</div>
+      </div>
+
+      <div class="hww-unit">
+        <div class="hww-unit-ico">🚀</div>
+        <div class="hww-unit-name">VANGUARD SPECIALIST UNIT</div>
+        <div class="hww-unit-sub">LAUNCHING JULY 2026 · EXPANSION WING</div>
+        <div class="hww-unit-desc">Our frontline expansion wing. Focuses on <strong>rapid prototyping</strong>, navigating the mobile gaming market, and onboarding &amp; training raw talent to integrate them seamlessly into professional development pipelines.</div>
+      </div>
+
+    </div>
+
+    <!-- Development Philosophy -->
+    <div class="hww-philosophy">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:rgba(245,166,35,0.50);margin-bottom:16px">// OUR DEVELOPMENT PHILOSOPHY</div>
+      <div class="hww-phil-grid">
+
+        <div class="hww-phil-row">
+          <div class="hww-phil-ico">⚙️</div>
+          <div>
+            <div class="hww-phil-title">PRACTICAL EXECUTION OVER ROTE LEARNING</div>
+            <div class="hww-phil-text">We value <strong>hands-on technical experimentation</strong>, logical problem-solving, and a strong personal creative vision above traditional, rigid textbooks.</div>
+          </div>
+        </div>
+
+        <div class="hww-phil-row">
+          <div class="hww-phil-ico">🎧</div>
+          <div>
+            <div class="hww-phil-title">IMMERSIVE AUDIO-VISUALS</div>
+            <div class="hww-phil-text">Every project features a tailored atmosphere where <strong>gritty custom sound design</strong> and atmospheric soundtracks are integrated tightly with the visuals to boost immersion by 200%.</div>
+          </div>
+        </div>
+
+        <div class="hww-phil-row">
+          <div class="hww-phil-ico">🤝</div>
+          <div>
+            <div class="hww-phil-title">TRUE CREATIVE INFLUENCE</div>
+            <div class="hww-phil-text">We operate in a highly <strong>collaborative ecosystem</strong>. Every developer, artist, and designer has a direct voice in shaping our game worlds from the ground up — no restrictive corporate hierarchy.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;letter-spacing:3px;color:rgba(237,232,223,0.45);padding:22px 26px;border:1px solid rgba(245,166,35,0.18);border-radius:3px;background:rgba(245,166,35,0.04);margin-bottom:0;text-align:center">
+      Whether we are developing utility software like <span style="color:var(--teal)">SYNTHPAD</span> or high-octane shooters —<br>
+      our goal remains unchanged: <span style="color:var(--orange)">To build something unforgettable.</span>
+    </div>
+
+  </div>
+
+  <div class="hww-divider"></div>
+
   <div class="join-grid">
 
     <div class="reveal-left">
