@@ -385,6 +385,28 @@
     .fnote{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(237,232,223,0.20);margin-top:4px}
     #fsuccess{display:none;padding:18px 22px;background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.32);border-radius:2px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;color:rgba(34,197,94,0.80)}
 
+    /* ── DIMENSIONAL PORTAL BUTTON ── */
+    .portal-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;position:relative;overflow:hidden;border:1px solid var(--bord);border-radius:3px;background:radial-gradient(ellipse at center,rgba(255,107,53,0.07) 0%,transparent 70%),linear-gradient(135deg,#050300,#080512,#050300)}
+    .portal-ring{position:absolute;border-radius:50%;border:1px solid rgba(255,107,53,0.12);pointer-events:none;top:50%;left:50%;transform:translate(-50%,-50%)}
+    .portal-ring:nth-child(1){width:280px;height:280px;animation:pRing 4s ease-in-out infinite}
+    .portal-ring:nth-child(2){width:400px;height:400px;border-color:rgba(245,166,35,0.07);animation:pRing 6s ease-in-out infinite reverse;animation-delay:-2s}
+    .portal-ring:nth-child(3){width:530px;height:530px;border-color:rgba(0,201,184,0.05);animation:pRing 9s ease-in-out infinite;animation-delay:-4s}
+    @keyframes pRing{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.55}50%{transform:translate(-50%,-50%) scale(1.07);opacity:1}}
+    .portal-btn{position:relative;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;width:210px;height:210px;border-radius:50%;border:2px solid rgba(255,107,53,0.55);background:radial-gradient(ellipse at center,rgba(255,107,53,0.18) 0%,rgba(232,58,10,0.08) 55%,transparent 100%);cursor:none;text-decoration:none;transition:transform .45s cubic-bezier(.2,.9,.4,1),box-shadow .45s,border-color .3s;box-shadow:0 0 45px rgba(232,58,10,0.30),0 0 90px rgba(255,107,53,0.12),inset 0 0 40px rgba(232,58,10,0.08)}
+    .portal-btn:hover{transform:scale(1.14);border-color:var(--orange);box-shadow:0 0 80px rgba(232,58,10,0.65),0 0 160px rgba(255,107,53,0.28),0 0 240px rgba(245,166,35,0.14),inset 0 0 70px rgba(232,58,10,0.22)}
+    .portal-btn:active{transform:scale(0.94)}
+    .portal-core{position:absolute;width:90px;height:90px;border-radius:50%;background:radial-gradient(ellipse,rgba(255,107,53,0.55) 0%,rgba(232,58,10,0.22) 50%,transparent 70%);animation:pCore 2.5s ease-in-out infinite alternate;pointer-events:none}
+    @keyframes pCore{from{transform:scale(0.88);opacity:.65}to{transform:scale(1.18);opacity:1}}
+    .portal-spin{position:absolute;width:170px;height:170px;border-radius:50%;border:1px dashed rgba(245,166,35,0.22);animation:pSpin 9s linear infinite;pointer-events:none}
+    .portal-spin.r2{width:140px;height:140px;border-color:rgba(0,201,184,0.16);animation-direction:reverse;animation-duration:5.5s}
+    @keyframes pSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+    .portal-icon{font-size:34px;position:relative;z-index:2;filter:drop-shadow(0 0 14px rgba(255,107,53,0.85));animation:pCore 2s ease-in-out infinite alternate}
+    .portal-label{font-family:'Orbitron',monospace;font-size:11px;font-weight:900;letter-spacing:4px;color:#fff;position:relative;z-index:2;text-align:center;line-height:1.4;text-shadow:0 0 24px rgba(255,107,53,0.80)}
+    .portal-sub{font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:3.5px;color:rgba(245,166,35,0.65);position:relative;z-index:2;text-align:center}
+    .portal-warn{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:rgba(237,232,223,0.20);margin-top:26px;text-align:center;position:relative;z-index:5;line-height:2}
+    .portal-warn span{color:rgba(255,107,53,0.50)}
+    .portal-header{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:rgba(245,166,35,0.45);margin-bottom:20px;position:relative;z-index:5}
+
     /* ── FOOTER ── */
     footer{background:rgba(4,3,2,0.98);border-top:1px solid var(--bord);padding:50px 100px 40px;position:relative;z-index:1;overflow:hidden}
     .footer-wm{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-family:'Orbitron',sans-serif;font-size:clamp(55px,11vw,130px);font-weight:900;letter-spacing:6px;white-space:nowrap;color:transparent;-webkit-text-stroke:1px rgba(245,166,35,0.06);user-select:none;pointer-events:none;line-height:1}
@@ -1389,22 +1411,37 @@
       </div>
     </div>
 
-    <div class="reveal-right" style="position:relative">
-      <div style="background:rgba(255,255,255,0.02);border:1px solid var(--bord);border-radius:3px;overflow:hidden;position:relative">
-        <div style="height:2px;background:linear-gradient(90deg,var(--orange),var(--gold),var(--teal))"></div>
-        <div style="padding:18px 20px 0;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:rgba(245,166,35,0.50)">// OFFICIAL APPLICATION FORM</div>
-        <iframe
-          src="https://docs.google.com/forms/d/e/1FAIpQLScbSpOStoarYPRmn27JRwymNxkTeTMCzcM3heHkUdPlLjep1A/viewform?embedded=true"
-          width="100%"
-          height="680"
-          frameborder="0"
-          marginheight="0"
-          marginwidth="0"
-          style="display:block;filter:invert(1) hue-rotate(180deg) brightness(0.88)"
-          title="SYNTHRIX Team Application Form"
-          loading="lazy">
-          Loading form…
-        </iframe>
+    <div class="reveal-right">
+      <div class="portal-wrap">
+        <!-- ambient rings -->
+        <div class="portal-ring"></div>
+        <div class="portal-ring"></div>
+        <div class="portal-ring"></div>
+
+        <div class="portal-header">// RECRUITMENT PORTAL</div>
+
+        <!-- THE GIANT BUTTON -->
+        <a class="portal-btn"
+           href="https://docs.google.com/forms/d/e/1FAIpQLScbSpOStoarYPRmn27JRwymNxkTeTMCzcM3heHkUdPlLjep1A/viewform?usp=dialog"
+           target="_blank"
+           rel="noopener"
+           title="Apply to join SYNTHRIX Studio">
+          <!-- inner spinning rings -->
+          <div class="portal-spin"></div>
+          <div class="portal-spin r2"></div>
+          <!-- glowing core -->
+          <div class="portal-core"></div>
+          <!-- content -->
+          <div class="portal-icon">&#9654;</div>
+          <div class="portal-label">APPLY<br>NOW</div>
+          <div class="portal-sub">ENTER THE VOID</div>
+        </a>
+
+        <div class="portal-warn">
+          WARNING — YOU ARE ABOUT TO ENTER<br>
+          <span>&#9632; THE SYNTHRIX RECRUITMENT DIMENSION &#9632;</span><br>
+          THERE IS NO GOING BACK
+        </div>
       </div>
     </div>
 
