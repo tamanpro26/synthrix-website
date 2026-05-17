@@ -421,6 +421,8 @@
     /* ── SECTION VIEWS (tab-based navigation) ── */
     .sview{display:none;min-height:calc(100vh - 68px);position:relative;z-index:1}
     .sview.active{display:block;animation:sviewIn .42s cubic-bezier(.4,0,.2,1)}
+    /* keep content readable by search engines even when hidden */
+    .sview:not(.active){position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
     @keyframes sviewIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
     .nav-a.nav-active{color:var(--white)!important;background:rgba(245,166,35,0.12)!important}
 
