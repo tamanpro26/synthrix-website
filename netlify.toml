@@ -1,0 +1,94 @@
+# ══════════════════════════════════════════════
+#  SYNTHRIX STUDIO — Netlify Deployment Config
+# ══════════════════════════════════════════════
+
+[build]
+  publish = "."
+
+# ── Security headers (all pages) ──────────────
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options        = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy        = "strict-origin-when-cross-origin"
+    Permissions-Policy     = "camera=(), microphone=(), geolocation=()"
+
+# ── HTML — always fresh ────────────────────────
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# ── Static assets — 1 week cache ──────────────
+[[headers]]
+  for = "*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, immutable"
+
+[[headers]]
+  for = "*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, immutable"
+
+[[headers]]
+  for = "*.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, immutable"
+
+# ── Audio — 1 week cache ──────────────────────
+[[headers]]
+  for = "*.mp3"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+# ── Video — 1 week cache ──────────────────────
+[[headers]]
+  for = "*.mp4"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+# ── Force download for game installers ────────
+[[headers]]
+  for = "*.exe"
+  [headers.values]
+    Content-Disposition = "attachment"
+    Cache-Control       = "public, max-age=86400"
+
+[[headers]]
+  for = "*.zip"
+  [headers.values]
+    Content-Disposition = "attachment"
+    Cache-Control       = "public, max-age=86400"
+
+# ── Clean URLs (optional) ─────────────────────
+[[redirects]]
+  from   = "/studio"
+  to     = "/synthrix-studio/index.html"
+  status = 200
+
+[[redirects]]
+  from   = "/games/etb"
+  to     = "/games/escape-the-bridge/index.html"
+  status = 200
+
+[[redirects]]
+  from   = "/games/boom"
+  to     = "/games/boom/index.html"
+  status = 200
+
+[[redirects]]
+  from   = "/games/overdrive"
+  to     = "/games/overdrive/index.html"
+  status = 200
+
+[[redirects]]
+  from   = "/games/synthpad"
+  to     = "/games/synthpad-2/index.html"
+  status = 200
+
+# ── 404 fallback ──────────────────────────────
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 404

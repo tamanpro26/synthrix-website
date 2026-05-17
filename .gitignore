@@ -1,0 +1,17 @@
+# Large game binaries — hosted on GitHub Releases instead
+*.exe
+*.zip
+
+# Video (large)
+website.mp4
+
+# Unused
+f2.jpg
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/

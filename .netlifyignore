@@ -1,0 +1,13 @@
+# ══════════════════════════════════════════════
+#  Files excluded from Netlify deployment
+#  Host these on Google Drive / MEGA / itch.io
+# ══════════════════════════════════════════════
+
+# Too large for free tier (1004 MB) — use itch.io link instead
+ESCAPE THE BRIDGE Zombie survival.exe
+
+# Too large for free tier (435 MB) — use itch.io link instead
+OVERDRIVE.zip
+
+# Unused in any page
+f2.jpg
