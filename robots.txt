@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Block system files
+Disallow: /.git/
+Disallow: /.netlifyignore
+Disallow: /netlify.toml
+
+Sitemap: https://synthrix-studio.netlify.app/sitemap.xml

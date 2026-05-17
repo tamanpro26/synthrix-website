@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <!-- Main Game Lab -->
+  <url>
+    <loc>https://synthrix-studio.netlify.app/</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://img.itch.zone/aW1nLzIyOTExMzU0LnBuZw==/347x500/EotLYN.png</image:loc>
+      <image:title>SYNTHRIX Studio — Game Lab</image:title>
+    </image:image>
+  </url>
+
+  <!-- Studio Page -->
+  <url>
+    <loc>https://synthrix-studio.netlify.app/synthrix-studio/</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+
+  <!-- Escape the Bridge -->
+  <url>
+    <loc>https://synthrix-studio.netlify.app/games/escape-the-bridge/</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+    <image:image>
+      <image:loc>https://img.itch.zone/aW1nLzIyOTExMzU0LnBuZw==/347x500/EotLYN.png</image:loc>
+      <image:title>Escape the Bridge — Zombie Survival Game</image:title>
+    </image:image>
+  </url>
+
+  <!-- BOOM -->
+  <url>
+    <loc>https://synthrix-studio.netlify.app/games/boom/</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+    <image:image>
+      <image:loc>https://img.itch.zone/aW1nLzIzNTU4NjkyLnBuZw==/347x500/ggCuYf.png</image:loc>
+      <image:title>BOOM — Free FPS Horror Game</image:title>
+    </image:image>
+  </url>
+
+  <!-- OVERDRIVE -->
+  <url>
+    <loc>https://synthrix-studio.netlify.app/games/overdrive/</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+    <image:image>
+      <image:loc>https://img.itch.zone/aW1nLzIzNDYxNTI3LmpwZw==/original/NLTnuO.jpg</image:loc>
+      <image:title>OVERDRIVE — Free Arcade Speed Game</image:title>
+    </image:image>
+  </url>
+
+  <!-- SYNTHPAD 2 -->
+  <url>
+    <loc>https://synthrix-studio.netlify.app/games/synthpad-2/</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <image:image>
+      <image:loc>https://img.itch.zone/aW1hZ2UvNDQwMjE5MC8yNjI0NjA1MS5wbmc=/794x1000/wMU1zn.png</image:loc>
+      <image:title>SYNTHPAD 2.0 — Free Developer Notepad</image:title>
+    </image:image>
+  </url>
+
+  <!-- SYNTHRIX Test Engine -->
+  <url>
+    <loc>https://synthrix-studio.netlify.app/games/synthrix-test-engine/</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.70</priority>
+  </url>
+
+</urlset>
