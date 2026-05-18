@@ -1,6 +1,8 @@
 User-agent: *
 Allow: /
 
+# Internal admin — block all crawlers
+Disallow: /synthrix-studio/internal/
 Disallow: /.git/
 Disallow: /.netlifyignore
 Disallow: /netlify.toml
