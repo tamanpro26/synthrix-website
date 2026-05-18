@@ -272,10 +272,21 @@
     .gcard::before{content:'';position:absolute;inset:0;border-radius:3px;background:radial-gradient(circle at var(--mx) var(--my),rgba(255,255,255,0.055) 0%,transparent 65%);pointer-events:none;z-index:11;opacity:0;transition:opacity .3s}
     .gcard:hover::before{opacity:1}
 
-    /* ── BLUR-TO-SHARP COVER REVEAL ── */
-    .gc-img img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block;filter:brightness(.75) saturate(1.2) blur(10px);transition:transform .7s cubic-bezier(.4,0,.2,1),filter .9s cubic-bezier(.4,0,.2,1)}
-    .gcard.on .gc-img img{filter:brightness(.75) saturate(1.2) blur(0)}
-    .gcard:hover .gc-img img{transform:scale(1.07);filter:brightness(.88) saturate(1.4) blur(0)}
+    /* ── CLIP-PATH SHUTTER REVEAL ── */
+    .gc-img img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block;
+      clip-path:inset(0 100% 0 0);
+      transform:scale(1.12);
+      filter:brightness(.55) saturate(1.1);
+      transition:clip-path .75s cubic-bezier(.4,0,.2,1),transform .75s cubic-bezier(.4,0,.2,1),filter .55s cubic-bezier(.4,0,.2,1);
+      will-change:clip-path,transform}
+    .gcard.on .gc-img img{clip-path:inset(0 0% 0 0);transform:scale(1.0);filter:brightness(.75) saturate(1.2)}
+    .gcard:hover .gc-img img{clip-path:inset(0 0% 0 0)!important;transform:scale(1.07)!important;filter:brightness(.88) saturate(1.4)!important}
+    /* stagger each card's wipe */
+    .g-grid .gcard:nth-child(1) .gc-img img{transition-delay:.0s}
+    .g-grid .gcard:nth-child(2) .gc-img img{transition-delay:.12s}
+    .g-grid .gcard:nth-child(3) .gc-img img{transition-delay:.24s}
+    .g-grid .gcard:nth-child(4) .gc-img img{transition-delay:.36s}
+    .g-grid .gcard:nth-child(5) .gc-img img{transition-delay:.48s}
 
     /* ── STATS STRIP ── */
     .stats-strip{background:var(--bg2);border-top:1px solid var(--bord);border-bottom:1px solid var(--bord);display:grid;grid-template-columns:repeat(4,1fr)}
@@ -2159,40 +2170,10 @@ document.querySelectorAll('.nav-a[data-view],.nav-cta[data-view]').forEach(a=>{
   if (badge) badge.textContent = label + ' · ' + hh + ':' + mm;
 })();
 
-/* ── CINEMATIC ZOOM on game card clicks ── */
-(function(){
-  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function cinematicZoom(href, imgEl){
-    if (prefersReduced || !imgEl){ window.location.href = href; return; }
-    const r = imgEl.getBoundingClientRect();
-    const clone = new Image();
-    clone.src = imgEl.currentSrc || imgEl.src;
-    clone.className = 'cz-clone';
-    Object.assign(clone.style,{top:r.top+'px',left:r.left+'px',width:r.width+'px',height:r.height+'px'});
-    document.body.appendChild(clone);
-    const ov = document.createElement('div'); ov.className = 'cz-overlay'; document.body.appendChild(ov);
-    const flash = document.createElement('div'); flash.className = 'cz-flash'; document.body.appendChild(flash);
-    requestAnimationFrame(() => {
-      ov.style.opacity = '0.95';
-      clone.style.top = '-12vh'; clone.style.left = '-8vw';
-      clone.style.width = '116vw'; clone.style.height = '124vh';
-      clone.style.filter = 'brightness(1.35) saturate(1.65) blur(8px) contrast(1.15)';
-      clone.style.transform = 'scale(1.08)';
-    });
-    setTimeout(() => { window.location.href = href; }, 940);
-  }
-  document.querySelectorAll('.gcard .gc-arr, .gcard .gc-rb, .gcard .gc-link').forEach(a => {
-    a.addEventListener('click', e => {
-      const card = a.closest('.gcard');
-      if (!card) return;
-      const img = card.querySelector('.gc-img img');
-      const href = a.getAttribute('href');
-      if (!img || !href || href.startsWith('#') || href.startsWith('javascript:')) return;
-      e.preventDefault();
-      cinematicZoom(href, img);
-    }, true);
-  });
-})();
+/* clean up any leftover cz-clone/overlay on back-navigation (bfcache) */
+window.addEventListener('pageshow', () => {
+  document.querySelectorAll('.cz-clone,.cz-overlay,.cz-flash').forEach(el => el.remove());
+});
 
 /* ── CINEMATIC IDLE MODE ── */
 (function(){
