@@ -1454,6 +1454,75 @@
     body.dark .card-cover-status { background:rgba(11,11,15,0.82); }
     body.dark .float-scene { background:#080612; }
 
+    /* ══════════════════════════════════════════════
+       NEON CONTRAST SYSTEM
+    ══════════════════════════════════════════════ */
+    body.dark .btn-primary{box-shadow:0 0 30px rgba(255,107,53,0.60),0 0 60px rgba(255,107,53,0.25),0 0 90px rgba(245,166,35,0.10)}
+    body.dark .btn-primary:hover{box-shadow:0 0 50px rgba(255,107,53,0.90),0 0 100px rgba(255,107,53,0.45),0 0 140px rgba(245,166,35,0.20)}
+    body.dark .btn-secondary{border-color:rgba(0,201,184,0.60);color:rgba(0,229,212,0.85);text-shadow:0 0 12px rgba(0,201,184,0.60)}
+    body.dark .btn-secondary:hover{box-shadow:0 0 40px rgba(0,201,184,0.60),0 0 80px rgba(0,201,184,0.25);border-color:var(--teal);color:var(--aqua)}
+    body.dark .game-card{border-color:rgba(245,166,35,0.12)}
+    body.dark .game-card:hover{border-color:rgba(255,107,53,0.70);box-shadow:0 0 40px rgba(255,107,53,0.30),0 0 80px rgba(255,107,53,0.12),inset 0 0 30px rgba(255,107,53,0.04)}
+    body.dark .nav-link:hover,.body.dark .nav-link.active{text-shadow:0 0 12px rgba(255,107,53,0.60)}
+    body.dark header{border-bottom-color:rgba(255,107,53,0.18)}
+    body.dark header.scrolled{border-bottom-color:rgba(255,107,53,0.35);box-shadow:0 0 40px rgba(0,0,0,0.80)}
+    body.dark .hero-horizon{box-shadow:0 0 60px rgba(245,166,35,0.90),0 0 120px rgba(255,107,53,0.45),0 0 180px rgba(0,201,184,0.30)}
+    body.dark .section-header h2{text-shadow:none}
+
+    /* ══════════════════════════════════════════════
+       LORE / UNIVERSE SECTION
+    ══════════════════════════════════════════════ */
+    .lore-hero{text-align:center;padding:0 100px 80px;position:relative}
+    .lore-classified-tag{display:inline-flex;align-items:center;gap:10px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:6px;color:rgba(255,80,80,0.70);border:1px solid rgba(255,80,80,0.25);padding:5px 16px;border-radius:2px;margin-bottom:28px;animation:loreTagPulse 2.5s ease-in-out infinite}
+    @keyframes loreTagPulse{0%,100%{border-color:rgba(255,80,80,0.25);color:rgba(255,80,80,0.70)}50%{border-color:rgba(255,80,80,0.55);color:rgba(255,80,80,1)}}
+    .lore-classified-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:rgba(255,80,80,0.8);box-shadow:0 0 8px rgba(255,80,80,0.8);animation:pulse 1.5s ease-in-out infinite}
+    .lore-main-title{font-family:'Orbitron',sans-serif;font-size:clamp(32px,5vw,66px);font-weight:900;letter-spacing:4px;line-height:1.1;margin-bottom:22px;color:#fff}
+    .lore-main-title .neon-o{color:var(--orange);text-shadow:0 0 22px rgba(255,107,53,0.70)}
+    .lore-main-title .neon-t{color:var(--teal);text-shadow:0 0 22px rgba(0,201,184,0.70)}
+    .lore-intro-text{font-size:17px;color:rgba(237,232,223,0.55);max-width:560px;margin:0 auto;line-height:1.85;letter-spacing:.5px}
+    /* chapter cards */
+    .lore-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 100px;margin-bottom:80px}
+    .lore-card{background:rgba(255,255,255,0.03);border:1px solid rgba(245,166,35,0.16);border-radius:3px;padding:28px 26px;position:relative;overflow:hidden;transition:border-color .3s,background .3s,transform .3s;cursor:default}
+    .lore-card:hover{border-color:rgba(245,166,35,0.45);background:rgba(245,166,35,0.04);transform:translateY(-4px)}
+    .lore-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--orange),var(--gold),transparent);transform:scaleX(0);transform-origin:left;transition:transform .4s}
+    .lore-card:hover::before{transform:scaleX(1)}
+    .lore-card-id{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:4px;color:rgba(245,166,35,0.45);margin-bottom:12px}
+    .lore-card-year{font-family:'Orbitron',sans-serif;font-size:28px;font-weight:900;color:var(--orange);text-shadow:0 0 18px rgba(255,107,53,0.45);margin-bottom:8px;letter-spacing:2px}
+    .lore-card-title{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:900;letter-spacing:3px;color:#fff;margin-bottom:14px}
+    .lore-card-text{font-size:14px;color:rgba(237,232,223,0.52);line-height:1.9;letter-spacing:.3px;margin-bottom:18px}
+    .lore-card-status{display:inline-flex;align-items:center;gap:7px;font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:4px;padding:4px 12px;border-radius:2px;cursor:default}
+    .lore-status-open{border:1px solid rgba(34,197,94,0.35);color:rgba(34,197,94,0.75);background:rgba(34,197,94,0.06)}
+    .lore-status-open::before{content:'';width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;animation:pulse 2s infinite}
+    .lore-status-locked{border:1px solid rgba(255,80,80,0.30);color:rgba(255,100,100,0.60);background:rgba(255,80,80,0.04);cursor:pointer;transition:border-color .25s,color .25s,background .25s}
+    .lore-status-locked:hover{border-color:rgba(255,80,80,0.65);color:rgba(255,100,100,0.90);background:rgba(255,80,80,0.10)}
+    /* timeline */
+    .lore-timeline{padding:0 100px 80px}
+    .lore-timeline-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;color:rgba(245,166,35,0.50);margin-bottom:24px}
+    .lt-track{display:flex;flex-direction:column;gap:0;position:relative}
+    .lt-track::before{content:'';position:absolute;left:120px;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent,rgba(245,166,35,0.30) 10%,rgba(245,166,35,0.30) 90%,transparent)}
+    .lt-item{display:grid;grid-template-columns:120px 1fr;gap:28px;padding:16px 0;align-items:start;position:relative}
+    .lt-item::before{content:'';position:absolute;left:115px;top:24px;width:11px;height:11px;border-radius:50%;background:rgba(245,166,35,0.22);border:1px solid rgba(245,166,35,0.40);transition:background .3s,box-shadow .3s}
+    .lt-item:hover::before{background:var(--orange);box-shadow:0 0 12px rgba(255,107,53,0.70)}
+    .lt-item.lt-active::before{background:var(--orange);box-shadow:0 0 14px rgba(255,107,53,0.80),0 0 28px rgba(255,107,53,0.35)}
+    .lt-year{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:rgba(245,166,35,0.70);letter-spacing:2px;text-align:right;padding-right:20px;padding-top:2px}
+    .lt-item.lt-active .lt-year{color:var(--orange);text-shadow:0 0 12px rgba(255,107,53,0.55)}
+    .lt-content{padding-left:16px}
+    .lt-event-title{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:rgba(237,232,223,0.75);margin-bottom:4px}
+    .lt-item.lt-active .lt-event-title{color:#fff}
+    .lt-event-desc{font-size:13px;color:rgba(237,232,223,0.38);letter-spacing:.3px;line-height:1.7}
+    .lt-item.lt-redacted .lt-event-title,.lt-item.lt-redacted .lt-event-desc{background:rgba(255,80,80,0.15);color:transparent;border-radius:2px;user-select:none;filter:blur(3px)}
+    /* ending CTA */
+    .lore-cta{padding:0 100px 80px;text-align:center}
+    .lore-cta-box{background:linear-gradient(135deg,rgba(255,107,53,0.08),rgba(0,201,184,0.06));border:1px solid rgba(245,166,35,0.25);border-radius:4px;padding:52px 40px;position:relative;overflow:hidden}
+    .lore-cta-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(255,107,53,0.08) 0%,transparent 65%);pointer-events:none}
+    .lore-cta-title{font-family:'Orbitron',sans-serif;font-size:clamp(20px,3vw,38px);font-weight:900;letter-spacing:4px;color:#fff;margin-bottom:16px;text-shadow:0 0 30px rgba(255,107,53,0.40)}
+    .lore-cta-sub{font-size:16px;color:rgba(237,232,223,0.50);letter-spacing:1px;margin-bottom:32px}
+    .lore-cta-btn{display:inline-flex;align-items:center;gap:12px;font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;letter-spacing:4px;padding:16px 42px;background:linear-gradient(135deg,var(--orange),var(--heat));color:#fff;border:none;border-radius:2px;cursor:pointer;text-decoration:none;clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);box-shadow:0 0 40px rgba(232,58,10,0.50),0 0 80px rgba(245,166,35,0.15);transition:transform .3s,box-shadow .3s;position:relative;overflow:hidden}
+    .lore-cta-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);transform:translateX(-100%);transition:transform .5s}
+    .lore-cta-btn:hover{transform:translateY(-4px) scale(1.03);box-shadow:0 0 60px rgba(232,58,10,0.75),0 0 120px rgba(245,166,35,0.25)}
+    .lore-cta-btn:hover::after{transform:translateX(100%)}
+    @media(max-width:900px){.lore-hero{padding:0 24px 60px}.lore-grid{grid-template-columns:1fr;padding:0 24px}.lore-timeline{padding:0 24px 60px}.lore-cta{padding:0 24px 60px}.lt-track::before{left:72px}.lt-item{grid-template-columns:72px 1fr;gap:14px}.lt-year{font-size:10px}}
+
     /* ── prefers-reduced-motion ── */
     @media(prefers-reduced-motion:reduce){
       *, *::before, *::after {
@@ -1494,7 +1563,7 @@
     }
   </style>
 </head>
-<body>
+<body class="dark">
 
 <!-- LOADER -->
 <div id="loader">
@@ -1576,9 +1645,10 @@
   <nav>
     <a href="#home"    class="nav-link active" id="btn-home">HOME</a>
     <a href="#games"   class="nav-link"        id="btn-games">GAMES</a>
+    <a href="#lore"    class="nav-link"        id="btn-lore">THE WORLD</a>
     <a href="#news"    class="nav-link"        id="btn-news">DEVLOG</a>
     <a href="#contact" class="nav-link"        id="btn-contact">CONTACT</a>
-    <button class="theme-btn" id="theme-btn" title="Toggle dark mode" aria-label="Toggle dark/light mode">🌙</button>
+    <button class="theme-btn" id="theme-btn" title="Toggle light mode" aria-label="Toggle dark/light mode">☀</button>
   </nav>
 </header>
 
@@ -1610,8 +1680,8 @@
         <div class="hero-divider"></div>
         <p class="hero-desc">Independent game development from Bangladesh — crafting immersive worlds, relentless combat, and stories worth playing.</p>
         <div class="hero-actions">
-          <a class="btn-primary" href="#games">&#x2B21; ENTER THE WORLD</a>
-          <a class="btn-secondary" href="https://youtube.com/@synthrixstudio" target="_blank" rel="noopener">&#9654; WATCH TRAILER</a>
+          <a class="btn-primary" href="#games">&#x2B21; ENTER THE PROTOCOL</a>
+          <a class="btn-secondary" href="#lore">&#9670; DISCOVER THE WORLD</a>
         </div>
       </div>
 
@@ -2009,6 +2079,132 @@
     </section>
   </div>
 
+  <!-- ═══════════ LORE ═══════════ -->
+  <div id="view-lore" class="view">
+    <section class="section-dark" style="padding:0;overflow:hidden">
+
+      <!-- Hero -->
+      <div class="lore-hero" style="padding-top:140px">
+        <div class="lore-classified-tag">&#9632; CLASSIFIED FILE &nbsp;·&nbsp; UNIVERSE ARCHIVE &nbsp;·&nbsp; CLEARANCE REQUIRED</div>
+        <h2 class="lore-main-title">
+          THE <span class="neon-o">SYNTHRIX</span><br>
+          <span class="neon-t">UNIVERSE</span>
+        </h2>
+        <p class="lore-intro-text">
+          What we are building isn't just a game. It's a <strong style="color:var(--orange)">world</strong> — with history, consequence, and a single operative standing between collapse and survival.
+        </p>
+      </div>
+
+      <!-- Chapter Cards -->
+      <div class="lore-grid">
+
+        <div class="lore-card reveal">
+          <div class="lore-card-id">// FILE-001 &nbsp;·&nbsp; ORIGIN EVENT</div>
+          <div class="lore-card-year">2081</div>
+          <div class="lore-card-title">THE CORPORATION</div>
+          <p class="lore-card-text">SYNTHRIX Corporation is officially registered as a defense contractor. In reality, it is the world's first fully autonomous resource-control entity — owning critical infrastructure across seven nations.</p>
+          <span class="lore-card-status lore-status-open">&#9632; DECLASSIFIED</span>
+        </div>
+
+        <div class="lore-card reveal">
+          <div class="lore-card-id">// FILE-002 &nbsp;·&nbsp; CRITICAL EVENT</div>
+          <div class="lore-card-year">2087</div>
+          <div class="lore-card-title">THE COLLAPSE</div>
+          <p class="lore-card-text">The last known human city-state falls under sustained corporate warfare and resource exhaustion. Emergency systems activate globally. Civilization as a concept ceases to function. Chaos protocol begins.</p>
+          <span class="lore-card-status lore-status-open">&#9632; DECLASSIFIED</span>
+        </div>
+
+        <div class="lore-card reveal" id="lore-card-3">
+          <div class="lore-card-id">// FILE-003 &nbsp;·&nbsp; OPERATIVE DOSSIER</div>
+          <div class="lore-card-year">2089</div>
+          <div class="lore-card-title">AGENT: RHINO</div>
+          <p class="lore-card-text">Designation RHINO. Last authorized operative of the dissolved SYNTHRIX enforcement division. Enhanced reflexes. Zero allegiance to the old order. One directive: execute the Protocol at all costs.</p>
+          <span class="lore-card-status lore-status-locked" id="lore-secret-btn" onclick="
+            this.classList.remove('lore-status-locked');
+            this.classList.add('lore-status-open');
+            this.innerHTML='&#9632; DECLASSIFIED';
+            document.getElementById('lore-secret-reveal').style.display='block';
+          ">&#9670; CLICK TO DECLASSIFY</span>
+          <p id="lore-secret-reveal" style="display:none;margin-top:12px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(255,107,53,0.75);line-height:1.9;border-left:2px solid var(--orange);padding-left:12px">
+            CLASSIFIED ADDENDUM: RHINO IS NOT JUST AN AGENT.<br>
+            HE IS THE PROTOCOL.<br>
+            THE CORPORATION BUILT HIM TO END THEMSELVES.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Timeline -->
+      <div class="lore-timeline">
+        <div class="lore-timeline-label">// TIMELINE — KEY EVENTS IN THE SYNTHRIX UNIVERSE</div>
+        <div class="lt-track">
+
+          <div class="lt-item reveal">
+            <div class="lt-year">2081</div>
+            <div class="lt-content">
+              <div class="lt-event-title">SYNTHRIX CORPORATION FOUNDED</div>
+              <div class="lt-event-desc">Officially a defense contractor. Secretly, the first fully autonomous resource-control entity. Operates in seven nations simultaneously.</div>
+            </div>
+          </div>
+
+          <div class="lt-item reveal">
+            <div class="lt-year">2083</div>
+            <div class="lt-content">
+              <div class="lt-event-title">RESOURCE WAR ESCALATES</div>
+              <div class="lt-event-desc">40% of global infrastructure compromised. SYNTHRIX deploys autonomous enforcement units. The line between corporation and government dissolves.</div>
+            </div>
+          </div>
+
+          <div class="lt-item reveal">
+            <div class="lt-year">2085</div>
+            <div class="lt-content">
+              <div class="lt-event-title">OPERATIVE RHINO — ACTIVATED</div>
+              <div class="lt-event-desc">SYNTHRIX's most advanced operative brought online. Enhanced combat architecture. No family. No past. Only the mission.</div>
+            </div>
+          </div>
+
+          <div class="lt-item lt-active reveal">
+            <div class="lt-year">2087</div>
+            <div class="lt-content">
+              <div class="lt-event-title">THE COLLAPSE — CITY-STATE FALLS</div>
+              <div class="lt-event-desc">The last standing city-state falls. Chaos protocol activated globally. This is where the story begins.</div>
+            </div>
+          </div>
+
+          <div class="lt-item lt-active reveal">
+            <div class="lt-year">2089</div>
+            <div class="lt-content">
+              <div class="lt-event-title">RHINO'S LAST PROTOCOL — INITIATED</div>
+              <div class="lt-event-desc">One operative. One mission. No extraction plan. The final directive of a dying empire is activated. There is no going back.</div>
+            </div>
+          </div>
+
+          <div class="lt-item lt-redacted reveal">
+            <div class="lt-year">20??</div>
+            <div class="lt-content">
+              <div class="lt-event-title">██████████████████████</div>
+              <div class="lt-event-desc">██████████████ CLASSIFIED ██████████████ CLEARANCE LEVEL 9 REQUIRED ██████████████████████████████</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="lore-cta">
+        <div class="lore-cta-box reveal">
+          <div class="lore-cta-title">THE PROTOCOL IS COMING</div>
+          <p class="lore-cta-sub">Rhino's Last Protocol — the flagship title of SYNTHRIX Studio — is currently in active development. Be there when the world drops.</p>
+          <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+            <a class="lore-cta-btn" href="#join" onclick="event.preventDefault();navTo('contact')">&#9670; JOIN THE SYSTEM</a>
+            <a class="btn-secondary" href="https://youtube.com/@synthrixstudio" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px">&#9654; WATCH DEVLOG</a>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </div>
+
   <!-- ═══════════ DEVLOG ═══════════ -->
   <div id="view-news" class="view">
     <section class="section-dark">
@@ -2359,9 +2555,16 @@ document.querySelectorAll('.nav-link').forEach(link => {
   });
 });
 
-/* Wire the CTA button */
+/* Wire CTA buttons */
 const ctaBtn = document.querySelector('a.btn-primary[href="#games"]');
 if (ctaBtn) ctaBtn.addEventListener('click', e => { e.preventDefault(); navTo('games'); });
+const loreBtn = document.querySelector('a.btn-secondary[href="#lore"]');
+if (loreBtn) loreBtn.addEventListener('click', e => { e.preventDefault(); navTo('lore'); });
+/* Wire lore section CTA */
+const _sectAch2 = { lore: 4 };
+document.querySelectorAll('.nav-link[href="#lore"]').forEach(l => {
+  l.addEventListener('click', e => { e.preventDefault(); navTo('lore'); history.pushState(null,'','#lore'); });
+});
 
 /* Handle browser back/forward */
 window.addEventListener('popstate', () => {
@@ -2735,7 +2938,7 @@ document.querySelectorAll('.game-card:not(.featured)').forEach((card, i) => {
 });
 
 /* ════════════════════════════════════════════
-   DARK / LIGHT THEME TOGGLE
+   DARK / LIGHT THEME TOGGLE (dark is default)
 ════════════════════════════════════════════ */
 function toggleTheme(){
   const dark = document.body.classList.toggle('dark');
@@ -2745,15 +2948,17 @@ function toggleTheme(){
 }
 
 (function applyStoredTheme(){
-  const btn = document.getElementById('theme-btn');
-  if (localStorage.getItem('synthrix-theme') === 'dark') {
+  const btn   = document.getElementById('theme-btn');
+  const saved = localStorage.getItem('synthrix-theme');
+  /* dark is default; only switch to light if user explicitly chose it */
+  if (saved === 'light') {
+    document.body.classList.remove('dark');
+    if (btn) btn.textContent = '🌙';
+  } else {
     document.body.classList.add('dark');
     if (btn) btn.textContent = '☀';
   }
-  if (btn) {
-    btn.addEventListener('click', toggleTheme);
-    btn.style.cursor = 'pointer';
-  }
+  if (btn) { btn.addEventListener('click', toggleTheme); btn.style.cursor='pointer'; }
 })();
 
 /* ════════════════════════════════════════════
