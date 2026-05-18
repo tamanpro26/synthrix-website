@@ -3,375 +3,301 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Prevent ALL search engines from indexing or archiving this page -->
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
   <meta name="googlebot" content="noindex, nofollow">
-  <title>Internal Access — System</title>
+  <title>System — Internal</title>
   <style>
     :root{
-      --bg:    #060a08;
-      --bg2:   #0a100d;
-      --bg3:   #0f1a14;
-      --green: #22c55e;
-      --orange:#FF6B35;
-      --gold:  #F5A623;
-      --teal:  #00C9B8;
-      --red:   #ef4444;
-      --white: #e2e8e4;
-      --muted: rgba(226,232,228,0.42);
-      --bord:  rgba(34,197,94,0.18);
-      --bordhi:rgba(34,197,94,0.50);
+      --bg:#060a08;--bg2:#0a100d;--bg3:#0f1a14;
+      --green:#22c55e;--orange:#FF6B35;--gold:#F5A623;--teal:#00C9B8;
+      --red:#ef4444;--white:#e2e8e4;--muted:rgba(226,232,228,0.42);
+      --bord:rgba(34,197,94,0.18);--bordhi:rgba(34,197,94,0.50);
     }
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
     html{scroll-behavior:smooth}
     body{background:var(--bg);color:var(--white);font-family:'Courier New',monospace;overflow-x:hidden;min-height:100vh}
-    /* scanline overlay */
-    body::after{content:'';position:fixed;inset:0;pointer-events:none;background-image:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(34,197,94,0.012) 2px,rgba(34,197,94,0.012) 3px);z-index:9999}
+    body::after{content:'';position:fixed;inset:0;pointer-events:none;background-image:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(34,197,94,0.010) 2px,rgba(34,197,94,0.010) 3px);z-index:9999}
 
-    /* ── TERMINAL CURSOR ── */
-    .tcursor{display:inline-block;width:8px;height:14px;background:var(--green);animation:tblink .8s step-end infinite;vertical-align:bottom;margin-left:2px}
-    @keyframes tblink{0%,100%{opacity:1}50%{opacity:0}}
+    /* ── BOOT ── */
+    #boot{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px}
+    .bl{font-size:11px;letter-spacing:3px;color:rgba(34,197,94,0.55);opacity:0;animation:blIn .05s forwards}
+    @keyframes blIn{to{opacity:1}}
+    #boot.hidden{display:none}
 
-    /* ── SCREEN: BOOT ── */
-    #boot-screen{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
-    .boot-line{font-size:11px;letter-spacing:3px;color:rgba(34,197,94,0.55);opacity:0;animation:bootLine .1s forwards}
-    @keyframes bootLine{to{opacity:1}}
-    #boot-screen.hidden{display:none}
-
-    /* ── SCREEN: LOGIN ── */
-    #login-screen{display:none;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;gap:0}
-    #login-screen.show{display:flex}
-    .ls-outer{width:420px;background:var(--bg2);border:1px solid var(--bord);border-radius:3px;overflow:hidden;box-shadow:0 0 60px rgba(34,197,94,0.08),0 20px 60px rgba(0,0,0,0.70)}
-    .ls-topbar{height:2px;background:linear-gradient(90deg,var(--green),var(--teal),var(--orange))}
-    .ls-corner{position:absolute;width:12px;height:12px;border-color:rgba(34,197,94,0.45);border-style:solid;border-width:0}
-    .ls-corner.tl{top:8px;left:8px;border-top-width:1.5px;border-left-width:1.5px}
-    .ls-corner.tr{top:8px;right:8px;border-top-width:1.5px;border-right-width:1.5px}
-    .ls-corner.bl{bottom:8px;left:8px;border-bottom-width:1.5px;border-left-width:1.5px}
-    .ls-corner.br{bottom:8px;right:8px;border-bottom-width:1.5px;border-right-width:1.5px}
-    .ls-head{padding:28px 28px 0;position:relative}
-    .ls-logo{font-size:9px;letter-spacing:5px;color:rgba(34,197,94,0.60);margin-bottom:10px}
-    .ls-title{font-size:18px;letter-spacing:4px;color:var(--white);font-weight:bold;margin-bottom:4px}
-    .ls-sub{font-size:9px;letter-spacing:3px;color:var(--muted)}
-    .ls-body{padding:24px 28px 28px}
-    .ls-label{font-size:8px;letter-spacing:4px;color:rgba(226,232,228,0.40);margin-bottom:6px;display:block;text-transform:uppercase}
-    .ls-input{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--bord);border-radius:2px;padding:11px 14px;font-family:'Courier New',monospace;font-size:13px;letter-spacing:2px;color:var(--white);outline:none;transition:border-color .25s,box-shadow .25s;margin-bottom:14px}
-    .ls-input:focus{border-color:rgba(34,197,94,0.55);box-shadow:0 0 16px rgba(34,197,94,0.10)}
-    .ls-input::placeholder{color:rgba(226,232,228,0.18)}
-    .ls-btn{width:100%;padding:13px;border:none;border-radius:2px;background:linear-gradient(135deg,rgba(34,197,94,0.80),rgba(0,201,184,0.70));color:#000;font-family:'Courier New',monospace;font-size:10px;letter-spacing:5px;font-weight:bold;cursor:pointer;transition:opacity .2s,transform .2s,box-shadow .2s;box-shadow:0 0 20px rgba(34,197,94,0.25)}
-    .ls-btn:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 0 36px rgba(34,197,94,0.40)}
-    .ls-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
-    .ls-err{font-size:9px;letter-spacing:3px;color:rgba(239,68,68,0.80);margin-top:10px;display:none;text-align:center;padding:8px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.20);border-radius:2px}
-    .ls-err.show{display:block}
-    .ls-lockout{font-size:9px;letter-spacing:2px;color:rgba(239,68,68,0.65);margin-top:8px;text-align:center;display:none}
-    .ls-lockout.show{display:block}
-    .ls-attempts{font-size:8px;letter-spacing:2px;color:rgba(239,68,68,0.45);text-align:right;margin-top:6px}
-
-    /* ── SCREEN: SETUP (first run) ── */
-    #setup-screen{display:none;min-height:100vh;align-items:center;justify-content:center}
-    #setup-screen.show{display:flex}
-    .setup-box{width:460px;background:var(--bg2);border:1px solid rgba(245,166,35,0.28);border-radius:3px;overflow:hidden}
-    .setup-banner{padding:22px 28px;background:rgba(245,166,35,0.05);border-bottom:1px solid rgba(245,166,35,0.16)}
-    .setup-tag{font-size:8px;letter-spacing:5px;color:rgba(245,166,35,0.55);margin-bottom:6px}
-    .setup-title{font-size:16px;letter-spacing:3px;color:var(--white);font-weight:bold}
-    .setup-sub{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.7}
-    .setup-body{padding:24px 28px 28px}
-    .setup-warn{font-size:9px;letter-spacing:2px;color:rgba(239,68,68,0.65);padding:10px 14px;background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.18);border-radius:2px;margin-bottom:20px;line-height:1.8}
+    /* ── LOGIN ── */
+    #login{display:none;min-height:100vh;align-items:center;justify-content:center}
+    #login.show{display:flex}
+    .lw{width:400px;background:var(--bg2);border:1px solid var(--bord);border-radius:3px;overflow:hidden;position:relative;box-shadow:0 0 60px rgba(34,197,94,0.07),0 20px 60px rgba(0,0,0,0.70)}
+    .l-topbar{height:2px;background:linear-gradient(90deg,var(--green),var(--teal),var(--orange))}
+    .l-c{position:absolute;width:11px;height:11px;border-color:rgba(34,197,94,0.45);border-style:solid;border-width:0}
+    .l-c.tl{top:8px;left:8px;border-top-width:1.5px;border-left-width:1.5px}
+    .l-c.tr{top:8px;right:8px;border-top-width:1.5px;border-right-width:1.5px}
+    .l-c.bl{bottom:8px;left:8px;border-bottom-width:1.5px;border-left-width:1.5px}
+    .l-c.br{bottom:8px;right:8px;border-bottom-width:1.5px;border-right-width:1.5px}
+    .l-head{padding:28px 28px 0}
+    .l-tag{font-size:8px;letter-spacing:5px;color:rgba(34,197,94,0.55);margin-bottom:10px}
+    .l-title{font-size:17px;letter-spacing:5px;color:var(--white);font-weight:bold;margin-bottom:3px}
+    .l-sub{font-size:8px;letter-spacing:4px;color:var(--muted)}
+    .l-body{padding:24px 28px 28px}
+    .l-lbl{font-size:7px;letter-spacing:4px;color:rgba(226,232,228,0.38);margin-bottom:5px;display:block}
+    .l-inp{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--bord);border-radius:2px;padding:11px 14px;font-family:'Courier New',monospace;font-size:13px;letter-spacing:2px;color:var(--white);outline:none;transition:border-color .25s,box-shadow .25s;margin-bottom:13px}
+    .l-inp:focus{border-color:rgba(34,197,94,0.55);box-shadow:0 0 14px rgba(34,197,94,0.09)}
+    .l-inp::placeholder{color:rgba(226,232,228,0.16)}
+    .l-btn{width:100%;padding:13px;border:none;border-radius:2px;background:linear-gradient(135deg,rgba(34,197,94,0.78),rgba(0,201,184,0.68));color:#000;font-family:'Courier New',monospace;font-size:10px;letter-spacing:5px;font-weight:bold;cursor:pointer;transition:opacity .2s,transform .2s,box-shadow .2s;box-shadow:0 0 20px rgba(34,197,94,0.22)}
+    .l-btn:hover:not(:disabled){opacity:.9;transform:translateY(-1px);box-shadow:0 0 36px rgba(34,197,94,0.38)}
+    .l-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+    .l-err{font-size:8px;letter-spacing:3px;color:rgba(239,68,68,0.80);margin-top:10px;display:none;text-align:center;padding:8px 12px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.18);border-radius:2px}
+    .l-err.show{display:block}
+    .l-locked{font-size:8px;letter-spacing:2px;color:rgba(239,68,68,0.60);text-align:center;margin-top:8px;display:none}
+    .l-locked.show{display:block}
+    .l-tries{font-size:7px;letter-spacing:2px;color:rgba(239,68,68,0.40);text-align:right;margin-top:5px;min-height:14px}
 
     /* ── DASHBOARD ── */
     #dashboard{display:none;min-height:100vh;flex-direction:row}
     #dashboard.show{display:flex}
-    /* sidebar */
-    .db-sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--bord);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto}
-    .db-logo{padding:22px 20px 16px;border-bottom:1px solid var(--bord)}
-    .db-logo-tag{font-size:7px;letter-spacing:4px;color:rgba(34,197,94,0.50);margin-bottom:4px}
-    .db-logo-name{font-size:14px;letter-spacing:4px;color:var(--white);font-weight:bold}
-    .db-logo-name span{color:var(--green)}
-    .db-logo-sub{font-size:7px;letter-spacing:3px;color:var(--muted);margin-top:2px}
-    .db-user{padding:14px 20px;border-bottom:1px solid var(--bord);display:flex;align-items:center;gap:10px}
-    .db-user-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);flex-shrink:0}
-    .db-user-name{font-size:10px;letter-spacing:2px;color:rgba(34,197,94,0.80)}
-    .db-user-role{font-size:8px;letter-spacing:2px;color:var(--muted)}
-    nav.db-nav{flex:1;padding:12px 0}
-    .db-nav-item{display:flex;align-items:center;gap:12px;padding:11px 20px;font-size:10px;letter-spacing:3px;color:var(--muted);cursor:pointer;transition:background .2s,color .2s,border-color .2s;border-left:2px solid transparent}
-    .db-nav-item:hover{background:rgba(34,197,94,0.05);color:var(--white)}
-    .db-nav-item.active{color:var(--green);border-left-color:var(--green);background:rgba(34,197,94,0.07)}
-    .db-nav-icon{font-size:14px;flex-shrink:0}
-    .db-signout{padding:14px 20px;border-top:1px solid var(--bord)}
-    .db-signout-btn{width:100%;padding:8px;font-family:'Courier New',monospace;font-size:8px;letter-spacing:4px;background:transparent;border:1px solid rgba(239,68,68,0.25);border-radius:2px;color:rgba(239,68,68,0.55);cursor:pointer;transition:.2s}
-    .db-signout-btn:hover{background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.55);color:rgba(239,68,68,0.85)}
-    /* main area */
+    .sb{width:220px;background:var(--bg2);border-right:1px solid var(--bord);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto}
+    .sb-logo{padding:22px 20px 14px;border-bottom:1px solid var(--bord)}
+    .sb-tag{font-size:7px;letter-spacing:4px;color:rgba(34,197,94,0.48);margin-bottom:4px}
+    .sb-name{font-size:14px;letter-spacing:4px;color:var(--white);font-weight:bold}
+    .sb-name span{color:var(--green)}
+    .sb-sub{font-size:7px;letter-spacing:3px;color:var(--muted);margin-top:2px}
+    .sb-user{padding:13px 20px;border-bottom:1px solid var(--bord);display:flex;align-items:center;gap:9px}
+    .sb-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);flex-shrink:0;animation:sdot 2s ease-in-out infinite}
+    @keyframes sdot{0%,100%{opacity:1}50%{opacity:.3}}
+    .sb-uname{font-size:10px;letter-spacing:2px;color:rgba(34,197,94,0.82)}
+    .sb-urole{font-size:7px;letter-spacing:2px;color:var(--muted)}
+    nav.sb-nav{flex:1;padding:10px 0}
+    .sb-item{display:flex;align-items:center;gap:11px;padding:11px 20px;font-size:9px;letter-spacing:3px;color:var(--muted);cursor:pointer;transition:background .2s,color .2s,border-color .2s;border-left:2px solid transparent}
+    .sb-item:hover{background:rgba(34,197,94,0.05);color:var(--white)}
+    .sb-item.on{color:var(--green);border-left-color:var(--green);background:rgba(34,197,94,0.07)}
+    .sb-ico{font-size:13px;flex-shrink:0}
+    .sb-signout{padding:14px 20px;border-top:1px solid var(--bord)}
+    .sb-so-btn{width:100%;padding:8px;font-family:'Courier New',monospace;font-size:7px;letter-spacing:4px;background:transparent;border:1px solid rgba(239,68,68,0.22);border-radius:2px;color:rgba(239,68,68,0.52);cursor:pointer;transition:.2s}
+    .sb-so-btn:hover{background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.52);color:rgba(239,68,68,0.85)}
     .db-main{flex:1;overflow-y:auto;padding:36px 40px}
-    .db-panel{display:none}.db-panel.active{display:block}
-    .db-section-tag{font-size:8px;letter-spacing:5px;color:rgba(34,197,94,0.50);margin-bottom:8px}
-    .db-section-title{font-size:20px;letter-spacing:3px;color:var(--white);font-weight:bold;margin-bottom:28px;display:flex;align-items:center;gap:14px}
-    .db-section-title span{color:var(--green)}
-    /* stat cards */
-    .stat-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:32px}
-    .stat-card{background:var(--bg2);border:1px solid var(--bord);border-radius:3px;padding:18px 20px;transition:border-color .3s}
-    .stat-card:hover{border-color:var(--bordhi)}
-    .sc-val{font-size:32px;font-weight:bold;color:var(--green);letter-spacing:2px}
-    .sc-label{font-size:8px;letter-spacing:4px;color:var(--muted);margin-top:4px}
-    /* tables */
-    .db-table{width:100%;border-collapse:collapse;font-size:11px}
-    .db-table th{font-size:8px;letter-spacing:4px;color:var(--muted);padding:10px 14px;text-align:left;border-bottom:1px solid var(--bord)}
-    .db-table td{padding:12px 14px;border-bottom:1px solid rgba(34,197,94,0.06);vertical-align:middle}
-    .db-table tr:hover td{background:rgba(34,197,94,0.03)}
-    .db-badge{display:inline-block;font-size:8px;letter-spacing:2px;padding:3px 8px;border-radius:2px}
-    .db-badge.green{background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.30);color:rgba(34,197,94,0.85)}
-    .db-badge.red{background:rgba(239,68,68,0.10);border:1px solid rgba(239,68,68,0.25);color:rgba(239,68,68,0.75)}
-    .db-badge.orange{background:rgba(255,107,53,0.10);border:1px solid rgba(255,107,53,0.25);color:rgba(255,107,53,0.80)}
-    /* form elements */
-    .db-form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
-    .db-fg{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
-    .db-fg label{font-size:8px;letter-spacing:4px;color:rgba(226,232,228,0.38)}
-    .db-input{background:rgba(255,255,255,0.03);border:1px solid var(--bord);border-radius:2px;padding:10px 12px;font-family:'Courier New',monospace;font-size:12px;letter-spacing:1px;color:var(--white);outline:none;width:100%;transition:border-color .2s}
-    .db-input:focus{border-color:rgba(34,197,94,0.50)}
-    .db-input::placeholder{color:rgba(226,232,228,0.18)}
-    .db-select{background:rgba(10,16,13,0.98);border:1px solid var(--bord);border-radius:2px;padding:10px 12px;font-family:'Courier New',monospace;font-size:12px;color:var(--white);outline:none;width:100%}
-    .db-select option{background:#0a100d}
-    .db-btn{font-family:'Courier New',monospace;font-size:9px;letter-spacing:4px;padding:10px 20px;border-radius:2px;cursor:pointer;border:none;transition:.2s}
-    .db-btn.primary{background:linear-gradient(135deg,rgba(34,197,94,0.75),rgba(0,201,184,0.65));color:#000;font-weight:bold}
-    .db-btn.primary:hover{opacity:.85;box-shadow:0 0 24px rgba(34,197,94,0.30)}
-    .db-btn.danger{background:rgba(239,68,68,0.10);border:1px solid rgba(239,68,68,0.25);color:rgba(239,68,68,0.75)}
-    .db-btn.danger:hover{background:rgba(239,68,68,0.20);color:rgba(239,68,68,1)}
-    .db-btn.outline{background:transparent;border:1px solid var(--bord);color:var(--muted)}
-    .db-btn.outline:hover{border-color:var(--bordhi);color:var(--white)}
-    /* toggle switch */
-    .db-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--bg2);border:1px solid var(--bord);border-radius:2px;margin-bottom:8px;transition:border-color .3s}
-    .db-toggle-row:hover{border-color:var(--bordhi)}
-    .db-toggle-label{font-size:10px;letter-spacing:3px;color:var(--white)}
-    .db-toggle-sub{font-size:9px;letter-spacing:1px;color:var(--muted);margin-top:3px}
-    .db-toggle{position:relative;width:42px;height:22px;flex-shrink:0}
-    .db-toggle input{opacity:0;width:0;height:0}
-    .db-toggle-track{position:absolute;inset:0;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);border-radius:11px;cursor:pointer;transition:.3s}
-    .db-toggle input:checked+.db-toggle-track{background:rgba(34,197,94,0.35);border-color:rgba(34,197,94,0.55)}
-    .db-toggle-track::before{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:2px;left:2px;transition:.3s}
-    .db-toggle input:checked+.db-toggle-track::before{transform:translateX(20px);background:var(--green)}
-    /* notification */
-    .db-notif{position:fixed;top:24px;right:24px;z-index:9999;background:var(--bg2);border:1px solid rgba(34,197,94,0.45);border-left:3px solid var(--green);padding:12px 18px;border-radius:2px;font-size:9px;letter-spacing:3px;color:rgba(34,197,94,0.85);transform:translateX(calc(100% + 30px));opacity:0;transition:transform .4s cubic-bezier(.2,.9,.4,1),opacity .3s;max-width:280px}
-    .db-notif.show{transform:translateX(0);opacity:1}
-    /* divider */
-    .db-divider{height:1px;background:linear-gradient(90deg,transparent,var(--bord),transparent);margin:24px 0}
-    .db-card{background:var(--bg2);border:1px solid var(--bord);border-radius:3px;padding:24px;margin-bottom:14px}
-    .db-card-title{font-size:10px;letter-spacing:4px;color:var(--green);margin-bottom:14px}
+    .db-panel{display:none}.db-panel.on{display:block}
+    .p-tag{font-size:7px;letter-spacing:5px;color:rgba(34,197,94,0.48);margin-bottom:7px}
+    .p-title{font-size:19px;letter-spacing:3px;color:var(--white);font-weight:bold;margin-bottom:26px}
+    .p-title span{color:var(--green)}
+
+    /* cards & tables */
+    .stat-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;margin-bottom:28px}
+    .sc{background:var(--bg2);border:1px solid var(--bord);border-radius:3px;padding:18px 20px;transition:border-color .3s}
+    .sc:hover{border-color:var(--bordhi)}
+    .sc-v{font-size:30px;font-weight:bold;color:var(--green);letter-spacing:2px}
+    .sc-l{font-size:7px;letter-spacing:4px;color:var(--muted);margin-top:4px}
+    .card{background:var(--bg2);border:1px solid var(--bord);border-radius:3px;padding:22px;margin-bottom:13px}
+    .card-title{font-size:8px;letter-spacing:4px;color:var(--green);margin-bottom:13px}
+    table.t{width:100%;border-collapse:collapse;font-size:10px}
+    table.t th{font-size:7px;letter-spacing:4px;color:var(--muted);padding:9px 12px;text-align:left;border-bottom:1px solid var(--bord)}
+    table.t td{padding:11px 12px;border-bottom:1px solid rgba(34,197,94,0.05);vertical-align:middle}
+    table.t tr:hover td{background:rgba(34,197,94,0.025)}
+    .badge{display:inline-block;font-size:7px;letter-spacing:2px;padding:3px 8px;border-radius:2px}
+    .badge.g{background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.28);color:rgba(34,197,94,0.85)}
+    .badge.o{background:rgba(255,107,53,0.10);border:1px solid rgba(255,107,53,0.25);color:rgba(255,107,53,0.80)}
+    .badge.r{background:rgba(239,68,68,0.09);border:1px solid rgba(239,68,68,0.22);color:rgba(239,68,68,0.72)}
+
+    /* form */
+    .fg{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+    .fg label{font-size:7px;letter-spacing:4px;color:rgba(226,232,228,0.36)}
+    .fi{background:rgba(255,255,255,0.03);border:1px solid var(--bord);border-radius:2px;padding:9px 12px;font-family:'Courier New',monospace;font-size:12px;letter-spacing:1px;color:var(--white);outline:none;width:100%;transition:border-color .2s}
+    .fi:focus{border-color:rgba(34,197,94,0.48)}
+    .fi::placeholder{color:rgba(226,232,228,0.16)}
+    .fsel{background:rgba(10,16,13,0.98);border:1px solid var(--bord);border-radius:2px;padding:9px 12px;font-family:'Courier New',monospace;font-size:12px;color:var(--white);outline:none;width:100%}
+    .fsel option{background:#0a100d}
+    .frow{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+    .btn{font-family:'Courier New',monospace;font-size:8px;letter-spacing:4px;padding:9px 18px;border-radius:2px;cursor:pointer;border:none;transition:.2s}
+    .btn.p{background:linear-gradient(135deg,rgba(34,197,94,0.75),rgba(0,201,184,0.65));color:#000;font-weight:bold}
+    .btn.p:hover{opacity:.85;box-shadow:0 0 22px rgba(34,197,94,0.28)}
+    .btn.d{background:rgba(239,68,68,0.09);border:1px solid rgba(239,68,68,0.22);color:rgba(239,68,68,0.72)}
+    .btn.d:hover{background:rgba(239,68,68,0.18);color:rgba(239,68,68,1)}
+    .err-msg{font-size:8px;letter-spacing:2px;color:rgba(239,68,68,0.75);margin-top:8px;display:none}
+    .err-msg.show{display:block}
+    .divider{height:1px;background:linear-gradient(90deg,transparent,var(--bord),transparent);margin:20px 0}
+
+    /* toggles */
+    .tog-row{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--bg2);border:1px solid var(--bord);border-radius:2px;margin-bottom:7px;transition:border-color .3s}
+    .tog-row:hover{border-color:var(--bordhi)}
+    .tog-label{font-size:9px;letter-spacing:3px;color:var(--white)}
+    .tog-sub{font-size:8px;letter-spacing:1px;color:var(--muted);margin-top:2px}
+    .tog{position:relative;width:40px;height:20px;flex-shrink:0}
+    .tog input{opacity:0;width:0;height:0}
+    .tog-track{position:absolute;inset:0;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:10px;cursor:pointer;transition:.3s}
+    .tog input:checked+.tog-track{background:rgba(34,197,94,0.32);border-color:rgba(34,197,94,0.52)}
+    .tog-track::before{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;top:2px;left:2px;transition:.3s}
+    .tog input:checked+.tog-track::before{transform:translateX(20px);background:var(--green)}
+
+    /* notif toast */
+    #notif{position:fixed;top:22px;right:22px;z-index:9999;background:var(--bg2);border:1px solid rgba(34,197,94,0.42);border-left:3px solid var(--green);padding:11px 16px;border-radius:2px;font-size:8px;letter-spacing:3px;color:rgba(34,197,94,0.82);transform:translateX(calc(100% + 30px));opacity:0;transition:transform .4s cubic-bezier(.2,.9,.4,1),opacity .3s;max-width:260px;pointer-events:none}
+    #notif.show{transform:translateX(0);opacity:1}
   </style>
 </head>
 <body>
 
-<!-- NOTIFICATION TOAST -->
-<div class="db-notif" id="db-notif"></div>
+<div id="notif"></div>
 
-<!-- ── BOOT SCREEN ── -->
-<div id="boot-screen">
-  <div class="boot-line" style="animation-delay:.1s;color:rgba(34,197,94,0.80);font-size:13px;letter-spacing:4px;font-weight:bold">SYNTHRIX MISSION CONTROL</div>
-  <div class="boot-line" style="animation-delay:.3s">INITIALIZING SECURE SESSION...</div>
-  <div class="boot-line" style="animation-delay:.6s">CHECKING CREDENTIALS STORE...</div>
-  <div class="boot-line" style="animation-delay:.9s" id="boot-line-3">LOADING...</div>
+<!-- BOOT -->
+<div id="boot">
+  <div class="bl" style="animation-delay:.1s;color:rgba(34,197,94,0.85);font-size:12px;letter-spacing:5px;font-weight:bold">SYNTHRIX MISSION CONTROL</div>
+  <div class="bl" style="animation-delay:.3s">INITIALIZING SECURE SESSION...</div>
+  <div class="bl" style="animation-delay:.6s">VERIFYING ACCESS CREDENTIALS...</div>
+  <div class="bl" style="animation-delay:.9s" id="bl-last">LOADING...</div>
 </div>
 
-<!-- ── FIRST-RUN SETUP ── -->
-<div id="setup-screen">
-  <div class="setup-box">
-    <div style="height:2px;background:linear-gradient(90deg,var(--orange),var(--gold),var(--teal))"></div>
-    <div class="setup-banner">
-      <div class="setup-tag">// FIRST RUN DETECTED</div>
-      <div class="setup-title">CREATE MASTER ADMIN ACCOUNT</div>
-      <div class="setup-sub">This runs once. After setup, credentials are stored as<br>a one-way SHA-256 hash — never in plaintext.</div>
+<!-- LOGIN -->
+<div id="login">
+  <div class="lw">
+    <div class="l-topbar"></div>
+    <div class="l-c tl"></div><div class="l-c tr"></div>
+    <div class="l-c bl"></div><div class="l-c br"></div>
+    <div class="l-head">
+      <div class="l-tag">// SYNTHRIX STUDIO &nbsp;·&nbsp; INTERNAL SYSTEM</div>
+      <div class="l-title">MISSION CONTROL</div>
+      <div class="l-sub">AUTHORIZED PERSONNEL ONLY</div>
     </div>
-    <div class="setup-body">
-      <div class="setup-warn">
-        &#9888; SAVE YOUR CREDENTIALS SOMEWHERE SAFE.<br>
-        THERE IS NO RECOVERY OPTION. IF YOU FORGET,<br>
-        CLEAR SITE DATA AND SETUP AGAIN.
-      </div>
-      <div class="db-fg"><label>ADMIN USERNAME</label><input class="db-input" id="su-user" type="text" placeholder="e.g. sxadmin" autocomplete="off" spellcheck="false"></div>
-      <div class="db-fg"><label>PASSWORD (min 10 chars)</label><input class="db-input" id="su-pass" type="password" placeholder="Strong password..."></div>
-      <div class="db-fg"><label>CONFIRM PASSWORD</label><input class="db-input" id="su-conf" type="password" placeholder="Repeat password..."></div>
-      <button class="db-btn primary" style="width:100%;margin-top:4px" onclick="setupAdmin()">&#9654; INITIALIZE ADMIN ACCOUNT</button>
-      <div class="ls-err" id="su-err"></div>
+    <div class="l-body">
+      <label class="l-lbl" for="li-u">USERNAME</label>
+      <input class="l-inp" id="li-u" type="text" placeholder="username" autocomplete="off" spellcheck="false">
+      <label class="l-lbl" for="li-p">PASSWORD</label>
+      <input class="l-inp" id="li-p" type="password" placeholder="••••••••••••">
+      <button class="l-btn" id="li-btn" onclick="doLogin()">&#9654;&nbsp; AUTHENTICATE</button>
+      <div class="l-err"    id="li-err"></div>
+      <div class="l-locked" id="li-lock"></div>
+      <div class="l-tries"  id="li-tries"></div>
     </div>
   </div>
 </div>
 
-<!-- ── LOGIN SCREEN ── -->
-<div id="login-screen">
-  <div class="ls-outer" style="position:relative">
-    <div class="ls-topbar"></div>
-    <div class="ls-corner tl"></div><div class="ls-corner tr"></div>
-    <div class="ls-corner bl"></div><div class="ls-corner br"></div>
-    <div class="ls-head">
-      <div class="ls-logo">// SYNTHRIX STUDIO &nbsp;·&nbsp; INTERNAL SYSTEM</div>
-      <div class="ls-title">MISSION CONTROL</div>
-      <div class="ls-sub">AUTHORIZED PERSONNEL ONLY</div>
-    </div>
-    <div class="ls-body">
-      <label class="ls-label" for="li-user">USERNAME</label>
-      <input class="ls-input" id="li-user" type="text" placeholder="username" autocomplete="off" spellcheck="false">
-      <label class="ls-label" for="li-pass">PASSWORD</label>
-      <input class="ls-input" id="li-pass" type="password" placeholder="••••••••••••">
-      <button class="ls-btn" id="li-btn" onclick="doLogin()">&#9654; AUTHENTICATE</button>
-      <div class="ls-err" id="li-err"></div>
-      <div class="ls-lockout" id="li-lockout"></div>
-      <div class="ls-attempts" id="li-attempts"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ── DASHBOARD ── -->
+<!-- DASHBOARD -->
 <div id="dashboard">
 
-  <!-- Sidebar -->
-  <div class="db-sidebar">
-    <div class="db-logo">
-      <div class="db-logo-tag">// MISSION CONTROL</div>
-      <div class="db-logo-name">SYNTH<span>RIX</span></div>
-      <div class="db-logo-sub">INTERNAL SYSTEM</div>
+  <div class="sb">
+    <div class="sb-logo">
+      <div class="sb-tag">// MISSION CONTROL</div>
+      <div class="sb-name">SYNTH<span>RIX</span></div>
+      <div class="sb-sub">INTERNAL SYSTEM V2</div>
     </div>
-    <div class="db-user">
-      <div class="db-user-dot"></div>
-      <div>
-        <div class="db-user-name" id="db-username">ADMIN</div>
-        <div class="db-user-role">MASTER ADMIN</div>
-      </div>
+    <div class="sb-user">
+      <div class="sb-dot"></div>
+      <div><div class="sb-uname" id="db-uname">ADMIN</div><div class="sb-urole" id="db-urole">ADMINISTRATOR</div></div>
     </div>
-    <nav class="db-nav">
-      <div class="db-nav-item active" data-panel="overview"  onclick="showPanel('overview')"><span class="db-nav-icon">⬡</span>OVERVIEW</div>
-      <div class="db-nav-item" data-panel="employees" onclick="showPanel('employees')"><span class="db-nav-icon">👤</span>EMPLOYEES</div>
-      <div class="db-nav-item" data-panel="roster"    onclick="showPanel('roster')"><span class="db-nav-icon">🎖️</span>TEAM ROSTER</div>
-      <div class="db-nav-item" data-panel="announcements" onclick="showPanel('announcements')"><span class="db-nav-icon">📡</span>ANNOUNCEMENTS</div>
-      <div class="db-nav-item" data-panel="controls"  onclick="showPanel('controls')"><span class="db-nav-icon">⚙️</span>SITE CONTROLS</div>
+    <nav class="sb-nav">
+      <div class="sb-item on"  data-p="overview"  onclick="sp('overview')"> <span class="sb-ico">⬡</span>OVERVIEW</div>
+      <div class="sb-item"     data-p="employees" onclick="sp('employees')"><span class="sb-ico">👤</span>EMPLOYEES</div>
+      <div class="sb-item"     data-p="roster"    onclick="sp('roster')">   <span class="sb-ico">🎖️</span>ROSTER</div>
+      <div class="sb-item"     data-p="announce"  onclick="sp('announce')"> <span class="sb-ico">📡</span>ANNOUNCEMENTS</div>
+      <div class="sb-item"     data-p="controls"  onclick="sp('controls')"> <span class="sb-ico">⚙️</span>SITE CONTROLS</div>
     </nav>
-    <div class="db-signout">
-      <button class="db-signout-btn" onclick="doSignOut()">&#9654; SIGN OUT SESSION</button>
+    <div class="sb-signout">
+      <button class="sb-so-btn" onclick="signOut()">&#9654; SIGN OUT</button>
     </div>
   </div>
 
-  <!-- Main Content -->
   <div class="db-main">
 
     <!-- OVERVIEW -->
-    <div class="db-panel active" id="panel-overview">
-      <div class="db-section-tag">// SYSTEM STATUS</div>
-      <div class="db-section-title">OVERVIEW <span>&nbsp;·&nbsp; ONLINE</span></div>
-      <div class="stat-cards" id="overview-stats"></div>
-      <div class="db-card">
-        <div class="db-card-title">// RECENT ACTIVITY</div>
-        <div id="overview-activity" style="font-size:11px;color:var(--muted);line-height:2.2"></div>
+    <div class="db-panel on" id="p-overview">
+      <div class="p-tag">// SYSTEM STATUS</div>
+      <div class="p-title">OVERVIEW <span>· ONLINE</span></div>
+      <div class="stat-cards" id="ov-stats"></div>
+      <div class="card">
+        <div class="card-title">// RECENT EMPLOYEE ACTIVITY</div>
+        <div id="ov-activity" style="font-size:10px;color:var(--muted);line-height:2.4;letter-spacing:.5px"></div>
       </div>
     </div>
 
     <!-- EMPLOYEES -->
-    <div class="db-panel" id="panel-employees">
-      <div class="db-section-tag">// ACCOUNT MANAGEMENT</div>
-      <div class="db-section-title">EMPLOYEE <span>ACCOUNTS</span></div>
-
-      <div class="db-card">
-        <div class="db-card-title">// CREATE NEW ACCOUNT</div>
-        <div class="db-form-row">
-          <div class="db-fg" style="margin:0"><label>DISPLAY NAME</label><input class="db-input" id="emp-name" type="text" placeholder="CallsignName"></div>
-          <div class="db-fg" style="margin:0"><label>EMAIL</label><input class="db-input" id="emp-email" type="email" placeholder="user@email.com"></div>
+    <div class="db-panel" id="p-employees">
+      <div class="p-tag">// ACCOUNT MANAGEMENT</div>
+      <div class="p-title">EMPLOYEE <span>ACCOUNTS</span></div>
+      <div class="card">
+        <div class="card-title">// CREATE EMPLOYEE ACCOUNT</div>
+        <div class="frow">
+          <div class="fg" style="margin:0"><label>DISPLAY NAME / CALLSIGN</label><input class="fi" id="e-name" type="text" placeholder="e.g. LKPlayz"></div>
+          <div class="fg" style="margin:0"><label>EMAIL</label><input class="fi" id="e-email" type="email" placeholder="user@email.com"></div>
         </div>
-        <div class="db-form-row" style="margin-top:12px">
-          <div class="db-fg" style="margin:0"><label>PASSWORD</label><input class="db-input" id="emp-pass" type="password" placeholder="Minimum 6 chars"></div>
-          <div class="db-fg" style="margin:0"><label>ROLE LABEL</label>
-            <select class="db-select" id="emp-role">
+        <div class="frow" style="margin-top:11px">
+          <div class="fg" style="margin:0"><label>PASSWORD</label><input class="fi" id="e-pass" type="password" placeholder="Min 6 characters"></div>
+          <div class="fg" style="margin:0"><label>ROLE</label>
+            <select class="fsel" id="e-role">
               <option>Game Developer</option><option>Web Developer</option><option>Game Designer</option>
-              <option>3D Artist</option><option>Composer / Audio</option><option>Writer / Narrative</option>
+              <option>3D Artist</option><option>Composer / Audio</option><option>Writer</option>
               <option>Tester / QA</option><option>Team Lead</option><option>Intern</option>
             </select>
           </div>
         </div>
-        <div style="display:flex;gap:10px;margin-top:14px">
-          <button class="db-btn primary" onclick="createEmployee()">&#9654; CREATE ACCOUNT</button>
-        </div>
-        <div class="ls-err" id="emp-err"></div>
+        <div style="margin-top:13px"><button class="btn p" onclick="createEmp()">&#9654; CREATE ACCOUNT</button></div>
+        <div class="err-msg" id="e-err"></div>
       </div>
-
-      <div class="db-card">
-        <div class="db-card-title">// ACTIVE ACCOUNTS</div>
-        <table class="db-table" id="emp-table">
-          <thead><tr><th>DISPLAY NAME</th><th>EMAIL</th><th>ROLE</th><th>LOGINS</th><th>CREATED</th><th>ACTION</th></tr></thead>
-          <tbody id="emp-tbody"></tbody>
-        </table>
+      <div class="card">
+        <div class="card-title">// ACTIVE EMPLOYEE ACCOUNTS</div>
+        <table class="t"><thead><tr><th>NAME</th><th>EMAIL</th><th>ROLE</th><th>LOGINS</th><th>JOINED</th><th></th></tr></thead>
+        <tbody id="e-tbody"></tbody></table>
       </div>
     </div>
 
     <!-- ROSTER -->
-    <div class="db-panel" id="panel-roster">
-      <div class="db-section-tag">// VANGUARD NETWORK</div>
-      <div class="db-section-title">TEAM <span>ROSTER</span></div>
-
-      <div class="db-card">
-        <div class="db-card-title">// UPDATE MEMBER DATA</div>
-        <div class="db-form-row">
-          <div class="db-fg" style="margin:0"><label>MEMBER ID / NAME</label><input class="db-input" id="rm-name" type="text" placeholder="e.g. TAMAN or #102"></div>
-          <div class="db-fg" style="margin:0"><label>FIELD TO UPDATE</label>
-            <select class="db-select" id="rm-field">
-              <option value="rp">Respect Points</option>
-              <option value="role">Role / Skill</option>
-              <option value="unit">Chosen Unit</option>
-            </select>
+    <div class="db-panel" id="p-roster">
+      <div class="p-tag">// VANGUARD NETWORK</div>
+      <div class="p-title">TEAM <span>ROSTER</span></div>
+      <div class="card">
+        <div class="card-title">// LOG ROSTER CHANGE</div>
+        <div class="frow">
+          <div class="fg" style="margin:0"><label>MEMBER NAME OR ID</label><input class="fi" id="r-name" type="text" placeholder="#102 or TAMAN"></div>
+          <div class="fg" style="margin:0"><label>FIELD</label>
+            <select class="fsel" id="r-field"><option value="rp">Respect Points</option><option value="role">Role / Skill</option><option value="unit">Unit</option><option value="status">Status</option></select>
           </div>
         </div>
-        <div class="db-fg" style="margin-top:12px"><label>NEW VALUE</label><input class="db-input" id="rm-val" type="text" placeholder="New value..."></div>
-        <button class="db-btn primary" onclick="updateRoster()">&#9654; UPDATE ROSTER</button>
-        <div style="font-size:9px;color:var(--muted);margin-top:10px;letter-spacing:2px">NOTE: Roster changes require a site re-deploy via GitHub to take effect on the live site.</div>
+        <div class="fg" style="margin-top:11px"><label>NEW VALUE</label><input class="fi" id="r-val" type="text" placeholder="New value..."></div>
+        <button class="btn p" onclick="logRoster()">&#9654; LOG CHANGE</button>
+        <div style="font-size:8px;color:var(--muted);margin-top:9px;letter-spacing:1px;line-height:1.9">Changes logged here need to be applied in the source code to go live on the website.</div>
       </div>
-
-      <div class="db-card">
-        <div class="db-card-title">// PENDING CHANGES (this session)</div>
-        <div id="roster-changes" style="font-size:10px;color:var(--muted);line-height:2.2;letter-spacing:1px">No changes recorded this session.</div>
+      <div class="card">
+        <div class="card-title">// PENDING CHANGES THIS SESSION</div>
+        <div id="r-log" style="font-size:10px;color:var(--muted);line-height:2.2;letter-spacing:.5px">No changes logged this session.</div>
       </div>
     </div>
 
     <!-- ANNOUNCEMENTS -->
-    <div class="db-panel" id="panel-announcements">
-      <div class="db-section-tag">// INTERNAL BROADCAST</div>
-      <div class="db-section-title">ANNOUNCEMENTS <span>&amp; NEWS</span></div>
-
-      <div class="db-card">
-        <div class="db-card-title">// POST ANNOUNCEMENT</div>
-        <div class="db-form-row">
-          <div class="db-fg" style="margin:0"><label>TITLE</label><input class="db-input" id="ann-title" type="text" placeholder="Announcement title..."></div>
-          <div class="db-fg" style="margin:0"><label>CATEGORY</label>
-            <select class="db-select" id="ann-cat">
-              <option>STUDIO UPDATE</option><option>GAME NEWS</option><option>RECRUITMENT</option>
-              <option>COLLABORATION</option><option>RELEASE</option><option>INTERNAL</option>
-            </select>
+    <div class="db-panel" id="p-announce">
+      <div class="p-tag">// BROADCAST</div>
+      <div class="p-title">ANNOUNCEMENTS <span>&amp; NEWS</span></div>
+      <div class="card">
+        <div class="card-title">// POST NEW ANNOUNCEMENT</div>
+        <div class="frow">
+          <div class="fg" style="margin:0"><label>TITLE</label><input class="fi" id="a-title" type="text" placeholder="Announcement title..."></div>
+          <div class="fg" style="margin:0"><label>CATEGORY</label>
+            <select class="fsel" id="a-cat"><option>STUDIO UPDATE</option><option>GAME NEWS</option><option>RECRUITMENT</option><option>COLLABORATION</option><option>RELEASE</option><option>INTERNAL</option></select>
           </div>
         </div>
-        <div class="db-fg" style="margin-top:12px"><label>CONTENT</label>
-          <textarea class="db-input" id="ann-body" rows="5" placeholder="Write the full announcement..." style="resize:vertical"></textarea>
+        <div class="fg" style="margin-top:11px"><label>CONTENT</label>
+          <textarea class="fi" id="a-body" rows="5" style="resize:vertical" placeholder="Full announcement text..."></textarea>
         </div>
-        <button class="db-btn primary" onclick="postAnnouncement()">&#9654; POST ANNOUNCEMENT</button>
+        <button class="btn p" style="margin-top:4px" onclick="postAnn()">&#9654; POST ANNOUNCEMENT</button>
       </div>
-
-      <div class="db-card">
-        <div class="db-card-title">// POSTED ANNOUNCEMENTS</div>
-        <div id="ann-list"></div>
+      <div class="card">
+        <div class="card-title">// POSTED ANNOUNCEMENTS</div>
+        <div id="a-list"></div>
       </div>
     </div>
 
-    <!-- SITE CONTROLS -->
-    <div class="db-panel" id="panel-controls">
-      <div class="db-section-tag">// SITE CONFIGURATION</div>
-      <div class="db-section-title">SITE <span>CONTROLS</span></div>
-
-      <div class="db-card">
-        <div class="db-card-title">// FEATURE TOGGLES</div>
-        <div id="toggles-container"></div>
-        <div style="font-size:9px;color:var(--muted);margin-top:14px;letter-spacing:2px;line-height:1.9">
-          &#9632; TOGGLES AFFECT THE STUDIO SITE VIA SHARED LOCALSTORAGE<br>
-          &#9632; USERS ON SAME BROWSER SEE CHANGES IMMEDIATELY<br>
-          &#9632; FOR GLOBAL CHANGES VISIBLE TO ALL USERS, UPDATE THE SOURCE CODE
+    <!-- CONTROLS -->
+    <div class="db-panel" id="p-controls">
+      <div class="p-tag">// CONFIGURATION</div>
+      <div class="p-title">SITE <span>CONTROLS</span></div>
+      <div class="card">
+        <div class="card-title">// FEATURE TOGGLES</div>
+        <div id="tog-wrap"></div>
+        <div style="font-size:8px;color:var(--muted);margin-top:12px;letter-spacing:1px;line-height:2">
+          &#9632; TOGGLES ARE STORED IN LOCALSTORAGE — SAME-DEVICE USERS SEE CHANGES<br>
+          &#9632; FOR GLOBAL CHANGES VISIBLE TO ALL VISITORS, A CODE UPDATE IS NEEDED
         </div>
       </div>
-
-      <div class="db-card">
-        <div class="db-card-title">// DANGER ZONE</div>
+      <div class="card">
+        <div class="card-title">// DANGER ZONE</div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="db-btn danger" onclick="if(confirm('Clear all user accounts? This cannot be undone.'))clearAllAccounts()">&#9888; CLEAR ALL USER ACCOUNTS</button>
-          <button class="db-btn danger" onclick="if(confirm('Reset ALL site settings?'))resetSiteSettings()">&#9888; RESET SITE SETTINGS</button>
+          <button class="btn d" onclick="if(confirm('Clear ALL employee accounts?'))clearEmps()">&#9888; CLEAR EMPLOYEE ACCOUNTS</button>
+          <button class="btn d" onclick="if(confirm('Reset all site settings to default?'))resetSettings()">&#9888; RESET SITE SETTINGS</button>
         </div>
       </div>
     </div>
@@ -380,336 +306,283 @@
 </div>
 
 <script>
-/* ═══════════════════════════════════════════════════════
-   SYNTHRIX MISSION CONTROL — INTERNAL ADMIN PANEL
-   Security: SHA-256 hashed credentials, session storage,
-   lockout protection, no credentials in plaintext.
-   URL is the first access layer — keep it private.
-═══════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════
+   SYNTHRIX MISSION CONTROL — ADMIN PANEL
+   Credentials checked against hardcoded hashed DB.
+   No signup. Admin accounts created by studio owner.
+═══════════════════════════════════════════════════ */
 
-const SALT  = 'SX_MC_ADMIN_SALT_V1_2026';
-const DB    = 'sx_users_v2';
-const SES   = 'sx_admin_session';
-const CFG   = 'sx_admin_config';
-const ANN   = 'sx_announcements';
-const LOCK  = 'sx_admin_lockout';
-const FAIL  = 'sx_admin_fails';
-const ADMIN_KEY = 'sx_admin_master';
+const SALT = 'SX_MC_SALT_V2_2026';
 
-/* ── HASH ── */
-async function hash(s){
-  const b=new TextEncoder().encode(s+SALT);
-  const h=await crypto.subtle.digest('SHA-256',b);
-  return [...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,'0')).join('');
+/* ─── ADMIN DATABASE ───────────────────────────────
+   Accounts are stored as SHA-256 hashes.
+   To add an account: provide username + password,
+   hash will be computed and inserted here.
+   Format: { u: 'username', h: 'sha256hash', display: 'Name', role: 'Role' }
+─────────────────────────────────────────────────── */
+const ADMIN_DB = [
+  /* ACCOUNTS WILL BE ADDED HERE */
+];
+
+/* ─── LOCKOUT CONFIG ──── */
+const MAX  = 5;
+const WAIT = 15 * 60 * 1000; // 15 min
+const FKEY = 'sx_mc_fails';
+const LKEY = 'sx_mc_lock';
+const SKEY = 'sx_mc_ses';
+const EKEY = 'sx_users_v2';
+const AKEY = 'sx_announcements';
+
+async function sha256(s){
+  const b = new TextEncoder().encode(s + SALT);
+  const h = await crypto.subtle.digest('SHA-256', b);
+  return [...new Uint8Array(h)].map(x => x.toString(16).padStart(2,'0')).join('');
 }
 
-/* ── LOCKOUT ── */
-const MAX_FAILS=5, LOCK_MS=15*60*1000;
 function isLocked(){
-  const l=localStorage.getItem(LOCK); if(!l) return false;
-  if(Date.now()-+l<LOCK_MS) return true;
-  localStorage.removeItem(LOCK); localStorage.removeItem(FAIL); return false;
+  const t = localStorage.getItem(LKEY);
+  if (!t) return false;
+  if (Date.now() - +t < WAIT) return true;
+  localStorage.removeItem(LKEY); localStorage.removeItem(FKEY); return false;
 }
-function getFails(){ return +(localStorage.getItem(FAIL)||0); }
+function fails(){ return +(localStorage.getItem(FKEY)||0); }
 function addFail(){
-  const f=getFails()+1; localStorage.setItem(FAIL,f);
-  if(f>=MAX_FAILS) localStorage.setItem(LOCK,Date.now().toString());
+  const f = fails() + 1;
+  localStorage.setItem(FKEY, f);
+  if (f >= MAX) localStorage.setItem(LKEY, Date.now());
   return f;
 }
-function clearFails(){ localStorage.removeItem(FAIL); localStorage.removeItem(LOCK); }
-function lockRemaining(){ return Math.ceil((LOCK_MS-(Date.now()-+localStorage.getItem(LOCK)))/60000); }
+function clearFails(){ localStorage.removeItem(FKEY); localStorage.removeItem(LKEY); }
+function minsLeft(){ return Math.ceil((WAIT - (Date.now() - +localStorage.getItem(LKEY))) / 60000); }
 
-/* ── BOOT ── */
-window.addEventListener('load',()=>{
-  setTimeout(()=>{
-    const admin=JSON.parse(localStorage.getItem(ADMIN_KEY)||'null');
-    const bl=document.getElementById('boot-line-3');
-    if(!admin){
-      if(bl) bl.textContent='FIRST RUN DETECTED — REDIRECTING TO SETUP...';
-      setTimeout(()=>{ document.getElementById('boot-screen').classList.add('hidden'); document.getElementById('setup-screen').classList.add('show'); },800);
-    } else {
-      if(bl) bl.textContent='CREDENTIALS FOUND — LOADING LOGIN...';
-      setTimeout(()=>{ document.getElementById('boot-screen').classList.add('hidden'); document.getElementById('login-screen').classList.add('show'); updateLockoutUI(); },800);
-    }
-  },1200);
+/* ─── BOOT ──── */
+window.addEventListener('load', () => {
+  const ses = sessionStorage.getItem(SKEY);
+  const last = document.getElementById('bl-last');
+  if (ses) {
+    try {
+      const d = JSON.parse(atob(ses));
+      const admin = ADMIN_DB.find(a => a.u === d.u);
+      if (admin) {
+        if (last) last.textContent = 'SESSION RESTORED — LOADING DASHBOARD...';
+        setTimeout(() => { document.getElementById('boot').classList.add('hidden'); launch(admin); }, 700);
+        return;
+      }
+    } catch(e) { sessionStorage.removeItem(SKEY); }
+  }
+  if (last) last.textContent = 'NO ACTIVE SESSION — LOADING LOGIN...';
+  setTimeout(() => { document.getElementById('boot').classList.add('hidden'); showLogin(); }, 900);
 });
 
-/* ── FIRST RUN SETUP ── */
-async function setupAdmin(){
-  const u=document.getElementById('su-user').value.trim();
-  const p=document.getElementById('su-pass').value;
-  const c=document.getElementById('su-conf').value;
-  const err=document.getElementById('su-err');
-  err.classList.remove('show');
-  if(!u||u.length<3) return showErr(err,'USERNAME TOO SHORT — MIN 3 CHARS');
-  if(p.length<10)    return showErr(err,'PASSWORD TOO SHORT — MIN 10 CHARS');
-  if(p!==c)          return showErr(err,'PASSWORDS DO NOT MATCH');
-  const h=await hash(p);
-  localStorage.setItem(ADMIN_KEY, JSON.stringify({username:u.toLowerCase(), passHash:h, createdAt:Date.now()}));
-  document.getElementById('setup-screen').classList.remove('show');
-  document.getElementById('login-screen').classList.add('show');
-  notify('ADMIN ACCOUNT CREATED SUCCESSFULLY');
+function showLogin(){
+  document.getElementById('login').classList.add('show');
+  updateLockUI();
 }
 
-/* ── LOGIN ── */
-document.getElementById('li-pass')?.addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
-document.getElementById('li-user')?.addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('li-pass').focus(); });
+/* ─── LOGIN ──── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('login').classList.contains('show')) doLogin();
+});
 
 async function doLogin(){
-  const u=document.getElementById('li-user').value.trim().toLowerCase();
-  const p=document.getElementById('li-pass').value;
-  const btn=document.getElementById('li-btn');
-  const err=document.getElementById('li-err');
+  const u = document.getElementById('li-u').value.trim().toLowerCase();
+  const p = document.getElementById('li-p').value;
+  const btn = document.getElementById('li-btn');
+  const err = document.getElementById('li-err');
   err.classList.remove('show');
-  if(isLocked()){ updateLockoutUI(); return; }
-  btn.textContent='// AUTHENTICATING...'; btn.disabled=true;
-  await new Promise(r=>setTimeout(r,500));
-  const admin=JSON.parse(localStorage.getItem(ADMIN_KEY)||'null');
-  const inputH=await hash(p);
-  if(!admin||u!==admin.username||inputH!==admin.passHash){
-    const f=addFail();
-    btn.textContent='&#9654; AUTHENTICATE'; btn.disabled=false;
-    if(isLocked()){
-      err.classList.add('show'); err.textContent='ACCOUNT LOCKED — TOO MANY FAILED ATTEMPTS';
-      updateLockoutUI();
+  if (isLocked()){ updateLockUI(); return; }
+  if (!u || !p){ showE(err, 'ENTER USERNAME AND PASSWORD'); return; }
+  btn.innerHTML = '// VERIFYING...'; btn.disabled = true;
+  await new Promise(r => setTimeout(r, 550));
+  const inputH = await sha256(p);
+  const admin = ADMIN_DB.find(a => a.u === u && a.h === inputH);
+  btn.innerHTML = '&#9654;&nbsp; AUTHENTICATE'; btn.disabled = false;
+  if (!admin){
+    const f = addFail();
+    if (isLocked()){
+      showE(err, 'ACCOUNT LOCKED — TOO MANY FAILED ATTEMPTS');
     } else {
-      showErr(err,`ACCESS DENIED — ${MAX_FAILS-f} ATTEMPT${MAX_FAILS-f!==1?'S':''} REMAINING`);
-      document.getElementById('li-attempts').textContent='FAILED ATTEMPT '+f+' OF '+MAX_FAILS;
+      showE(err, `ACCESS DENIED — ${MAX - f} ATTEMPT${MAX - f !== 1 ? 'S' : ''} REMAINING`);
+      document.getElementById('li-tries').textContent = `ATTEMPT ${f} / ${MAX}`;
     }
-    return;
+    updateLockUI(); return;
   }
   clearFails();
-  sessionStorage.setItem(SES, btoa(JSON.stringify({u:admin.username, t:Date.now()})));
-  btn.textContent='&#9654; AUTHENTICATE'; btn.disabled=false;
-  document.getElementById('login-screen').classList.remove('show');
-  launchDashboard(admin.username.toUpperCase());
+  sessionStorage.setItem(SKEY, btoa(JSON.stringify({ u: admin.u, t: Date.now() })));
+  document.getElementById('login').classList.remove('show');
+  launch(admin);
 }
 
-function updateLockoutUI(){
-  const lk=document.getElementById('li-lockout');
-  const at=document.getElementById('li-attempts');
-  const btn=document.getElementById('li-btn');
-  if(isLocked()){
-    lk.textContent='LOCKED — TRY AGAIN IN ~'+lockRemaining()+' MINUTES'; lk.classList.add('show');
-    if(btn) btn.disabled=true;
-    at.textContent='';
-    setTimeout(updateLockoutUI, 60000);
-  } else {
-    lk.classList.remove('show'); if(btn) btn.disabled=false;
-  }
+function updateLockUI(){
+  const lk = document.getElementById('li-lock');
+  const btn = document.getElementById('li-btn');
+  const tr = document.getElementById('li-tries');
+  if (isLocked()){
+    lk.textContent = `LOCKED — TRY AGAIN IN ${minsLeft()} MINUTE${minsLeft()!==1?'S':''}`;
+    lk.classList.add('show'); if(btn) btn.disabled = true; tr.textContent = '';
+    setTimeout(updateLockUI, 60000);
+  } else { lk.classList.remove('show'); if(btn) btn.disabled = false; }
 }
 
-/* ── SIGN OUT ── */
-function doSignOut(){
-  if(!confirm('Sign out of Mission Control?')) return;
-  sessionStorage.removeItem(SES);
+/* ─── SIGN OUT ──── */
+function signOut(){
+  if (!confirm('Sign out of Mission Control?')) return;
+  sessionStorage.removeItem(SKEY);
   window.location.reload();
 }
 
-/* ── DASHBOARD INIT ── */
-function launchDashboard(username){
-  document.getElementById('db-username').textContent=username;
+/* ─── LAUNCH DASHBOARD ──── */
+function launch(admin){
+  document.getElementById('db-uname').textContent = admin.display || admin.u.toUpperCase();
+  document.getElementById('db-urole').textContent = admin.role || 'ADMINISTRATOR';
   document.getElementById('dashboard').classList.add('show');
-  renderOverview();
-  renderEmployees();
-  renderAnnouncements();
-  renderToggles();
-  showPanel('overview');
+  renderOverview(); renderEmps(); renderAnns(); renderToggles();
 }
 
-function showPanel(id){
-  document.querySelectorAll('.db-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.db-nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('panel-'+id)?.classList.add('active');
-  document.querySelector(`.db-nav-item[data-panel="${id}"]`)?.classList.add('active');
+function sp(id){
+  document.querySelectorAll('.db-panel').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.sb-item').forEach(n => n.classList.remove('on'));
+  document.getElementById('p-' + id)?.classList.add('on');
+  document.querySelector(`.sb-item[data-p="${id}"]`)?.classList.add('on');
 }
 
-/* ── OVERVIEW ── */
+/* ─── OVERVIEW ──── */
 function renderOverview(){
-  const users=JSON.parse(localStorage.getItem(DB)||'[]');
-  const anns=JSON.parse(localStorage.getItem(ANN)||'[]');
-  const sc=document.getElementById('overview-stats');
-  sc.innerHTML=`
-    <div class="stat-card"><div class="sc-val">${users.length}</div><div class="sc-label">EMPLOYEE ACCOUNTS</div></div>
-    <div class="stat-card"><div class="sc-val">${anns.length}</div><div class="sc-label">ANNOUNCEMENTS</div></div>
-    <div class="stat-card"><div class="sc-val">${users.filter(u=>u.loginCount>0).length}</div><div class="sc-label">ACTIVE USERS</div></div>
-    <div class="stat-card"><div class="sc-val" style="font-size:16px;margin-top:4px">${new Date().toLocaleDateString('en-GB')}</div><div class="sc-label">SESSION DATE</div></div>
+  const emps = JSON.parse(localStorage.getItem(EKEY)||'[]');
+  const anns = JSON.parse(localStorage.getItem(AKEY)||'[]');
+  document.getElementById('ov-stats').innerHTML = `
+    <div class="sc"><div class="sc-v">${emps.length}</div><div class="sc-l">EMPLOYEE ACCOUNTS</div></div>
+    <div class="sc"><div class="sc-v">${emps.filter(u=>u.loginCount>0).length}</div><div class="sc-l">ACTIVE USERS</div></div>
+    <div class="sc"><div class="sc-v">${anns.length}</div><div class="sc-l">ANNOUNCEMENTS</div></div>
+    <div class="sc"><div class="sc-v" style="font-size:14px;margin-top:6px">${new Date().toLocaleDateString('en-GB')}</div><div class="sc-l">SESSION DATE</div></div>
   `;
-  const act=document.getElementById('overview-activity');
-  const recentLogins=users.filter(u=>u.loginCount>0).sort((a,b)=>b.loginCount-a.loginCount).slice(0,5);
-  if(recentLogins.length===0){ act.textContent='No user activity recorded yet.'; return; }
-  act.innerHTML=recentLogins.map(u=>`<div>&#9632; <span style="color:var(--green)">${u.displayName}</span> — ${u.loginCount} login${u.loginCount!==1?'s':''} &nbsp;·&nbsp; <span style="color:var(--muted)">${u.email}</span></div>`).join('');
+  const top = emps.filter(u=>u.loginCount>0).sort((a,b)=>b.loginCount-a.loginCount).slice(0,6);
+  const act = document.getElementById('ov-activity');
+  act.innerHTML = top.length ? top.map(u=>`<div>&#9632; <span style="color:var(--green)">${u.displayName}</span> &nbsp;—&nbsp; ${u.loginCount} login${u.loginCount!==1?'s':''} <span style="color:var(--muted);font-size:9px">&nbsp;·&nbsp; ${u.email}</span></div>`).join('') : '<span style="color:var(--muted)">No employee logins recorded yet.</span>';
 }
 
-/* ── EMPLOYEES ── */
-async function createEmployee(){
-  const name=document.getElementById('emp-name').value.trim();
-  const email=document.getElementById('emp-email').value.trim().toLowerCase();
-  const pass=document.getElementById('emp-pass').value;
-  const role=document.getElementById('emp-role').value;
-  const err=document.getElementById('emp-err');
+/* ─── EMPLOYEES ──── */
+async function createEmp(){
+  const name  = document.getElementById('e-name').value.trim();
+  const email = document.getElementById('e-email').value.trim().toLowerCase();
+  const pass  = document.getElementById('e-pass').value;
+  const role  = document.getElementById('e-role').value;
+  const err   = document.getElementById('e-err');
   err.classList.remove('show');
-  if(!name)            return showErr(err,'DISPLAY NAME REQUIRED');
-  if(!email.includes('@')) return showErr(err,'INVALID EMAIL');
-  if(pass.length<6)    return showErr(err,'PASSWORD TOO SHORT — MIN 6 CHARS');
-  const users=JSON.parse(localStorage.getItem(DB)||'[]');
-  if(users.find(u=>u.email===email)) return showErr(err,'EMAIL ALREADY EXISTS');
-  /* reuse same hash function as main site */
-  const b=new TextEncoder().encode(pass+'SX_STUDIO_SALT_V2_2026');
-  const h=await crypto.subtle.digest('SHA-256',b);
-  const passHash=[...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,'0')).join('');
-  users.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2),email,displayName:name.toUpperCase(),passHash,createdAt:Date.now(),loginCount:0,achievements:{},role});
-  localStorage.setItem(DB,JSON.stringify(users));
-  ['emp-name','emp-email','emp-pass'].forEach(id=>document.getElementById(id).value='');
-  notify('ACCOUNT CREATED: '+name.toUpperCase());
-  renderEmployees();
-  renderOverview();
+  if (!name)            return showE(err,'DISPLAY NAME REQUIRED');
+  if (!email.includes('@')) return showE(err,'INVALID EMAIL');
+  if (pass.length < 6)  return showE(err,'PASSWORD TOO SHORT — MIN 6 CHARS');
+  const emps = JSON.parse(localStorage.getItem(EKEY)||'[]');
+  if (emps.find(u=>u.email===email)) return showE(err,'EMAIL ALREADY EXISTS');
+  /* uses same salt as main site login */
+  const b = new TextEncoder().encode(pass + 'SX_STUDIO_SALT_V2_2026');
+  const h = await crypto.subtle.digest('SHA-256', b);
+  const ph = [...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,'0')).join('');
+  emps.push({ id: Date.now().toString(36)+Math.random().toString(36).slice(2), email, displayName: name.toUpperCase(), passHash: ph, createdAt: Date.now(), loginCount: 0, achievements: {}, role });
+  localStorage.setItem(EKEY, JSON.stringify(emps));
+  ['e-name','e-email','e-pass'].forEach(i=>document.getElementById(i).value='');
+  notify('ACCOUNT CREATED: ' + name.toUpperCase());
+  renderEmps(); renderOverview();
 }
 
-function renderEmployees(){
-  const users=JSON.parse(localStorage.getItem(DB)||'[]');
-  const tbody=document.getElementById('emp-tbody');
-  if(!users.length){ tbody.innerHTML='<tr><td colspan="6" style="color:var(--muted);font-size:10px;letter-spacing:2px">NO ACCOUNTS YET</td></tr>'; return; }
-  tbody.innerHTML=users.map(u=>`
+function renderEmps(){
+  const emps = JSON.parse(localStorage.getItem(EKEY)||'[]');
+  const tb = document.getElementById('e-tbody');
+  tb.innerHTML = emps.length ? emps.map(u=>`
     <tr>
-      <td><span style="color:var(--white)">${u.displayName}</span></td>
-      <td style="color:var(--muted)">${u.email}</td>
-      <td><span class="db-badge orange">${u.role||'—'}</span></td>
+      <td style="color:var(--white)">${u.displayName}</td>
+      <td style="color:var(--muted);font-size:9px">${u.email}</td>
+      <td><span class="badge o">${u.role||'—'}</span></td>
       <td style="color:var(--green)">${u.loginCount||0}</td>
-      <td style="color:var(--muted);font-size:9px">${new Date(u.createdAt).toLocaleDateString('en-GB')}</td>
-      <td><button class="db-btn danger" style="font-size:7px;padding:5px 10px" onclick="deleteEmployee('${u.id}')">REMOVE</button></td>
-    </tr>
-  `).join('');
+      <td style="color:var(--muted);font-size:8px">${new Date(u.createdAt).toLocaleDateString('en-GB')}</td>
+      <td><button class="btn d" style="font-size:7px;padding:4px 9px" onclick="delEmp('${u.id}')">REMOVE</button></td>
+    </tr>`).join('')
+    : '<tr><td colspan="6" style="color:var(--muted);font-size:9px;letter-spacing:2px">NO ACCOUNTS YET</td></tr>';
 }
 
-function deleteEmployee(id){
-  if(!confirm('Remove this account permanently?')) return;
-  const users=JSON.parse(localStorage.getItem(DB)||'[]').filter(u=>u.id!==id);
-  localStorage.setItem(DB,JSON.stringify(users));
-  notify('ACCOUNT REMOVED');
-  renderEmployees(); renderOverview();
+function delEmp(id){
+  if (!confirm('Remove this employee account permanently?')) return;
+  const emps = JSON.parse(localStorage.getItem(EKEY)||'[]').filter(u=>u.id!==id);
+  localStorage.setItem(EKEY, JSON.stringify(emps));
+  notify('ACCOUNT REMOVED'); renderEmps(); renderOverview();
 }
 
-/* ── ROSTER ── */
-let rosterChanges=[];
-function updateRoster(){
-  const name=document.getElementById('rm-name').value.trim();
-  const field=document.getElementById('rm-field').value;
-  const val=document.getElementById('rm-val').value.trim();
-  if(!name||!val){ notify('FILL ALL FIELDS'); return; }
-  rosterChanges.push({name,field,val,time:new Date().toLocaleTimeString()});
-  document.getElementById('roster-changes').innerHTML=rosterChanges.map(c=>`<div>&#9632; <span style="color:var(--green)">${c.name}</span> · ${c.field.toUpperCase()} → <span style="color:var(--white)">${c.val}</span> <span style="color:var(--muted);font-size:8px">(${c.time})</span></div>`).join('');
-  notify('CHANGE RECORDED — APPLY TO CODE TO GO LIVE');
-  document.getElementById('rm-name').value=''; document.getElementById('rm-val').value='';
+/* ─── ROSTER ──── */
+let rLog = [];
+function logRoster(){
+  const name = document.getElementById('r-name').value.trim();
+  const field = document.getElementById('r-field').value;
+  const val = document.getElementById('r-val').value.trim();
+  if (!name || !val){ notify('FILL ALL FIELDS'); return; }
+  rLog.push({ name, field, val, time: new Date().toLocaleTimeString() });
+  document.getElementById('r-log').innerHTML = rLog.map(c=>`<div>&#9632; <span style="color:var(--green)">${c.name}</span> · ${c.field.toUpperCase()} → <span style="color:var(--white)">${c.val}</span> <span style="color:var(--muted);font-size:8px">(${c.time})</span></div>`).join('');
+  notify('CHANGE LOGGED');
+  document.getElementById('r-name').value = ''; document.getElementById('r-val').value = '';
 }
 
-/* ── ANNOUNCEMENTS ── */
-function postAnnouncement(){
-  const title=document.getElementById('ann-title').value.trim();
-  const body=document.getElementById('ann-body').value.trim();
-  const cat=document.getElementById('ann-cat').value;
-  if(!title||!body){ notify('TITLE AND CONTENT REQUIRED'); return; }
-  const anns=JSON.parse(localStorage.getItem(ANN)||'[]');
-  anns.unshift({id:Date.now(),title,body,cat,date:new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}).toUpperCase()});
-  localStorage.setItem(ANN,JSON.stringify(anns));
-  document.getElementById('ann-title').value=''; document.getElementById('ann-body').value='';
-  notify('ANNOUNCEMENT POSTED');
-  renderAnnouncements(); renderOverview();
+/* ─── ANNOUNCEMENTS ──── */
+function postAnn(){
+  const title = document.getElementById('a-title').value.trim();
+  const body  = document.getElementById('a-body').value.trim();
+  const cat   = document.getElementById('a-cat').value;
+  if (!title || !body){ notify('TITLE AND CONTENT REQUIRED'); return; }
+  const anns = JSON.parse(localStorage.getItem(AKEY)||'[]');
+  anns.unshift({ id: Date.now(), title, body, cat, date: new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}).toUpperCase() });
+  localStorage.setItem(AKEY, JSON.stringify(anns));
+  document.getElementById('a-title').value = ''; document.getElementById('a-body').value = '';
+  notify('ANNOUNCEMENT POSTED'); renderAnns(); renderOverview();
 }
 
-function renderAnnouncements(){
-  const anns=JSON.parse(localStorage.getItem(ANN)||'[]');
-  const el=document.getElementById('ann-list');
-  if(!anns.length){ el.innerHTML='<div style="color:var(--muted);font-size:10px;letter-spacing:2px">NO ANNOUNCEMENTS YET</div>'; return; }
-  el.innerHTML=anns.map(a=>`
-    <div style="padding:14px 0;border-bottom:1px solid var(--bord)">
+function renderAnns(){
+  const anns = JSON.parse(localStorage.getItem(AKEY)||'[]');
+  const el = document.getElementById('a-list');
+  el.innerHTML = anns.length ? anns.map(a=>`
+    <div style="padding:13px 0;border-bottom:1px solid var(--bord)">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-        <div><span class="db-badge green">${a.cat}</span>&nbsp;&nbsp;<span style="font-size:10px;letter-spacing:2px;color:var(--white)">${a.title}</span></div>
-        <div style="display:flex;align-items:center;gap:10px">
-          <span style="font-size:8px;color:var(--muted);letter-spacing:2px">${a.date}</span>
-          <button class="db-btn danger" style="font-size:7px;padding:4px 8px" onclick="deleteAnn(${a.id})">DEL</button>
+        <div><span class="badge g">${a.cat}</span>&nbsp;&nbsp;<span style="font-size:10px;letter-spacing:2px;color:var(--white)">${a.title}</span></div>
+        <div style="display:flex;align-items:center;gap:9px">
+          <span style="font-size:7px;color:var(--muted);letter-spacing:2px">${a.date}</span>
+          <button class="btn d" style="font-size:6px;padding:3px 7px" onclick="delAnn(${a.id})">DEL</button>
         </div>
       </div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.7;letter-spacing:.3px">${a.body}</div>
-    </div>
-  `).join('');
+      <div style="font-size:11px;color:var(--muted);line-height:1.75;letter-spacing:.3px">${a.body}</div>
+    </div>`).join('') : '<div style="color:var(--muted);font-size:9px;letter-spacing:2px">NO ANNOUNCEMENTS YET</div>';
 }
 
-function deleteAnn(id){
-  const anns=JSON.parse(localStorage.getItem(ANN)||'[]').filter(a=>a.id!==id);
-  localStorage.setItem(ANN,JSON.stringify(anns));
-  renderAnnouncements();
+function delAnn(id){
+  const anns = JSON.parse(localStorage.getItem(AKEY)||'[]').filter(a=>a.id!==id);
+  localStorage.setItem(AKEY, JSON.stringify(anns)); renderAnns();
 }
 
-/* ── SITE CONTROLS / TOGGLES ── */
-const SITE_TOGGLES=[
-  {key:'sx_feat_particles',    label:'PARTICLE EFFECTS',         sub:'Hero canvas particles on studio page'},
-  {key:'sx_feat_collab_notif', label:'COLLAB NOTIFICATION',      sub:'Show DarkStar × SYNTHRIX popup'},
-  {key:'sx_feat_achievements', label:'ACHIEVEMENT SYSTEM',        sub:'Enable user achievement unlocking'},
-  {key:'sx_feat_idle',         label:'CINEMATIC IDLE MODE',       sub:'Dim screen after 26s inactivity'},
-  {key:'sx_feat_ripple',       label:'BUTTON RIPPLE EFFECTS',     sub:'Click ripple animation on buttons'},
-  {key:'sx_feat_maintenance',  label:'MAINTENANCE MODE',          sub:'Show maintenance message to users (NOT YET IMPLEMENTED — code change needed)'},
+/* ─── SITE CONTROLS ──── */
+const TOGGLES = [
+  { key:'sx_feat_particles',    label:'PARTICLE EFFECTS',       sub:'Canvas particles on hero section' },
+  { key:'sx_feat_collab_notif', label:'COLLAB NOTIFICATION',    sub:'DarkStar × SYNTHRIX popup toast' },
+  { key:'sx_feat_achievements', label:'ACHIEVEMENT SYSTEM',      sub:'User achievement unlocking' },
+  { key:'sx_feat_idle',         label:'CINEMATIC IDLE MODE',     sub:'Screen dims after 26s inactivity' },
+  { key:'sx_feat_ripple',       label:'BUTTON RIPPLE EFFECTS',   sub:'Click ripple animations' },
 ];
-
 function renderToggles(){
-  const c=document.getElementById('toggles-container');
-  c.innerHTML=SITE_TOGGLES.map(t=>{
-    const on=localStorage.getItem(t.key)!=='false';
-    return`<div class="db-toggle-row">
-      <div><div class="db-toggle-label">${t.label}</div><div class="db-toggle-sub">${t.sub}</div></div>
-      <label class="db-toggle">
-        <input type="checkbox" ${on?'checked':''} onchange="setToggle('${t.key}',this.checked)">
-        <div class="db-toggle-track"></div>
-      </label>
+  document.getElementById('tog-wrap').innerHTML = TOGGLES.map(t => {
+    const on = localStorage.getItem(t.key) !== 'false';
+    return `<div class="tog-row">
+      <div><div class="tog-label">${t.label}</div><div class="tog-sub">${t.sub}</div></div>
+      <label class="tog"><input type="checkbox" ${on?'checked':''} onchange="setTog('${t.key}',this.checked)">
+      <div class="tog-track"></div></label>
     </div>`;
   }).join('');
 }
+function setTog(k, v){ localStorage.setItem(k, v); notify(k.replace('sx_feat_','').replace(/_/g,' ').toUpperCase()+': '+(v?'ON':'OFF')); }
+function clearEmps(){ localStorage.removeItem(EKEY); notify('EMPLOYEE ACCOUNTS CLEARED'); renderEmps(); renderOverview(); }
+function resetSettings(){ TOGGLES.forEach(t=>localStorage.removeItem(t.key)); renderToggles(); notify('SETTINGS RESET'); }
 
-function setToggle(key,val){
-  localStorage.setItem(key,val.toString());
-  notify(key.replace('sx_feat_','').toUpperCase().replace(/_/g,' ')+': '+(val?'ON':'OFF'));
-}
-
-/* ── DANGER ZONE ── */
-function clearAllAccounts(){
-  localStorage.removeItem(DB);
-  notify('ALL USER ACCOUNTS CLEARED');
-  renderEmployees(); renderOverview();
-}
-function resetSiteSettings(){
-  SITE_TOGGLES.forEach(t=>localStorage.removeItem(t.key));
-  renderToggles();
-  notify('SITE SETTINGS RESET TO DEFAULT');
-}
-
-/* ── UTILITIES ── */
-function showErr(el,msg){ el.textContent=msg; el.classList.add('show'); }
-
+/* ─── HELPERS ──── */
+function showE(el, msg){ el.textContent = msg; el.classList.add('show'); }
 function notify(msg){
-  const el=document.getElementById('db-notif');
-  el.textContent='&#9632; '+msg;
-  el.classList.add('show');
-  clearTimeout(el._t);
-  el._t=setTimeout(()=>el.classList.remove('show'),3500);
+  const el = document.getElementById('notif');
+  el.textContent = '■ ' + msg; el.classList.add('show');
+  clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 3200);
 }
-
-/* ── SESSION CHECK ── */
-(function(){
-  const ses=sessionStorage.getItem(SES);
-  if(ses){
-    try{
-      const data=JSON.parse(atob(ses));
-      const admin=JSON.parse(localStorage.getItem(ADMIN_KEY)||'null');
-      if(admin&&data.u===admin.username){
-        /* already logged in this session */
-        setTimeout(()=>{
-          document.getElementById('boot-screen').classList.add('hidden');
-          launchDashboard(data.u.toUpperCase());
-        },600);
-      }
-    }catch(e){ sessionStorage.removeItem(SES); }
-  }
-})();
 </script>
 </body>
 </html>
