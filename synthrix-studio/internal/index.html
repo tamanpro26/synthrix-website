@@ -127,6 +127,28 @@
     .tog-track::before{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;top:2px;left:2px;transition:.3s}
     .tog input:checked+.tog-track::before{transform:translateX(20px);background:var(--green)}
 
+    /* ── GAME CARDS ── */
+    .game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-top:4px}
+    .game-card-adm{background:var(--bg2);border:1px solid var(--bord);border-radius:3px;overflow:hidden;transition:border-color .3s}
+    .game-card-adm:hover{border-color:var(--bordhi)}
+    .gc-thumb{width:100%;height:140px;object-fit:cover;object-position:top center;display:block;border-bottom:1px solid var(--bord)}
+    .gc-thumb-placeholder{width:100%;height:140px;background:linear-gradient(135deg,#050a08,#0a1410);display:flex;align-items:center;justify-content:center;font-size:32px;border-bottom:1px solid var(--bord)}
+    .gc-body{padding:14px 16px}
+    .gc-status-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .gc-title-adm{font-size:11px;letter-spacing:2px;color:var(--white);font-weight:bold;margin-bottom:4px}
+    .gc-genre{font-size:8px;letter-spacing:2px;color:var(--muted);margin-bottom:8px}
+    .gc-desc{font-size:10px;color:rgba(226,232,228,0.50);line-height:1.7;letter-spacing:.3px;max-height:52px;overflow:hidden}
+    .gc-actions{display:flex;gap:7px;margin-top:10px;padding-top:10px;border-top:1px solid var(--bord)}
+    /* ── ACHIEVEMENT PREVIEW CARDS ── */
+    .ach-preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:4px}
+    .ach-prev-card{background:var(--bg2);border:1px solid var(--bord);border-radius:3px;padding:16px 18px;display:flex;align-items:flex-start;gap:13px;transition:border-color .3s}
+    .ach-prev-card:hover{border-color:var(--bordhi)}
+    .ach-prev-ico{font-size:28px;flex-shrink:0}
+    .ach-prev-name{font-size:10px;letter-spacing:2px;color:var(--white);font-weight:bold;margin-bottom:4px}
+    .ach-prev-desc{font-size:9px;letter-spacing:1px;color:var(--muted);line-height:1.6}
+    .ach-prev-id{font-size:7px;letter-spacing:3px;color:rgba(34,197,94,0.45);margin-top:5px}
+    .ach-trigger-note{font-size:8px;letter-spacing:2px;color:rgba(255,107,53,0.55);margin-top:6px;line-height:1.7;padding:7px 10px;background:rgba(255,107,53,0.05);border:1px solid rgba(255,107,53,0.15);border-radius:2px}
+
     /* notif toast */
     #notif{position:fixed;top:22px;right:22px;z-index:9999;background:var(--bg2);border:1px solid rgba(34,197,94,0.42);border-left:3px solid var(--green);padding:11px 16px;border-radius:2px;font-size:8px;letter-spacing:3px;color:rgba(34,197,94,0.82);transform:translateX(calc(100% + 30px));opacity:0;transition:transform .4s cubic-bezier(.2,.9,.4,1),opacity .3s;max-width:260px;pointer-events:none}
     #notif.show{transform:translateX(0);opacity:1}
@@ -186,6 +208,8 @@
       <div class="sb-item"     data-p="employees" onclick="sp('employees')"><span class="sb-ico">👤</span>EMPLOYEES</div>
       <div class="sb-item"     data-p="roster"    onclick="sp('roster')">   <span class="sb-ico">🎖️</span>ROSTER</div>
       <div class="sb-item"     data-p="announce"  onclick="sp('announce')"> <span class="sb-ico">📡</span>ANNOUNCEMENTS</div>
+      <div class="sb-item"     data-p="games"     onclick="sp('games')">    <span class="sb-ico">🎮</span>GAMES</div>
+      <div class="sb-item"     data-p="achievements" onclick="sp('achievements')"><span class="sb-ico">🏆</span>ACHIEVEMENTS</div>
       <div class="sb-item"     data-p="controls"  onclick="sp('controls')"> <span class="sb-ico">⚙️</span>SITE CONTROLS</div>
     </nav>
     <div class="sb-signout">
@@ -278,6 +302,105 @@
       <div class="card">
         <div class="card-title">// POSTED ANNOUNCEMENTS</div>
         <div id="a-list"></div>
+      </div>
+    </div>
+
+    <!-- GAMES -->
+    <div class="db-panel" id="p-games">
+      <div class="p-tag">// GAME LIBRARY MANAGEMENT</div>
+      <div class="p-title">GAMES <span>MANAGER</span></div>
+
+      <div class="card">
+        <div class="card-title">// ADD NEW GAME</div>
+        <div class="frow">
+          <div class="fg" style="margin:0"><label>GAME TITLE</label><input class="fi" id="g-title" type="text" placeholder="e.g. OVERDRIVE"></div>
+          <div class="fg" style="margin:0"><label>GENRE / TYPE</label><input class="fi" id="g-genre" type="text" placeholder="e.g. Arcade Racing"></div>
+        </div>
+        <div class="fg" style="margin-top:11px"><label>THUMBNAIL IMAGE URL</label>
+          <input class="fi" id="g-thumb" type="url" placeholder="https://... (paste image URL or itch.io CDN link)">
+        </div>
+        <div class="fg" id="g-thumb-preview-wrap" style="display:none">
+          <label>THUMBNAIL PREVIEW</label>
+          <img id="g-thumb-preview" src="" alt="Preview" style="width:100%;max-height:160px;object-fit:cover;object-position:top;border-radius:2px;border:1px solid var(--bord)">
+        </div>
+        <div class="fg"><label>GAME DESCRIPTION</label>
+          <textarea class="fi" id="g-desc" rows="4" style="resize:vertical" placeholder="Describe the game — story, gameplay, atmosphere..."></textarea>
+        </div>
+        <div class="frow">
+          <div class="fg" style="margin:0"><label>PLATFORM</label>
+            <select class="fsel" id="g-platform">
+              <option>Windows PC</option><option>Android</option><option>Web (Browser)</option><option>Windows + Android</option><option>TBA</option>
+            </select>
+          </div>
+          <div class="fg" style="margin:0"><label>STATUS</label>
+            <select class="fsel" id="g-status">
+              <option value="live">LIVE</option><option value="dev">IN DEVELOPMENT</option><option value="soon">COMING SOON</option><option value="beta">BETA</option>
+            </select>
+          </div>
+        </div>
+        <div class="frow" style="margin-top:11px">
+          <div class="fg" style="margin:0"><label>DOWNLOAD / STORE LINK</label><input class="fi" id="g-link" type="url" placeholder="https://github.com/... or itch.io link"></div>
+          <div class="fg" style="margin:0"><label>FILE SIZE (optional)</label><input class="fi" id="g-size" type="text" placeholder="e.g. 435 MB"></div>
+        </div>
+        <div style="margin-top:13px;display:flex;gap:10px">
+          <button class="btn p" onclick="addGame()">&#9654; ADD GAME TO LIBRARY</button>
+          <button class="btn" style="background:transparent;border:1px solid var(--bord);color:var(--muted)" onclick="clearGameForm()">CLEAR</button>
+        </div>
+        <div class="err-msg" id="g-err"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">// GAME LIBRARY &nbsp;<span id="g-count" style="color:var(--muted);font-weight:normal;font-size:8px"></span></div>
+        <div class="game-grid" id="g-grid"></div>
+      </div>
+    </div>
+
+    <!-- CUSTOM ACHIEVEMENTS -->
+    <div class="db-panel" id="p-achievements">
+      <div class="p-tag">// ACHIEVEMENT SYSTEM</div>
+      <div class="p-title">CUSTOM <span>ACHIEVEMENTS</span></div>
+
+      <div class="card">
+        <div class="card-title">// CREATE CUSTOM ACHIEVEMENT</div>
+        <div class="frow">
+          <div class="fg" style="margin:0"><label>ACHIEVEMENT ID (unique, no spaces)</label><input class="fi" id="ac-id" type="text" placeholder="e.g. beta_tester" spellcheck="false"></div>
+          <div class="fg" style="margin:0"><label>ICON (emoji)</label><input class="fi" id="ac-ico" type="text" placeholder="e.g. 🧪" maxlength="4" style="font-size:22px;text-align:center"></div>
+        </div>
+        <div class="frow" style="margin-top:11px">
+          <div class="fg" style="margin:0"><label>DISPLAY NAME (ALL CAPS)</label><input class="fi" id="ac-name" type="text" placeholder="e.g. BETA TESTER"></div>
+          <div class="fg" style="margin:0"><label>CATEGORY (optional)</label>
+            <select class="fsel" id="ac-cat">
+              <option value="account">Account</option><option value="exploration">Exploration</option>
+              <option value="download">Downloads</option><option value="engagement">Engagement</option>
+              <option value="special">Special / Secret</option><option value="time">Time-based</option><option value="meta">Meta</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg" style="margin-top:11px"><label>DESCRIPTION (what the user did to earn it)</label>
+          <input class="fi" id="ac-desc" type="text" placeholder="e.g. Participated in the beta testing program">
+        </div>
+        <div class="fg"><label>TRIGGER NOTE — HOW IT WILL BE ACTIVATED (for your reference)</label>
+          <textarea class="fi" id="ac-trigger" rows="2" style="resize:vertical" placeholder="e.g. Manually unlocked by admin for beta testers / Unlocked when user clicks X / etc."></textarea>
+        </div>
+        <div style="margin-top:13px"><button class="btn p" onclick="addAch()">&#9654; CREATE ACHIEVEMENT</button></div>
+        <div class="err-msg" id="ac-err"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">// UNLOCK ACHIEVEMENT FOR USER</div>
+        <div class="frow">
+          <div class="fg" style="margin:0"><label>USER EMAIL</label><input class="fi" id="au-email" type="email" placeholder="employee@email.com"></div>
+          <div class="fg" style="margin:0"><label>ACHIEVEMENT ID</label>
+            <select class="fsel" id="au-id"><option value="">— select achievement —</option></select>
+          </div>
+        </div>
+        <div style="margin-top:11px"><button class="btn p" onclick="unlockForUser()">&#9654; UNLOCK FOR USER</button></div>
+        <div class="err-msg" id="au-err"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">// CUSTOM ACHIEVEMENTS LIBRARY &nbsp;<span id="ac-count" style="color:var(--muted);font-weight:normal;font-size:8px"></span></div>
+        <div class="ach-preview-grid" id="ac-grid"></div>
       </div>
     </div>
 
@@ -437,6 +560,7 @@ function launch(admin){
   document.getElementById('db-urole').textContent = admin.role || 'ADMINISTRATOR';
   document.getElementById('dashboard').classList.add('show');
   renderOverview(); renderEmps(); renderAnns(); renderToggles();
+  renderGames(); renderAchs(); populateAchSelect();
 }
 
 function sp(id){
@@ -575,6 +699,170 @@ function renderToggles(){
 function setTog(k, v){ localStorage.setItem(k, v); notify(k.replace('sx_feat_','').replace(/_/g,' ').toUpperCase()+': '+(v?'ON':'OFF')); }
 function clearEmps(){ localStorage.removeItem(EKEY); notify('EMPLOYEE ACCOUNTS CLEARED'); renderEmps(); renderOverview(); }
 function resetSettings(){ TOGGLES.forEach(t=>localStorage.removeItem(t.key)); renderToggles(); notify('SETTINGS RESET'); }
+
+/* ─── GAMES ──── */
+const GKEY = 'sx_custom_games';
+
+/* live thumbnail preview as user types URL */
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('g-thumb')?.addEventListener('input', function(){
+    const pw = document.getElementById('g-thumb-preview-wrap');
+    const pi = document.getElementById('g-thumb-preview');
+    if (this.value.startsWith('http')){ pw.style.display='block'; pi.src=this.value; }
+    else pw.style.display='none';
+  });
+});
+
+const STATUS_LABELS = { live:'LIVE', dev:'IN DEVELOPMENT', soon:'COMING SOON', beta:'BETA' };
+const STATUS_COLOR  = { live:'g', dev:'o', soon:'', beta:'o' };
+
+function addGame(){
+  const title    = document.getElementById('g-title').value.trim();
+  const genre    = document.getElementById('g-genre').value.trim();
+  const thumb    = document.getElementById('g-thumb').value.trim();
+  const desc     = document.getElementById('g-desc').value.trim();
+  const platform = document.getElementById('g-platform').value;
+  const status   = document.getElementById('g-status').value;
+  const link     = document.getElementById('g-link').value.trim();
+  const size     = document.getElementById('g-size').value.trim();
+  const err      = document.getElementById('g-err');
+  err.classList.remove('show');
+  if (!title) return showE(err, 'GAME TITLE REQUIRED');
+  if (!desc)  return showE(err, 'DESCRIPTION REQUIRED');
+  const games = JSON.parse(localStorage.getItem(GKEY)||'[]');
+  games.unshift({ id: Date.now(), title: title.toUpperCase(), genre, thumb, desc, platform, status, link, size, addedAt: Date.now() });
+  localStorage.setItem(GKEY, JSON.stringify(games));
+  clearGameForm();
+  notify('GAME ADDED: ' + title.toUpperCase());
+  renderGames();
+}
+
+function clearGameForm(){
+  ['g-title','g-genre','g-thumb','g-desc','g-link','g-size'].forEach(i=>{ const el=document.getElementById(i); if(el)el.value=''; });
+  document.getElementById('g-thumb-preview-wrap').style.display='none';
+  document.getElementById('g-err').classList.remove('show');
+}
+
+function renderGames(){
+  const games = JSON.parse(localStorage.getItem(GKEY)||'[]');
+  const grid  = document.getElementById('g-grid');
+  const cnt   = document.getElementById('g-count');
+  if (cnt) cnt.textContent = games.length + ' GAME' + (games.length!==1?'S':'');
+  if (!grid) return;
+  if (!games.length){
+    grid.innerHTML = '<div style="color:var(--muted);font-size:9px;letter-spacing:2px;padding:8px 0">NO GAMES IN LIBRARY YET</div>';
+    return;
+  }
+  grid.innerHTML = games.map(g => `
+    <div class="game-card-adm">
+      ${g.thumb
+        ? `<img class="gc-thumb" src="${g.thumb}" alt="${g.title}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        : ''}
+      <div class="gc-thumb-placeholder" style="${g.thumb?'display:none':''}">🎮</div>
+      <div class="gc-body">
+        <div class="gc-status-row">
+          <span class="badge ${STATUS_COLOR[g.status]||''}">${STATUS_LABELS[g.status]||g.status}</span>
+          <span style="font-size:7px;letter-spacing:2px;color:var(--muted)">${g.platform}</span>
+        </div>
+        <div class="gc-title-adm">${g.title}</div>
+        <div class="gc-genre">${g.genre||'—'}${g.size?' &nbsp;·&nbsp; '+g.size:''}</div>
+        <div class="gc-desc">${g.desc}</div>
+        <div class="gc-actions">
+          ${g.link ? `<a href="${g.link}" target="_blank" rel="noopener" class="btn p" style="font-size:7px;padding:5px 10px;text-decoration:none">&#8599; OPEN LINK</a>` : ''}
+          <button class="btn d" style="font-size:7px;padding:5px 10px;margin-left:auto" onclick="delGame(${g.id})">REMOVE</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function delGame(id){
+  if (!confirm('Remove this game from the library?')) return;
+  const games = JSON.parse(localStorage.getItem(GKEY)||'[]').filter(g=>g.id!==id);
+  localStorage.setItem(GKEY, JSON.stringify(games));
+  notify('GAME REMOVED'); renderGames();
+}
+
+/* ─── CUSTOM ACHIEVEMENTS ──── */
+const CKEY = 'sx_custom_achievements';
+
+function addAch(){
+  const id      = document.getElementById('ac-id').value.trim().toLowerCase().replace(/\s+/g,'_');
+  const ico     = document.getElementById('ac-ico').value.trim();
+  const name    = document.getElementById('ac-name').value.trim().toUpperCase();
+  const desc    = document.getElementById('ac-desc').value.trim();
+  const cat     = document.getElementById('ac-cat').value;
+  const trigger = document.getElementById('ac-trigger').value.trim();
+  const err     = document.getElementById('ac-err');
+  err.classList.remove('show');
+  if (!id)   return showE(err,'ACHIEVEMENT ID REQUIRED');
+  if (!ico)  return showE(err,'ICON REQUIRED');
+  if (!name) return showE(err,'DISPLAY NAME REQUIRED');
+  if (!desc) return showE(err,'DESCRIPTION REQUIRED');
+  const achs = JSON.parse(localStorage.getItem(CKEY)||'[]');
+  if (achs.find(a=>a.id===id)) return showE(err,'ID ALREADY EXISTS — CHOOSE A DIFFERENT ID');
+  achs.push({ id, ico, name, desc, cat, trigger, createdAt: Date.now() });
+  localStorage.setItem(CKEY, JSON.stringify(achs));
+  ['ac-id','ac-ico','ac-name','ac-desc','ac-trigger'].forEach(i=>{ const el=document.getElementById(i); if(el)el.value=''; });
+  err.classList.remove('show');
+  notify('ACHIEVEMENT CREATED: ' + name);
+  renderAchs(); populateAchSelect();
+}
+
+function renderAchs(){
+  const achs = JSON.parse(localStorage.getItem(CKEY)||'[]');
+  const grid = document.getElementById('ac-grid');
+  const cnt  = document.getElementById('ac-count');
+  if (cnt) cnt.textContent = achs.length + ' CUSTOM ACHIEVEMENT' + (achs.length!==1?'S':'');
+  if (!grid) return;
+  if (!achs.length){
+    grid.innerHTML = '<div style="color:var(--muted);font-size:9px;letter-spacing:2px;padding:8px 0">NO CUSTOM ACHIEVEMENTS YET</div>';
+    return;
+  }
+  grid.innerHTML = achs.map(a => `
+    <div class="ach-prev-card">
+      <div class="ach-prev-ico">${a.ico}</div>
+      <div style="flex:1;min-width:0">
+        <div class="ach-prev-name">${a.name}</div>
+        <div class="ach-prev-desc">${a.desc}</div>
+        <div class="ach-prev-id">// ${a.id} &nbsp;·&nbsp; ${a.cat}</div>
+        ${a.trigger ? `<div class="ach-trigger-note">TRIGGER: ${a.trigger}</div>` : ''}
+        <button class="btn d" style="font-size:7px;padding:3px 8px;margin-top:8px" onclick="delAch('${a.id}')">REMOVE</button>
+      </div>
+    </div>`).join('');
+}
+
+function delAch(id){
+  if (!confirm('Remove this achievement?')) return;
+  const achs = JSON.parse(localStorage.getItem(CKEY)||'[]').filter(a=>a.id!==id);
+  localStorage.setItem(CKEY, JSON.stringify(achs));
+  notify('ACHIEVEMENT REMOVED'); renderAchs(); populateAchSelect();
+}
+
+function populateAchSelect(){
+  const sel  = document.getElementById('au-id'); if (!sel) return;
+  const achs = JSON.parse(localStorage.getItem(CKEY)||'[]');
+  sel.innerHTML = '<option value="">— select achievement —</option>' +
+    achs.map(a=>`<option value="${a.id}">${a.ico} ${a.name}</option>`).join('');
+}
+
+function unlockForUser(){
+  const email = document.getElementById('au-email').value.trim().toLowerCase();
+  const achId = document.getElementById('au-id').value;
+  const err   = document.getElementById('au-err');
+  err.classList.remove('show');
+  if (!email) return showE(err,'USER EMAIL REQUIRED');
+  if (!achId) return showE(err,'SELECT AN ACHIEVEMENT');
+  const users = JSON.parse(localStorage.getItem(EKEY)||'[]');
+  const user  = users.find(u=>u.email===email);
+  if (!user) return showE(err,'USER NOT FOUND — CHECK EMAIL');
+  if (!user.achievements) user.achievements = {};
+  if (user.achievements[achId]) return showE(err,'ALREADY UNLOCKED FOR THIS USER');
+  user.achievements[achId] = Date.now();
+  localStorage.setItem(EKEY, JSON.stringify(users));
+  notify('UNLOCKED "' + achId.toUpperCase() + '" FOR ' + user.displayName);
+  document.getElementById('au-email').value = '';
+  document.getElementById('au-id').value = '';
+}
 
 /* ─── HELPERS ──── */
 function showE(el, msg){ el.textContent = msg; el.classList.add('show'); }
