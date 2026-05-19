@@ -597,6 +597,75 @@
     .news-footer::before{content:'';width:6px;height:6px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px #22c55e;flex-shrink:0}
     @media(max-width:900px){.news-body{grid-template-columns:1fr}.collab-headline{font-size:20px}}
 
+    /* ══════════════════════════════════════════
+       GAME CARD — GAMING ANIMATIONS
+    ══════════════════════════════════════════ */
+    /* Scan beam sweeps top to bottom on hover enter */
+    .card-scan{position:absolute;left:0;right:0;height:3px;top:0;pointer-events:none;z-index:22;opacity:0;
+      background:linear-gradient(90deg,transparent 0%,rgba(245,166,35,0.95) 35%,rgba(255,107,53,0.75) 55%,rgba(0,201,184,0.85) 75%,transparent 100%);
+      box-shadow:0 0 14px rgba(245,166,35,0.80),0 0 28px rgba(255,107,53,0.45)}
+    .card-scan.fire{animation:cardScanFire .58s cubic-bezier(.4,0,.2,1) forwards}
+    @keyframes cardScanFire{0%{top:0;opacity:0}5%{opacity:1}88%{opacity:.85}100%{top:100%;opacity:0}}
+
+    /* Hit flash when cursor enters */
+    .card-hit-flash{position:absolute;inset:0;pointer-events:none;z-index:16;border-radius:3px;opacity:0;
+      background:radial-gradient(ellipse at 50% 30%,rgba(245,166,35,0.22) 0%,rgba(255,107,53,0.08) 55%,transparent 75%)}
+    .card-hit-flash.pop{animation:hitFlashPop .4s ease-out forwards}
+    @keyframes hitFlashPop{0%{opacity:1;transform:scale(1.025)}100%{opacity:0;transform:scale(1)}}
+
+    /* HUD corner brackets slide in */
+    .card-hud-corner{position:absolute;width:14px;height:14px;pointer-events:none;z-index:21;opacity:0;
+      border-color:var(--orange);border-style:solid;border-width:0;
+      transition:opacity .20s,transform .28s cubic-bezier(.2,.9,.4,1),border-color .3s}
+    .card-hud-corner.ctL{top:10px;left:10px;border-top-width:2px;border-left-width:2px;transform:translate(-6px,-6px)}
+    .card-hud-corner.ctR{top:10px;right:10px;border-top-width:2px;border-right-width:2px;transform:translate(6px,-6px)}
+    .card-hud-corner.cbL{bottom:10px;left:10px;border-bottom-width:2px;border-left-width:2px;transform:translate(-6px,6px)}
+    .card-hud-corner.cbR{bottom:10px;right:10px;border-bottom-width:2px;border-right-width:2px;transform:translate(6px,6px)}
+    .gcard:hover .card-hud-corner{opacity:1;transform:translate(0,0)}
+
+    /* Rotating electric border glow */
+    @keyframes cardElectric{
+      0%  {border-color:rgba(245,166,35,0.25);box-shadow:0 0 8px rgba(245,166,35,0.15),0 8px 40px rgba(0,0,0,0.45)}
+      20% {border-color:rgba(245,166,35,0.85);box-shadow:0 -6px 30px rgba(245,166,35,0.55),6px 0 24px rgba(255,107,53,0.30),0 8px 40px rgba(0,0,0,0.45)}
+      45% {border-color:rgba(0,201,184,0.75);box-shadow:-6px 0 30px rgba(0,201,184,0.50),0 6px 24px rgba(245,166,35,0.25),0 8px 40px rgba(0,0,0,0.45)}
+      70% {border-color:rgba(255,107,53,0.80);box-shadow:0 6px 30px rgba(255,107,53,0.50),-6px 0 24px rgba(0,201,184,0.25),0 8px 40px rgba(0,0,0,0.45)}
+      100%{border-color:rgba(245,166,35,0.25);box-shadow:0 0 8px rgba(245,166,35,0.15),0 8px 40px rgba(0,0,0,0.45)}
+    }
+    .gcard:hover{animation:cardElectric 2.2s ease-in-out infinite!important}
+
+    /* ══════════════════════════════════════════
+       ROLE ROW — BUBBLY + ELASTIC ANIMATIONS
+    ══════════════════════════════════════════ */
+    .role-row{position:relative;overflow:hidden}
+
+    /* Bubble particles */
+    .role-bubble{position:absolute;bottom:0;border-radius:50%;pointer-events:none;z-index:4;
+      background:radial-gradient(circle,rgba(245,166,35,0.72) 0%,rgba(255,107,53,0.28) 70%,transparent 100%);
+      animation:roleBubUp var(--bd,.85s) ease-out forwards}
+    @keyframes roleBubUp{
+      0%  {transform:translateY(0) scale(1);opacity:.72}
+      40% {opacity:.55}
+      100%{transform:translateY(-65px) scale(.08);opacity:0}
+    }
+
+    /* Elastic slide-in bounce */
+    @keyframes roleElastic{
+      0%  {transform:translateX(0)}
+      18% {transform:translateX(10px) scaleX(1.025)}
+      42% {transform:translateX(4px)  scaleX(1.010)}
+      68% {transform:translateX(7px)  scaleX(1.015)}
+      100%{transform:translateX(6px)}
+    }
+    .role-row:hover{
+      animation:roleElastic .5s cubic-bezier(.2,.9,.4,1) forwards!important;
+      border-color:var(--bordhi)!important;
+      background:rgba(245,166,35,0.07)!important;
+    }
+
+    /* Icon spin + grow */
+    .role-ico{display:inline-block;transition:transform .45s cubic-bezier(.34,1.56,.64,1)}
+    .role-row:hover .role-ico{transform:rotate(18deg) scale(1.32)}
+
     /* ── RESPONSIVE ── */
     @media(max-width:900px){
       header{padding:0 24px}
@@ -2175,6 +2244,62 @@ document.querySelectorAll('.nav-a[data-view],.nav-cta[data-view]').forEach(a=>{
 window.addEventListener('pageshow', () => {
   document.querySelectorAll('.cz-clone,.cz-overlay,.cz-flash').forEach(el => el.remove());
 });
+
+/* ── GAME CARD GAMING ANIMATIONS ── */
+(function(){
+  if(window.matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+
+  document.querySelectorAll('.gcard:not(.g-featured)').forEach(card => {
+    /* inject scan beam */
+    const scan = document.createElement('div');
+    scan.className = 'card-scan';
+    card.appendChild(scan);
+
+    /* inject hit flash */
+    const flash = document.createElement('div');
+    flash.className = 'card-hit-flash';
+    card.appendChild(flash);
+
+    /* inject HUD corner brackets */
+    ['ctL','ctR','cbL','cbR'].forEach(cls => {
+      const c = document.createElement('div');
+      c.className = 'card-hud-corner ' + cls;
+      card.appendChild(c);
+    });
+
+    card.addEventListener('mouseenter', () => {
+      /* fire scan beam */
+      scan.classList.remove('fire');
+      void scan.offsetWidth;
+      scan.classList.add('fire');
+      /* fire hit flash */
+      flash.classList.remove('pop');
+      void flash.offsetWidth;
+      flash.classList.add('pop');
+    }, {passive:true});
+  });
+})();
+
+/* ── ROLE ROW BUBBLY ANIMATIONS ── */
+(function(){
+  if(window.matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+
+  document.querySelectorAll('.role-row').forEach(row => {
+    row.addEventListener('mouseenter', () => {
+      const count = 10;
+      for(let i = 0; i < count; i++){
+        setTimeout(() => {
+          const b = document.createElement('div');
+          b.className = 'role-bubble';
+          const size = 5 + Math.random() * 10;
+          b.style.cssText = `left:${8 + Math.random() * 84}%;width:${size}px;height:${size}px;--bd:${.5 + Math.random() * .7}s;animation-delay:${Math.random() * .1}s`;
+          row.appendChild(b);
+          b.addEventListener('animationend', () => b.remove(), {once:true});
+        }, i * 48);
+      }
+    }, {passive:true});
+  });
+})();
 
 /* ── CINEMATIC IDLE MODE ── */
 (function(){
