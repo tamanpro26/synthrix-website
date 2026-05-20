@@ -378,7 +378,8 @@
     .roles{display:flex;flex-direction:column;gap:9px;margin-top:22px}
     .role-row{display:flex;align-items:center;gap:14px;padding:13px 16px;background:rgba(255,255,255,0.03);border:1px solid var(--bord);border-radius:2px;transition:border-color .3s,background .3s}
     .role-row:hover{border-color:var(--bordhi);background:rgba(245,166,35,0.05)}
-    .role-ico{font-size:18px;flex-shrink:0}
+    .role-ico{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:28px;height:28px}
+    .role-ico svg{display:block;width:24px;height:24px;transition:filter .3s}
     .role-nm{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--white)}
     .role-ds{font-size:12px;color:var(--muted);margin-top:1px}
     .jform{display:flex;flex-direction:column;gap:13px}
@@ -663,8 +664,8 @@
     }
 
     /* Icon spin + grow */
-    .role-ico{display:inline-block;transition:transform .45s cubic-bezier(.34,1.56,.64,1)}
-    .role-row:hover .role-ico{transform:rotate(18deg) scale(1.32)}
+    .role-ico{transition:transform .45s cubic-bezier(.34,1.56,.64,1),filter .3s}
+    .role-row:hover .role-ico{transform:rotate(14deg) scale(1.28);filter:drop-shadow(0 0 7px rgba(245,166,35,0.70))}
 
     /* ── RESPONSIVE ── */
     @media(max-width:900px){
@@ -1602,11 +1603,76 @@
       <p class="join-p">SYNTHRIX is growing. We're looking for passionate creators who want to be part of something real — dark worlds, relentless gameplay, and stories that matter.</p>
       <p class="join-p">Whether you're a programmer, artist, designer, or writer — if you share the vision, there's a place for you here.</p>
       <div class="roles">
-        <div class="role-row"><div class="role-ico">💻</div><div><div class="role-nm">PROGRAMMER</div><div class="role-ds">Unity / Unreal Engine / C# / C++</div></div></div>
-        <div class="role-row"><div class="role-ico">🎨</div><div><div class="role-nm">GAME ARTIST</div><div class="role-ds">3D Modelling / Texturing / VFX</div></div></div>
-        <div class="role-row"><div class="role-ico">🎮</div><div><div class="role-nm">GAME DESIGNER</div><div class="role-ds">Level design / Systems / Balancing</div></div></div>
-        <div class="role-row"><div class="role-ico">✍️</div><div><div class="role-nm">WRITER / NARRATIVE</div><div class="role-ds">Story / World-building / Dialogue</div></div></div>
-        <div class="role-row"><div class="role-ico">🎵</div><div><div class="role-nm">COMPOSER / AUDIO</div><div class="role-ds">OST / SFX / Ambience</div></div></div>
+        <!-- PROGRAMMER — terminal window with live cursor -->
+        <div class="role-row"><div class="role-ico">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="3" width="20" height="18" rx="2" stroke="#00C9B8" stroke-width="1.5"/>
+            <line x1="2" y1="8" x2="22" y2="8" stroke="#00C9B8" stroke-width="1.5"/>
+            <circle cx="5.5" cy="5.5" r="1" fill="#FF6B35"/>
+            <circle cx="8.5" cy="5.5" r="1" fill="#F5A623"/>
+            <circle cx="11.5" cy="5.5" r="1" fill="#00C9B8"/>
+            <polyline points="5,13 7.5,15 5,17" stroke="#00C9B8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="9.5" y1="17" x2="15" y2="17" stroke="#FF6B35" stroke-width="1.5" stroke-linecap="round"/>
+            <rect x="9.5" y="12.5" width="5" height="1.5" rx="0.5" fill="#F5A623" opacity="0.6"/>
+            <rect x="16" y="15.5" width="3" height="2" rx="0.4" fill="#00C9B8" opacity="0.8"/>
+          </svg>
+        </div><div><div class="role-nm">PROGRAMMER</div><div class="role-ds">Unity / Unreal Engine / C# / C++</div></div></div>
+
+        <!-- GAME ARTIST — geometric crystal with prismatic facets -->
+        <div class="role-row"><div class="role-ico">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="12,2 22,8.5 12,22 2,8.5" stroke="#FF6B35" stroke-width="1.5" stroke-linejoin="round"/>
+            <polyline points="2,8.5 12,12 22,8.5" stroke="#FF6B35" stroke-width="1.2" stroke-linejoin="round" opacity="0.7"/>
+            <line x1="7.5" y1="4.5" x2="12" y2="12" stroke="#F5A623" stroke-width="1" opacity="0.55"/>
+            <line x1="16.5" y1="4.5" x2="12" y2="12" stroke="#F5A623" stroke-width="1" opacity="0.55"/>
+            <line x1="12" y1="12" x2="12" y2="22" stroke="#FF6B35" stroke-width="1" opacity="0.45"/>
+            <line x1="7.5" y1="4.5" x2="7" y2="4" stroke="#FFD580" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div><div><div class="role-nm">GAME ARTIST</div><div class="role-ds">3D Modelling / Texturing / VFX</div></div></div>
+
+        <!-- GAME DESIGNER — tactical targeting reticle with tick marks -->
+        <div class="role-row"><div class="role-ico">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="9" stroke="#F5A623" stroke-width="1.5" stroke-dasharray="3 2"/>
+            <circle cx="12" cy="12" r="4.5" stroke="#F5A623" stroke-width="1.5"/>
+            <circle cx="12" cy="12" r="1.5" fill="#FF6B35"/>
+            <line x1="12" y1="1.5" x2="12" y2="5.5" stroke="#F5A623" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="12" y1="18.5" x2="12" y2="22.5" stroke="#F5A623" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="1.5" y1="12" x2="5.5" y2="12" stroke="#F5A623" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="18.5" y1="12" x2="22.5" y2="12" stroke="#F5A623" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="5.5" y1="5.5" x2="7.5" y2="7.5" stroke="#F5A623" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+            <line x1="16.5" y1="16.5" x2="18.5" y2="18.5" stroke="#F5A623" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+          </svg>
+        </div><div><div class="role-nm">GAME DESIGNER</div><div class="role-ds">Level design / Systems / Balancing</div></div></div>
+
+        <!-- WRITER / NARRATIVE — transmission signal emanating from a document -->
+        <div class="role-row"><div class="role-ico">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 2 h9.5 l4.5 4.5 V20 H4 z" stroke="#00C9B8" stroke-width="1.5" stroke-linejoin="round"/>
+            <polyline points="13.5,2 13.5,6.5 18,6.5" stroke="#00C9B8" stroke-width="1.5" stroke-linejoin="round"/>
+            <line x1="7" y1="10.5" x2="15" y2="10.5" stroke="rgba(237,232,223,0.55)" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="7" y1="13.5" x2="15" y2="13.5" stroke="rgba(237,232,223,0.55)" stroke-width="1.2" stroke-linecap="round"/>
+            <line x1="7" y1="16.5" x2="10.5" y2="16.5" stroke="#FF6B35" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M17 10 Q19.5 11.5 19.5 14 Q19.5 16.5 17 18" stroke="#F5A623" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.75"/>
+            <path d="M18.5 8 Q22 10.5 22 14 Q22 17.5 18.5 20" stroke="#F5A623" stroke-width="1" stroke-linecap="round" fill="none" opacity="0.40"/>
+          </svg>
+        </div><div><div class="role-nm">WRITER / NARRATIVE</div><div class="role-ds">Story / World-building / Dialogue</div></div></div>
+
+        <!-- COMPOSER / AUDIO — vertical equalizer bars with peak indicators -->
+        <div class="role-row"><div class="role-ico">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="3"  y1="18" x2="3"  y2="16" stroke="#FF6B35" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="6"  y1="18" x2="6"  y2="11" stroke="#FF6B35" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="9"  y1="18" x2="9"  y2="7"  stroke="#F5A623" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="12" y1="18" x2="12" y2="4"  stroke="#FFD580" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="15" y1="18" x2="15" y2="8"  stroke="#F5A623" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="18" y1="18" x2="18" y2="12" stroke="#FF6B35" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="21" y1="18" x2="21" y2="15" stroke="#FF6B35" stroke-width="2.2" stroke-linecap="round"/>
+            <rect x="2"  y="14" width="2.5" height="1.2" rx="0.5" fill="#FFD580" opacity="0.8"/>
+            <rect x="11" y="2.5" width="2.5" height="1.2" rx="0.5" fill="#FFD580" opacity="0.9"/>
+            <rect x="8"  y="5.5" width="2.5" height="1.2" rx="0.5" fill="#FFD580" opacity="0.7"/>
+          </svg>
+        </div><div><div class="role-nm">COMPOSER / AUDIO</div><div class="role-ds">OST / SFX / Ambience</div></div></div>
       </div>
     </div>
 
