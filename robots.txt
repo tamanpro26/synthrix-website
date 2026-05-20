@@ -1,10 +1,9 @@
 User-agent: *
 Allow: /
 
-# Internal admin — block all crawlers
 Disallow: /synthrix-studio/internal/
 Disallow: /.git/
 Disallow: /.netlifyignore
 Disallow: /netlify.toml
 
-Sitemap: https://synthrixstudios.vercel.app/sitemap.xml
+Sitemap: https://synthrixstudios.vercel.app/sitemap.txt
