@@ -310,32 +310,36 @@
       </div>
     </div>
 
-    <!-- EMPLOYEES -->
+    <!-- EMPLOYEES / ADMIN ACCOUNTS -->
     <div class="db-panel" id="p-employees">
-      <div class="p-tag">// ACCOUNT MANAGEMENT</div>
-      <div class="p-title">EMPLOYEE <span>ACCOUNTS</span></div>
+      <div class="p-tag">// ADMIN ACCOUNT MANAGEMENT</div>
+      <div class="p-title">ADMIN <span>ACCOUNTS</span></div>
+      <div style="font-size:9px;letter-spacing:2px;color:rgba(255,100,100,0.60);padding:10px 14px;background:rgba(255,80,80,0.05);border:1px solid rgba(255,80,80,0.15);border-radius:2px;margin-bottom:14px;line-height:1.9">
+        &#9632; THESE ACCOUNTS ARE FOR <strong style="color:rgba(255,100,100,0.85)">INTERNAL ADMIN PANEL ACCESS ONLY</strong><br>
+        &#9632; WEBSITE VISITOR ACCOUNTS (CUSTOMERS) ARE SEPARATE — MANAGED BY THE WEBSITE LOGIN SYSTEM
+      </div>
       <div class="card">
-        <div class="card-title">// CREATE EMPLOYEE ACCOUNT</div>
+        <div class="card-title">// CREATE ADMIN ACCOUNT</div>
         <div class="frow">
-          <div class="fg" style="margin:0"><label>DISPLAY NAME / CALLSIGN</label><input class="fi" id="e-name" type="text" placeholder="e.g. LKPlayz"></div>
-          <div class="fg" style="margin:0"><label>EMAIL</label><input class="fi" id="e-email" type="email" placeholder="user@email.com"></div>
+          <div class="fg" style="margin:0"><label>USERNAME (for login)</label><input class="fi" id="e-user" type="text" placeholder="e.g. lkplayz" autocomplete="off" spellcheck="false"></div>
+          <div class="fg" style="margin:0"><label>DISPLAY NAME / CALLSIGN</label><input class="fi" id="e-name" type="text" placeholder="e.g. LK PLAYZ"></div>
         </div>
         <div class="frow" style="margin-top:11px">
-          <div class="fg" style="margin:0"><label>PASSWORD</label><input class="fi" id="e-pass" type="password" placeholder="Min 6 characters"></div>
-          <div class="fg" style="margin:0"><label>ROLE</label>
-            <select class="fsel" id="e-role">
-              <option>Game Developer</option><option>Web Developer</option><option>Game Designer</option>
-              <option>3D Artist</option><option>Composer / Audio</option><option>Writer</option>
-              <option>Tester / QA</option><option>Team Lead</option><option>Intern</option>
+          <div class="fg" style="margin:0"><label>PASSWORD (min 6 chars)</label><input class="fi" id="e-pass" type="password" placeholder="••••••••••"></div>
+          <div class="fg" style="margin:0"><label>ADMIN LEVEL</label>
+            <select class="fsel" id="e-level">
+              <option value="controller">CONTROLLER — Full access + account creation</option>
+              <option value="editor">EDITOR — Content panels only</option>
+              <option value="moderator">MODERATOR — Announcements + forms only</option>
             </select>
           </div>
         </div>
-        <div style="margin-top:13px"><button class="btn p" onclick="createEmp()">&#9654; CREATE ACCOUNT</button></div>
+        <div style="margin-top:13px"><button class="btn p" onclick="createAdminAcc()">&#9654; CREATE ADMIN ACCOUNT</button></div>
         <div class="err-msg" id="e-err"></div>
       </div>
       <div class="card">
-        <div class="card-title">// ACTIVE EMPLOYEE ACCOUNTS</div>
-        <table class="t"><thead><tr><th>NAME</th><th>EMAIL</th><th>ROLE</th><th>LOGINS</th><th>JOINED</th><th></th></tr></thead>
+        <div class="card-title">// ACTIVE ADMIN ACCOUNTS</div>
+        <table class="t"><thead><tr><th>USERNAME</th><th>DISPLAY NAME</th><th>ADMIN LEVEL</th><th>LOGINS</th><th>CREATED</th><th></th></tr></thead>
         <tbody id="e-tbody"></tbody></table>
       </div>
     </div>
@@ -831,7 +835,8 @@ const WAIT = 15 * 60 * 1000; // 15 min
 const FKEY = 'sx_mc_fails';
 const LKEY = 'sx_mc_lock';
 const SKEY = 'sx_mc_ses';
-const EKEY = 'sx_users_v2';
+const EKEY  = 'sx_users_v2';      /* website visitors / customers — DO NOT use for admin */
+const ADKEY = 'sx_admin_accounts'; /* internal admin panel accounts — created by Controller */
 const AKEY = 'sx_announcements';
 
 async function sha256(s){
@@ -896,7 +901,17 @@ async function doLogin(){
   btn.innerHTML = '// VERIFYING...'; btn.disabled = true;
   await new Promise(r => setTimeout(r, 550));
   const inputH = await sha256(p);
-  const admin = ADMIN_DB.find(a => a.u === u && a.h === inputH);
+  /* check hardcoded accounts first, then dynamically created admin accounts */
+  let admin = ADMIN_DB.find(a => a.u === u && a.h === inputH);
+  if (!admin){
+    const dynAccs = JSON.parse(localStorage.getItem(ADKEY)||'[]');
+    const dyn = dynAccs.find(a => a.u === u && a.passHash === inputH);
+    if (dyn){
+      dyn.loginCount = (dyn.loginCount||0)+1;
+      localStorage.setItem(ADKEY, JSON.stringify(dynAccs));
+      admin = { u:dyn.u, display:dyn.display, role:dyn.level.toUpperCase(), level:dyn.level, perms:dyn.level==='controller'?['all']:[dyn.level] };
+    }
+  }
   btn.innerHTML = '&#9654;&nbsp; AUTHENTICATE'; btn.disabled = false;
   if (!admin){
     const f = addFail();
@@ -955,11 +970,12 @@ function sp(id){
 
 /* ─── OVERVIEW ──── */
 function renderOverview(){
-  const emps = JSON.parse(localStorage.getItem(EKEY)||'[]');
-  const anns = JSON.parse(localStorage.getItem(AKEY)||'[]');
+  const emps    = JSON.parse(localStorage.getItem(EKEY)||'[]');
+  const anns    = JSON.parse(localStorage.getItem(AKEY)||'[]');
+  const admins  = JSON.parse(localStorage.getItem(ADKEY)||'[]');
   document.getElementById('ov-stats').innerHTML = `
-    <div class="sc"><div class="sc-v">${emps.length}</div><div class="sc-l">EMPLOYEE ACCOUNTS</div></div>
-    <div class="sc"><div class="sc-v">${emps.filter(u=>u.loginCount>0).length}</div><div class="sc-l">ACTIVE USERS</div></div>
+    <div class="sc"><div class="sc-v">${admins.length+1}</div><div class="sc-l">ADMIN ACCOUNTS</div></div>
+    <div class="sc"><div class="sc-v">${emps.length}</div><div class="sc-l">WEBSITE USERS</div></div>
     <div class="sc"><div class="sc-v">${anns.length}</div><div class="sc-l">ANNOUNCEMENTS</div></div>
     <div class="sc"><div class="sc-v" style="font-size:14px;margin-top:6px">${new Date().toLocaleDateString('en-GB')}</div><div class="sc-l">SESSION DATE</div></div>
   `;
@@ -969,50 +985,56 @@ function renderOverview(){
 }
 
 /* ─── EMPLOYEES ──── */
-async function createEmp(){
-  const name  = document.getElementById('e-name').value.trim();
-  const email = document.getElementById('e-email').value.trim().toLowerCase();
-  const pass  = document.getElementById('e-pass').value;
-  const role  = document.getElementById('e-role').value;
-  const err   = document.getElementById('e-err');
+/* ─── CREATE ADMIN ACCOUNT (internal panel only, no email) ──── */
+async function createAdminAcc(){
+  const username = document.getElementById('e-user').value.trim().toLowerCase().replace(/\s+/g,'');
+  const name     = document.getElementById('e-name').value.trim();
+  const pass     = document.getElementById('e-pass').value;
+  const level    = document.getElementById('e-level').value;
+  const err      = document.getElementById('e-err');
   err.classList.remove('show');
+  if (!username)        return showE(err,'USERNAME REQUIRED');
   if (!name)            return showE(err,'DISPLAY NAME REQUIRED');
-  if (!email.includes('@')) return showE(err,'INVALID EMAIL');
   if (pass.length < 6)  return showE(err,'PASSWORD TOO SHORT — MIN 6 CHARS');
-  const emps = JSON.parse(localStorage.getItem(EKEY)||'[]');
-  if (emps.find(u=>u.email===email)) return showE(err,'EMAIL ALREADY EXISTS');
-  /* uses same salt as main site login */
-  const b = new TextEncoder().encode(pass + 'SX_STUDIO_SALT_V2_2026');
-  const h = await crypto.subtle.digest('SHA-256', b);
-  const ph = [...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,'0')).join('');
-  emps.push({ id: Date.now().toString(36)+Math.random().toString(36).slice(2), email, displayName: name.toUpperCase(), passHash: ph, createdAt: Date.now(), loginCount: 0, achievements: {}, role });
-  localStorage.setItem(EKEY, JSON.stringify(emps));
-  ['e-name','e-email','e-pass'].forEach(i=>document.getElementById(i).value='');
-  notify('ACCOUNT CREATED: ' + name.toUpperCase());
+  /* check hardcoded ADMIN_DB first */
+  if (ADMIN_DB.find(a=>a.u===username)) return showE(err,'USERNAME ALREADY EXISTS IN SYSTEM');
+  const accs = JSON.parse(localStorage.getItem(ADKEY)||'[]');
+  if (accs.find(a=>a.u===username)) return showE(err,'USERNAME ALREADY EXISTS');
+  const b  = new TextEncoder().encode(pass + SALT);
+  const hh = await crypto.subtle.digest('SHA-256', b);
+  const ph = [...new Uint8Array(hh)].map(x=>x.toString(16).padStart(2,'0')).join('');
+  accs.push({ id:Date.now().toString(36)+Math.random().toString(36).slice(2), u:username, display:name.toUpperCase(), passHash:ph, level, createdAt:Date.now(), loginCount:0 });
+  localStorage.setItem(ADKEY, JSON.stringify(accs));
+  ['e-user','e-name','e-pass'].forEach(i=>document.getElementById(i).value='');
+  notify('ADMIN ACCOUNT CREATED: '+name.toUpperCase()+' ['+level.toUpperCase()+']');
   renderEmps(); renderOverview();
 }
 
 function renderEmps(){
-  const emps = JSON.parse(localStorage.getItem(EKEY)||'[]');
-  const tb = document.getElementById('e-tbody');
-  tb.innerHTML = emps.length ? emps.map(u=>`
+  const accs = JSON.parse(localStorage.getItem(ADKEY)||'[]');
+  const tb   = document.getElementById('e-tbody');
+  const levelBadge = l => l==='controller'?'role-badge-ctrl':l==='editor'?'role-badge-ed':'role-badge-mo';
+  tb.innerHTML = accs.length ? accs.map(a=>`
     <tr>
-      <td style="color:var(--white)">${u.displayName}</td>
-      <td style="color:var(--muted);font-size:9px">${u.email}</td>
-      <td><span class="badge o">${u.role||'—'}</span></td>
-      <td style="color:var(--green)">${u.loginCount||0}</td>
-      <td style="color:var(--muted);font-size:8px">${new Date(u.createdAt).toLocaleDateString('en-GB')}</td>
-      <td><button class="btn d" style="font-size:7px;padding:4px 9px" onclick="delEmp('${u.id}')">REMOVE</button></td>
+      <td style="color:var(--green);font-family:Courier New,monospace">${a.u}</td>
+      <td style="color:var(--white)">${a.display}</td>
+      <td><span class="badge ${levelBadge(a.level)}" style="font-size:7px;letter-spacing:2px;padding:3px 8px">${(a.level||'editor').toUpperCase()}</span></td>
+      <td style="color:var(--green)">${a.loginCount||0}</td>
+      <td style="color:var(--muted);font-size:8px">${new Date(a.createdAt).toLocaleDateString('en-GB')}</td>
+      <td><button class="btn d" style="font-size:7px;padding:4px 8px" onclick="delAdminAcc('${a.id}')">REMOVE</button></td>
     </tr>`).join('')
-    : '<tr><td colspan="6" style="color:var(--muted);font-size:9px;letter-spacing:2px">NO ACCOUNTS YET</td></tr>';
+    : '<tr><td colspan="6" style="color:var(--muted);font-size:9px;letter-spacing:2px">NO ADMIN ACCOUNTS CREATED YET</td></tr>';
 }
 
-function delEmp(id){
-  if (!confirm('Remove this employee account permanently?')) return;
-  const emps = JSON.parse(localStorage.getItem(EKEY)||'[]').filter(u=>u.id!==id);
-  localStorage.setItem(EKEY, JSON.stringify(emps));
-  notify('ACCOUNT REMOVED'); renderEmps(); renderOverview();
+function delAdminAcc(id){
+  if (!confirm('Remove this admin account permanently?')) return;
+  const accs = JSON.parse(localStorage.getItem(ADKEY)||'[]').filter(a=>a.id!==id);
+  localStorage.setItem(ADKEY, JSON.stringify(accs));
+  notify('ADMIN ACCOUNT REMOVED'); renderEmps(); renderOverview();
 }
+
+/* keep createEmp as alias for legacy calls */
+const createEmp = createAdminAcc;
 
 /* ─── ROSTER ──── */
 let rLog = [];
