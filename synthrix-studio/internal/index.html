@@ -220,6 +220,25 @@
     .ach-prev-id{font-size:7px;letter-spacing:3px;color:rgba(34,197,94,0.45);margin-top:5px}
     .ach-trigger-note{font-size:8px;letter-spacing:2px;color:rgba(255,107,53,0.55);margin-top:6px;line-height:1.7;padding:7px 10px;background:rgba(255,107,53,0.05);border:1px solid rgba(255,107,53,0.15);border-radius:2px}
 
+    /* ── DATABASE PANEL ── */
+    .db-access-badge{display:inline-flex;align-items:center;gap:8px;font-size:8px;letter-spacing:4px;padding:6px 16px;border-radius:2px;background:rgba(255,80,80,0.08);border:1px solid rgba(255,80,80,0.28);color:rgba(255,100,100,0.80);margin-bottom:20px}
+    .db-search{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--bord);border-radius:2px;padding:9px 14px;font-family:'Courier New',monospace;font-size:12px;letter-spacing:1px;color:var(--white);outline:none;margin-bottom:14px;transition:border-color .2s}
+    .db-search:focus{border-color:rgba(255,80,80,0.45)}
+    .db-search::placeholder{color:rgba(226,232,228,0.20)}
+    .detail-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:10px}
+    .detail-key{color:var(--muted);width:130px;flex-shrink:0;letter-spacing:1px}
+    .detail-val{color:var(--white);word-break:break-all}
+    /* modal overlay for account details */
+    #db-modal{position:fixed;inset:0;z-index:99000;background:rgba(0,0,0,0.88);display:none;align-items:center;justify-content:center}
+    #db-modal.open{display:flex}
+    .db-modal-box{background:var(--bg2);border:1px solid rgba(255,80,80,0.30);border-radius:3px;width:480px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.80)}
+    .db-modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--bord);position:sticky;top:0;background:var(--bg2)}
+    .db-modal-title{font-size:11px;letter-spacing:3px;color:var(--white);font-weight:bold}
+    .db-modal-close{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:rgba(226,232,228,0.40);font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
+    .db-modal-close:hover{background:rgba(255,80,80,0.20);border-color:rgba(255,80,80,0.50);color:rgba(255,100,100,0.85)}
+    .db-modal-body{padding:18px 20px}
+    .ach-pill{display:inline-block;font-size:7px;letter-spacing:2px;padding:2px 7px;border-radius:2px;background:rgba(34,197,94,0.10);border:1px solid rgba(34,197,94,0.22);color:rgba(34,197,94,0.70);margin:2px}
+
     /* notif toast */
     #notif{position:fixed;top:22px;right:22px;z-index:9999;background:var(--bg2);border:1px solid rgba(34,197,94,0.42);border-left:3px solid var(--green);padding:11px 16px;border-radius:2px;font-size:8px;letter-spacing:3px;color:rgba(34,197,94,0.82);transform:translateX(calc(100% + 30px));opacity:0;transition:transform .4s cubic-bezier(.2,.9,.4,1),opacity .3s;max-width:260px;pointer-events:none}
     #notif.show{transform:translateX(0);opacity:1}
@@ -290,6 +309,7 @@
       <div class="sb-item"     data-p="theme"     onclick="sp('theme')">    <span class="sb-ico">🎨</span>THEME</div>
       <div class="sb-item"     data-p="analytics" onclick="sp('analytics')"><span class="sb-ico">📊</span>ANALYTICS</div>
       <div class="sb-item"     data-p="roles"     onclick="sp('roles')">    <span class="sb-ico">🧑‍💼</span>ROLES</div>
+      <div class="sb-item ctrl-only" data-p="database" onclick="sp('database')" style="display:none"><span class="sb-ico">🗄️</span>DATABASE</div>
       <div class="sb-item"     data-p="controls"  onclick="sp('controls')"> <span class="sb-ico">⚙️</span>SITE CONTROLS</div>
     </nav>
     <div class="sb-signout">
@@ -786,6 +806,44 @@
       </div>
     </div>
 
+    <!-- DATABASE (Controller only) -->
+    <div class="db-panel" id="p-database">
+      <div class="p-tag">// CONTROLLER ACCESS ONLY</div>
+      <div class="p-title">DATABASE <span>VIEWER</span></div>
+      <div class="db-access-badge">&#9632; RESTRICTED — CONTROLLER CLEARANCE REQUIRED</div>
+
+      <!-- Visitor / Website User Accounts -->
+      <div class="card">
+        <div class="card-title">// WEBSITE USER ACCOUNTS &nbsp;<span id="db-visitor-count" style="color:var(--muted);font-weight:normal;font-size:8px"></span></div>
+        <input class="db-search" id="db-visitor-search" type="text" placeholder="Search by name or email..." oninput="filterDB('visitor')">
+        <table class="t">
+          <thead><tr><th>DISPLAY NAME</th><th>EMAIL</th><th>LOGINS</th><th>ACHIEVEMENTS</th><th>JOINED</th><th></th></tr></thead>
+          <tbody id="db-visitor-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- Admin Accounts -->
+      <div class="card">
+        <div class="card-title">// ADMIN PANEL ACCOUNTS &nbsp;<span id="db-admin-count" style="color:var(--muted);font-weight:normal;font-size:8px"></span></div>
+        <input class="db-search" id="db-admin-search" type="text" placeholder="Search by username or name..." oninput="filterDB('admin')">
+        <table class="t">
+          <thead><tr><th>USERNAME</th><th>DISPLAY NAME</th><th>LEVEL</th><th>LOGINS</th><th>CREATED</th><th></th></tr></thead>
+          <tbody id="db-admin-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Account Detail Modal -->
+    <div id="db-modal">
+      <div class="db-modal-box">
+        <div class="db-modal-head">
+          <div class="db-modal-title" id="db-modal-title">ACCOUNT DETAILS</div>
+          <button class="db-modal-close" onclick="document.getElementById('db-modal').classList.remove('open')">&#10005;</button>
+        </div>
+        <div class="db-modal-body" id="db-modal-body"></div>
+      </div>
+    </div>
+
     <!-- CONTROLS -->
     <div class="db-panel" id="p-controls">
       <div class="p-tag">// CONFIGURATION</div>
@@ -1105,14 +1163,122 @@ function setTog(k, v){ localStorage.setItem(k, v); notify(k.replace('sx_feat_','
 function clearEmps(){ localStorage.removeItem(EKEY); notify('EMPLOYEE ACCOUNTS CLEARED'); renderEmps(); renderOverview(); }
 function resetSettings(){ TOGGLES.forEach(t=>localStorage.removeItem(t.key)); renderToggles(); notify('SETTINGS RESET'); }
 
+/* ─── CONTROLLER ACCESS — show/hide restricted UI ──── */
+let _currentLevel = 'editor';
+function applyAccessControl(level){
+  _currentLevel = level;
+  /* show Controller-only nav items */
+  document.querySelectorAll('.ctrl-only').forEach(el=>{
+    el.style.display = (level==='controller'||level==='superadmin') ? 'flex' : 'none';
+  });
+}
+
+/* ─── DATABASE VIEWER ──── */
+function renderDatabase(){
+  renderDBVisitors(); renderDBAdmins();
+}
+
+function renderDBVisitors(filter=''){
+  const visitors = JSON.parse(localStorage.getItem(EKEY)||'[]');
+  const cnt = document.getElementById('db-visitor-count');
+  if(cnt) cnt.textContent = visitors.length+' RECORD'+(visitors.length!==1?'S':'');
+  const tb = document.getElementById('db-visitor-tbody'); if(!tb) return;
+  const f = filter.toLowerCase();
+  const shown = filter ? visitors.filter(v=>(v.displayName||'').toLowerCase().includes(f)||(v.email||'').toLowerCase().includes(f)) : visitors;
+  tb.innerHTML = shown.length ? shown.map(v=>`
+    <tr>
+      <td style="color:var(--white)">${v.displayName||'—'}</td>
+      <td style="color:var(--muted);font-size:9px">${v.email||'—'}</td>
+      <td style="color:var(--green)">${v.loginCount||0}</td>
+      <td style="color:var(--orange)">${Object.keys(v.achievements||{}).length}</td>
+      <td style="color:var(--muted);font-size:8px">${v.createdAt?new Date(v.createdAt).toLocaleDateString('en-GB'):'—'}</td>
+      <td style="display:flex;gap:5px">
+        <button class="btn outline" style="font-size:7px;padding:3px 7px" onclick="viewAccountDetail('visitor','${v.id}')">VIEW</button>
+        <button class="btn d" style="font-size:7px;padding:3px 7px" onclick="deleteDBAccount('visitor','${v.id}')">DEL</button>
+      </td>
+    </tr>`).join('') : `<tr><td colspan="6" style="color:var(--muted);font-size:9px;letter-spacing:2px">${filter?'NO MATCHING RECORDS':'NO VISITOR ACCOUNTS YET'}</td></tr>`;
+}
+
+function renderDBAdmins(filter=''){
+  const admins = JSON.parse(localStorage.getItem(ADKEY)||'[]');
+  const cnt = document.getElementById('db-admin-count');
+  /* +1 for the hardcoded Controller account */
+  if(cnt) cnt.textContent = (admins.length+1)+' RECORD'+(admins.length+1!==1?'S':'');
+  const tb = document.getElementById('db-admin-tbody'); if(!tb) return;
+  const f = filter.toLowerCase();
+  /* show hardcoded accounts first */
+  const hardcoded = ADMIN_DB.map(a=>({ u:a.u, display:a.display, level:a.level||'controller', loginCount:'—', createdAt:null, hardcoded:true }));
+  const all = [...hardcoded, ...admins];
+  const shown = filter ? all.filter(a=>(a.u||'').toLowerCase().includes(f)||(a.display||'').toLowerCase().includes(f)) : all;
+  const levelBadge = l=>l==='controller'?'role-badge-ctrl':l==='editor'?'role-badge-ed':'role-badge-mo';
+  tb.innerHTML = shown.length ? shown.map(a=>`
+    <tr style="${a.hardcoded?'background:rgba(255,80,80,0.04)':''}">
+      <td style="color:var(--green);font-family:Courier New,monospace">${a.u}${a.hardcoded?'&nbsp;<span style="font-size:7px;color:rgba(255,100,100,0.55)">[SYSTEM]</span>':''}</td>
+      <td style="color:var(--white)">${a.display}</td>
+      <td><span class="badge ${levelBadge(a.level)}" style="font-size:7px;letter-spacing:2px;padding:2px 7px">${(a.level||'').toUpperCase()}</span></td>
+      <td style="color:var(--green)">${a.loginCount||0}</td>
+      <td style="color:var(--muted);font-size:8px">${a.createdAt?new Date(a.createdAt).toLocaleDateString('en-GB'):'SYSTEM'}</td>
+      <td>${a.hardcoded?'<span style="font-size:7px;color:var(--muted);letter-spacing:2px">PROTECTED</span>':`<div style="display:flex;gap:5px"><button class="btn outline" style="font-size:7px;padding:3px 7px" onclick="viewAccountDetail('admin','${a.id}')">VIEW</button><button class="btn d" style="font-size:7px;padding:3px 7px" onclick="deleteDBAccount('admin','${a.id}')">DEL</button></div>`}</td>
+    </tr>`).join('') : `<tr><td colspan="6" style="color:var(--muted);font-size:9px;letter-spacing:2px">${filter?'NO MATCHING RECORDS':'NO DYNAMIC ADMIN ACCOUNTS'}</td></tr>`;
+}
+
+function filterDB(type){
+  const val = document.getElementById('db-'+type+'-search')?.value||'';
+  if(type==='visitor') renderDBVisitors(val);
+  else renderDBAdmins(val);
+}
+
+function viewAccountDetail(type, id){
+  let account;
+  if(type==='visitor'){
+    account = JSON.parse(localStorage.getItem(EKEY)||'[]').find(v=>v.id===id);
+  } else {
+    account = JSON.parse(localStorage.getItem(ADKEY)||'[]').find(a=>a.id===id);
+  }
+  if(!account){ notify('ACCOUNT NOT FOUND'); return; }
+  const modal = document.getElementById('db-modal');
+  const title = document.getElementById('db-modal-title');
+  const body  = document.getElementById('db-modal-body');
+  title.textContent = type==='visitor' ? '// VISITOR ACCOUNT: '+account.displayName : '// ADMIN ACCOUNT: '+account.display;
+  const achs = Object.keys(account.achievements||{});
+  body.innerHTML = `
+    <div class="detail-row"><div class="detail-key">TYPE</div><div class="detail-val"><span class="badge ${type==='visitor'?'g':'role-badge-ctrl'}" style="font-size:7px;letter-spacing:2px;padding:2px 7px">${type==='visitor'?'WEBSITE USER':'ADMIN'}</span></div></div>
+    ${type==='visitor'?`<div class="detail-row"><div class="detail-key">EMAIL</div><div class="detail-val">${account.email||'—'}</div></div>`:''}
+    ${type==='admin'?`<div class="detail-row"><div class="detail-key">USERNAME</div><div class="detail-val" style="color:var(--green);font-family:Courier New,monospace">${account.u}</div></div>`:''}
+    <div class="detail-row"><div class="detail-key">DISPLAY NAME</div><div class="detail-val">${account.displayName||account.display||'—'}</div></div>
+    ${type==='admin'?`<div class="detail-row"><div class="detail-key">ADMIN LEVEL</div><div class="detail-val">${(account.level||'').toUpperCase()}</div></div>`:''}
+    <div class="detail-row"><div class="detail-key">LOGIN COUNT</div><div class="detail-val" style="color:var(--green)">${account.loginCount||0}</div></div>
+    <div class="detail-row"><div class="detail-key">CREATED</div><div class="detail-val">${account.createdAt?new Date(account.createdAt).toLocaleString('en-GB'):'—'}</div></div>
+    <div class="detail-row"><div class="detail-key">ACCOUNT ID</div><div class="detail-val" style="font-family:Courier New,monospace;font-size:9px;color:var(--muted)">${account.id||'—'}</div></div>
+    ${type==='visitor'&&achs.length?`<div class="detail-row" style="flex-direction:column"><div class="detail-key" style="margin-bottom:6px">ACHIEVEMENTS (${achs.length})</div><div>${achs.map(a=>`<span class="ach-pill">${a}</span>`).join('')}</div></div>`:''}
+    <div style="margin-top:16px;display:flex;gap:8px">
+      <button class="btn d" style="width:100%" onclick="deleteDBAccount('${type}','${account.id}');document.getElementById('db-modal').classList.remove('open')">&#9888; DELETE THIS ACCOUNT</button>
+    </div>`;
+  modal.classList.add('open');
+}
+
+function deleteDBAccount(type, id){
+  if(!confirm('Permanently delete this account? This cannot be undone.')) return;
+  if(type==='visitor'){
+    const data = JSON.parse(localStorage.getItem(EKEY)||'[]').filter(v=>v.id!==id);
+    localStorage.setItem(EKEY, JSON.stringify(data));
+  } else {
+    const data = JSON.parse(localStorage.getItem(ADKEY)||'[]').filter(a=>a.id!==id);
+    localStorage.setItem(ADKEY, JSON.stringify(data));
+  }
+  notify('ACCOUNT DELETED');
+  renderDatabase(); renderOverview();
+}
+
 /* ─── INIT ALL NEW PANELS ON LAUNCH ──── */
 const _origLaunch = launch;
 launch = function(admin){
   _origLaunch(admin);
+  applyAccessControl(admin.level || 'editor');
   setTimeout(()=>{
     initQuills(); renderPosts(); renderMedia(); renderSnippets();
     renderPBSaved(); renderForms(); populateFSSelect(); renderNavItems();
-    loadTheme(); renderAnalytics(); renderRoles();
+    loadTheme(); renderAnalytics(); renderRoles(); renderDatabase();
   }, 150);
 };
 
