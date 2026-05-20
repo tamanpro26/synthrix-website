@@ -195,6 +195,7 @@
     input[type=color]::-webkit-color-swatch{border-radius:1px;border:none}
     /* ── ROLES ── */
     .role-badge-sa{background:rgba(245,166,35,0.15);border:1px solid rgba(245,166,35,0.38);color:rgba(245,166,35,0.90)}
+    .role-badge-ctrl{background:rgba(255,50,50,0.14);border:1px solid rgba(255,80,80,0.45);color:rgba(255,100,100,0.92);text-shadow:0 0 8px rgba(255,60,60,0.55)}
     .role-badge-ed{background:rgba(0,201,184,0.12);border:1px solid rgba(0,201,184,0.28);color:rgba(0,201,184,0.80)}
     .role-badge-mo{background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.28);color:rgba(139,92,246,0.80)}
     /* ── GAME CARDS ── */
@@ -733,13 +734,20 @@
       <div class="card">
         <div class="card-title">// ROLE DEFINITIONS</div>
         <div style="display:flex;flex-direction:column;gap:9px">
+          <div class="fb-field-row" style="border-color:rgba(255,80,80,0.28)">
+            <span class="badge role-badge-ctrl" style="font-size:8px;letter-spacing:3px;padding:4px 10px">CONTROLLER</span>
+            <div style="flex:1;padding-left:12px">
+              <div style="font-size:10px;color:var(--white);letter-spacing:2px">MASTER CONTROL</div>
+              <div style="font-size:8px;color:var(--muted);margin-top:2px">All panels + create/remove employee accounts + full database access</div>
+            </div>
+            <span style="font-size:8px;letter-spacing:2px;color:rgba(255,100,100,0.65)">TAMAN — CONTROLLER</span>
+          </div>
           <div class="fb-field-row">
             <span class="badge role-badge-sa" style="font-size:8px;letter-spacing:3px;padding:4px 10px">SUPER ADMIN</span>
             <div style="flex:1;padding-left:12px">
               <div style="font-size:10px;color:var(--white);letter-spacing:2px">FULL ACCESS</div>
               <div style="font-size:8px;color:var(--muted);margin-top:2px">All panels, all data, danger zone, role assignment</div>
             </div>
-            <span style="font-size:8px;letter-spacing:2px;color:rgba(245,166,35,0.55)">TAMAN — STUDIO LEAD</span>
           </div>
           <div class="fb-field-row">
             <span class="badge role-badge-ed" style="font-size:8px;letter-spacing:3px;padding:4px 10px">EDITOR</span>
@@ -762,7 +770,7 @@
         <div class="frow">
           <div class="fg" style="margin:0"><label>EMPLOYEE EMAIL</label><input class="fi" id="rl-email" type="email" placeholder="employee@email.com"></div>
           <div class="fg" style="margin:0"><label>NEW ROLE</label>
-            <select class="fsel" id="rl-role"><option value="editor">EDITOR</option><option value="moderator">MODERATOR</option></select>
+            <select class="fsel" id="rl-role"><option value="controller">CONTROLLER</option><option value="editor">EDITOR</option><option value="moderator">MODERATOR</option></select>
           </div>
         </div>
         <button class="btn p" style="margin-top:11px" onclick="assignRole()">&#9654; ASSIGN ROLE</button>
@@ -814,7 +822,7 @@ const SALT = 'SX_MC_SALT_V2_2026';
    Format: { u: 'username', h: 'sha256hash', display: 'Name', role: 'Role' }
 ─────────────────────────────────────────────────── */
 const ADMIN_DB = [
-  { u:'taman', h:'73d4532c1929d708b10c924e0f0aff4ac60ea514987e8e93dcce3f1213a292ca', display:'TAMAN', role:'SUPER ADMIN', level:'superadmin' },
+  { u:'taman', h:'73d4532c1929d708b10c924e0f0aff4ac60ea514987e8e93dcce3f1213a292ca', display:'TAMAN', role:'CONTROLLER', level:'controller', perms:['all'] },
 ];
 
 /* ─── LOCKOUT CONFIG ──── */
@@ -927,7 +935,12 @@ function signOut(){
 /* ─── LAUNCH DASHBOARD ──── */
 function launch(admin){
   document.getElementById('db-uname').textContent = admin.display || admin.u.toUpperCase();
-  document.getElementById('db-urole').textContent = admin.role || 'ADMINISTRATOR';
+  const roleLabel = admin.role || 'ADMINISTRATOR';
+  const roleEl = document.getElementById('db-urole');
+  roleEl.textContent = roleLabel;
+  const roleColors = { 'CONTROLLER':'#ff6464', 'SUPER ADMIN':'#F5A623', 'EDITOR':'#00C9B8', 'MODERATOR':'#8B5CF6' };
+  roleEl.style.color = roleColors[roleLabel] || 'rgba(226,232,228,0.42)';
+  roleEl.style.textShadow = roleLabel === 'CONTROLLER' ? '0 0 10px rgba(255,60,60,0.60)' : '';
   document.getElementById('dashboard').classList.add('show');
   renderOverview(); renderEmps(); renderAnns(); renderToggles();
   renderGames(); renderAchs(); populateAchSelect();
@@ -1385,7 +1398,7 @@ function assignRole(){
 }
 function renderRoles(){
   const emps=JSON.parse(localStorage.getItem(EKEY)||'[]').filter(u=>u.adminAccess);const el=document.getElementById('rl-list');if(!el)return;
-  el.innerHTML=emps.length?emps.map(u=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--bg2);border:1px solid var(--bord);border-radius:2px;margin-bottom:7px"><div><div style="font-size:10px;color:var(--white);letter-spacing:2px">${u.displayName}</div><div style="font-size:8px;color:var(--muted);margin-top:2px">${u.email}</div></div><div style="display:flex;align-items:center;gap:8px"><span class="badge ${u.adminRole==='editor'?'role-badge-ed':'role-badge-mo'}" style="font-size:7px;letter-spacing:3px;padding:3px 9px">${(u.adminRole||'editor').toUpperCase()}</span><button class="btn d" style="font-size:7px;padding:3px 7px" onclick="(()=>{const e=JSON.parse(localStorage.getItem('sx_users_v2')||'[]');const u=e.find(x=>x.id==='${u.id}');if(u){delete u.adminRole;delete u.adminAccess;localStorage.setItem('sx_users_v2',JSON.stringify(e));notify('ROLE REVOKED');renderRoles();}})()">REVOKE</button></div></div>`).join(''):'<div style="color:var(--muted);font-size:9px;letter-spacing:2px">NO ADMIN-ROLE EMPLOYEES</div>';
+  el.innerHTML=emps.length?emps.map(u=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--bg2);border:1px solid var(--bord);border-radius:2px;margin-bottom:7px"><div><div style="font-size:10px;color:var(--white);letter-spacing:2px">${u.displayName}</div><div style="font-size:8px;color:var(--muted);margin-top:2px">${u.email}</div></div><div style="display:flex;align-items:center;gap:8px"><span class="badge ${u.adminRole==='controller'?'role-badge-ctrl':u.adminRole==='editor'?'role-badge-ed':'role-badge-mo'}" style="font-size:7px;letter-spacing:3px;padding:3px 9px">${(u.adminRole||'editor').toUpperCase()}</span><button class="btn d" style="font-size:7px;padding:3px 7px" onclick="(()=>{const e=JSON.parse(localStorage.getItem('sx_users_v2')||'[]');const u=e.find(x=>x.id==='${u.id}');if(u){delete u.adminRole;delete u.adminAccess;localStorage.setItem('sx_users_v2',JSON.stringify(e));notify('ROLE REVOKED');renderRoles();}})()">REVOKE</button></div></div>`).join(''):'<div style="color:var(--muted);font-size:9px;letter-spacing:2px">NO ADMIN-ROLE EMPLOYEES</div>';
 }
 
 /* ─── GAMES ──── */
