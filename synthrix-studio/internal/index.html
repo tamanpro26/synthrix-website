@@ -195,6 +195,7 @@
     input[type=color]::-webkit-color-swatch{border-radius:1px;border:none}
     /* ── ROLES ── */
     .role-badge-sa{background:rgba(245,166,35,0.15);border:1px solid rgba(245,166,35,0.38);color:rgba(245,166,35,0.90)}
+    .role-badge-sys{background:rgba(180,140,255,0.15);border:1px solid rgba(180,140,255,0.55);color:rgba(200,170,255,0.95);text-shadow:0 0 10px rgba(160,120,255,0.70)}
     .role-badge-ctrl{background:rgba(255,50,50,0.14);border:1px solid rgba(255,80,80,0.45);color:rgba(255,100,100,0.92);text-shadow:0 0 8px rgba(255,60,60,0.55)}
     .role-badge-ed{background:rgba(0,201,184,0.12);border:1px solid rgba(0,201,184,0.28);color:rgba(0,201,184,0.80)}
     .role-badge-mo{background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.28);color:rgba(139,92,246,0.80)}
@@ -348,7 +349,8 @@
           <div class="fg" style="margin:0"><label>PASSWORD (min 6 chars)</label><input class="fi" id="e-pass" type="password" placeholder="••••••••••"></div>
           <div class="fg" style="margin:0"><label>ADMIN LEVEL</label>
             <select class="fsel" id="e-level">
-              <option value="controller">CONTROLLER — Full access + account creation</option>
+              <option value="superadmin">SUPER ADMIN — Full access, all panels</option>
+              <option value="controller">CONTROLLER — Full access + account creation + database</option>
               <option value="editor">EDITOR — Content panels only</option>
               <option value="moderator">MODERATOR — Announcements + forms only</option>
             </select>
@@ -758,13 +760,20 @@
       <div class="card">
         <div class="card-title">// ROLE DEFINITIONS</div>
         <div style="display:flex;flex-direction:column;gap:9px">
+          <div class="fb-field-row" style="border-color:rgba(180,140,255,0.30)">
+            <span class="badge role-badge-sys" style="font-size:8px;letter-spacing:3px;padding:4px 10px">SYSTEM</span>
+            <div style="flex:1;padding-left:12px">
+              <div style="font-size:10px;color:var(--white);letter-spacing:2px">ROOT LEVEL — PROTECTED</div>
+              <div style="font-size:8px;color:var(--muted);margin-top:2px">Hardcoded accounts, cannot be deleted or modified. Full access to everything.</div>
+            </div>
+            <span style="font-size:8px;letter-spacing:2px;color:rgba(180,140,255,0.60)">SUVOM &amp; TAMAN</span>
+          </div>
           <div class="fb-field-row" style="border-color:rgba(255,80,80,0.28)">
             <span class="badge role-badge-ctrl" style="font-size:8px;letter-spacing:3px;padding:4px 10px">CONTROLLER</span>
             <div style="flex:1;padding-left:12px">
               <div style="font-size:10px;color:var(--white);letter-spacing:2px">MASTER CONTROL</div>
-              <div style="font-size:8px;color:var(--muted);margin-top:2px">All panels + create/remove employee accounts + full database access</div>
+              <div style="font-size:8px;color:var(--muted);margin-top:2px">All panels + create/remove admin accounts + full database access</div>
             </div>
-            <span style="font-size:8px;letter-spacing:2px;color:rgba(255,100,100,0.65)">TAMAN — CONTROLLER</span>
           </div>
           <div class="fb-field-row">
             <span class="badge role-badge-sa" style="font-size:8px;letter-spacing:3px;padding:4px 10px">SUPER ADMIN</span>
@@ -792,9 +801,9 @@
       <div class="card">
         <div class="card-title">// ASSIGN ROLE TO EMPLOYEE</div>
         <div class="frow">
-          <div class="fg" style="margin:0"><label>EMPLOYEE EMAIL</label><input class="fi" id="rl-email" type="email" placeholder="employee@email.com"></div>
+          <div class="fg" style="margin:0"><label>ADMIN USERNAME</label><input class="fi" id="rl-email" type="text" placeholder="e.g. lkplayz" autocomplete="off" spellcheck="false"></div>
           <div class="fg" style="margin:0"><label>NEW ROLE</label>
-            <select class="fsel" id="rl-role"><option value="controller">CONTROLLER</option><option value="editor">EDITOR</option><option value="moderator">MODERATOR</option></select>
+            <select class="fsel" id="rl-role"><option value="superadmin">SUPER ADMIN</option><option value="controller">CONTROLLER</option><option value="editor">EDITOR</option><option value="moderator">MODERATOR</option></select>
           </div>
         </div>
         <button class="btn p" style="margin-top:11px" onclick="assignRole()">&#9654; ASSIGN ROLE</button>
@@ -884,7 +893,8 @@ const SALT = 'SX_MC_SALT_V2_2026';
    Format: { u: 'username', h: 'sha256hash', display: 'Name', role: 'Role' }
 ─────────────────────────────────────────────────── */
 const ADMIN_DB = [
-  { u:'taman', h:'73d4532c1929d708b10c924e0f0aff4ac60ea514987e8e93dcce3f1213a292ca', display:'TAMAN', role:'CONTROLLER', level:'controller', perms:['all'] },
+  { u:'suvom', h:'e4eb3a4797313b91b9b64bf843b10ec84c66d35ef7b1908f5f69560d8fc98146', display:'SUVOM',  role:'SYSTEM', level:'system',     perms:['all'], protected:true },
+  { u:'taman', h:'73d4532c1929d708b10c924e0f0aff4ac60ea514987e8e93dcce3f1213a292ca', display:'TAMAN',  role:'SYSTEM', level:'controller', perms:['all'], protected:true },
 ];
 
 /* ─── LOCKOUT CONFIG ──── */
@@ -1011,9 +1021,10 @@ function launch(admin){
   const roleLabel = admin.role || 'ADMINISTRATOR';
   const roleEl = document.getElementById('db-urole');
   roleEl.textContent = roleLabel;
-  const roleColors = { 'CONTROLLER':'#ff6464', 'SUPER ADMIN':'#F5A623', 'EDITOR':'#00C9B8', 'MODERATOR':'#8B5CF6' };
+  const roleColors = { 'SYSTEM':'#b48cff', 'CONTROLLER':'#ff6464', 'SUPER ADMIN':'#F5A623', 'EDITOR':'#00C9B8', 'MODERATOR':'#8B5CF6' };
   roleEl.style.color = roleColors[roleLabel] || 'rgba(226,232,228,0.42)';
-  roleEl.style.textShadow = roleLabel === 'CONTROLLER' ? '0 0 10px rgba(255,60,60,0.60)' : '';
+  const glows = { 'SYSTEM':'0 0 12px rgba(160,120,255,0.65)', 'CONTROLLER':'0 0 10px rgba(255,60,60,0.60)', 'SUPER ADMIN':'0 0 10px rgba(245,166,35,0.55)' };
+  roleEl.style.textShadow = glows[roleLabel] || '';
   document.getElementById('dashboard').classList.add('show');
   renderOverview(); renderEmps(); renderAnns(); renderToggles();
   renderGames(); renderAchs(); populateAchSelect();
@@ -1210,7 +1221,7 @@ function renderDBAdmins(filter=''){
   const hardcoded = ADMIN_DB.map(a=>({ u:a.u, display:a.display, level:a.level||'controller', loginCount:'—', createdAt:null, hardcoded:true }));
   const all = [...hardcoded, ...admins];
   const shown = filter ? all.filter(a=>(a.u||'').toLowerCase().includes(f)||(a.display||'').toLowerCase().includes(f)) : all;
-  const levelBadge = l=>l==='controller'?'role-badge-ctrl':l==='editor'?'role-badge-ed':'role-badge-mo';
+  const levelBadge = l=>l==='system'?'role-badge-sys':l==='controller'?'role-badge-ctrl':l==='superadmin'?'role-badge-sa':l==='editor'?'role-badge-ed':'role-badge-mo';
   tb.innerHTML = shown.length ? shown.map(a=>`
     <tr style="${a.hardcoded?'background:rgba(255,80,80,0.04)':''}">
       <td style="color:var(--green);font-family:Courier New,monospace">${a.u}${a.hardcoded?'&nbsp;<span style="font-size:7px;color:rgba(255,100,100,0.55)">[SYSTEM]</span>':''}</td>
@@ -1579,14 +1590,24 @@ function renderAnalytics(){
 
 /* ─── ROLES ──── */
 function assignRole(){
-  const email=document.getElementById('rl-email').value.trim().toLowerCase();const role=document.getElementById('rl-role').value;const err=document.getElementById('rl-err');err.classList.remove('show');
-  const emps=JSON.parse(localStorage.getItem(EKEY)||'[]');const emp=emps.find(u=>u.email===email);if(!emp)return showE(err,'EMPLOYEE NOT FOUND');
-  emp.adminRole=role;emp.adminAccess=true;localStorage.setItem(EKEY,JSON.stringify(emps));
-  notify(emp.displayName+' → ROLE: '+role.toUpperCase());document.getElementById('rl-email').value='';renderRoles();
+  const username=document.getElementById('rl-email').value.trim().toLowerCase();const role=document.getElementById('rl-role').value;const err=document.getElementById('rl-err');err.classList.remove('show');
+  if(!username)return showE(err,'USERNAME REQUIRED');
+  /* check hardcoded accounts — cannot reassign SYSTEM */
+  if(ADMIN_DB.find(a=>a.u===username))return showE(err,'CANNOT REASSIGN SYSTEM ACCOUNTS');
+  const accs=JSON.parse(localStorage.getItem(ADKEY)||'[]');const acc=accs.find(a=>a.u===username);
+  if(!acc)return showE(err,'USERNAME NOT FOUND IN ADMIN ACCOUNTS');
+  acc.level=role;localStorage.setItem(ADKEY,JSON.stringify(accs));
+  notify(acc.display+' → LEVEL: '+role.toUpperCase());document.getElementById('rl-email').value='';renderRoles();
 }
 function renderRoles(){
-  const emps=JSON.parse(localStorage.getItem(EKEY)||'[]').filter(u=>u.adminAccess);const el=document.getElementById('rl-list');if(!el)return;
-  el.innerHTML=emps.length?emps.map(u=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--bg2);border:1px solid var(--bord);border-radius:2px;margin-bottom:7px"><div><div style="font-size:10px;color:var(--white);letter-spacing:2px">${u.displayName}</div><div style="font-size:8px;color:var(--muted);margin-top:2px">${u.email}</div></div><div style="display:flex;align-items:center;gap:8px"><span class="badge ${u.adminRole==='controller'?'role-badge-ctrl':u.adminRole==='editor'?'role-badge-ed':'role-badge-mo'}" style="font-size:7px;letter-spacing:3px;padding:3px 9px">${(u.adminRole||'editor').toUpperCase()}</span><button class="btn d" style="font-size:7px;padding:3px 7px" onclick="(()=>{const e=JSON.parse(localStorage.getItem('sx_users_v2')||'[]');const u=e.find(x=>x.id==='${u.id}');if(u){delete u.adminRole;delete u.adminAccess;localStorage.setItem('sx_users_v2',JSON.stringify(e));notify('ROLE REVOKED');renderRoles();}})()">REVOKE</button></div></div>`).join(''):'<div style="color:var(--muted);font-size:9px;letter-spacing:2px">NO ADMIN-ROLE EMPLOYEES</div>';
+  const accs=JSON.parse(localStorage.getItem(ADKEY)||'[]');const el=document.getElementById('rl-list');if(!el)return;
+  const levelBadge=l=>l==='system'?'role-badge-sys':l==='controller'?'role-badge-ctrl':l==='superadmin'?'role-badge-sa':l==='editor'?'role-badge-ed':'role-badge-mo';
+  el.innerHTML=accs.length?accs.map(a=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--bg2);border:1px solid var(--bord);border-radius:2px;margin-bottom:7px">
+    <div><div style="font-size:10px;color:var(--white);letter-spacing:2px">${a.display}</div><div style="font-size:8px;color:var(--muted);margin-top:2px;font-family:Courier New,monospace">@${a.u}</div></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="badge ${levelBadge(a.level)}" style="font-size:7px;letter-spacing:3px;padding:3px 9px">${(a.level||'editor').toUpperCase()}</span>
+      <button class="btn d" style="font-size:7px;padding:3px 7px" onclick="(()=>{const d=JSON.parse(localStorage.getItem('${ADKEY}')||'[]');const i=d.findIndex(x=>x.id==='${a.id}');if(i>=0){delete d[i].level;d[i].level='editor';localStorage.setItem('${ADKEY}',JSON.stringify(d));notify('ROLE RESET TO EDITOR');renderRoles();}})()">RESET</button>
+    </div></div>`).join(''):'<div style="color:var(--muted);font-size:9px;letter-spacing:2px">NO DYNAMIC ADMIN ACCOUNTS — CREATE ONE IN THE EMPLOYEES PANEL</div>';
 }
 
 /* ─── GAMES ──── */
