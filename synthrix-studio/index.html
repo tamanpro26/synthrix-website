@@ -694,6 +694,61 @@
       body{cursor:auto}
     }
 
+    /* ── BLOG / POSTS VIEW ── */
+    .blog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+    .blog-card{background:rgba(255,255,255,0.03);border:1px solid var(--bord);border-radius:3px;overflow:hidden;transition:border-color .3s,transform .3s,box-shadow .3s;cursor:pointer}
+    .blog-card:hover{border-color:var(--bordhi);transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,0.40)}
+    .blog-card-thumb{width:100%;height:160px;object-fit:cover;object-position:top;display:block;border-bottom:1px solid var(--bord);transition:transform .5s}
+    .blog-card:hover .blog-card-thumb{transform:scale(1.04)}
+    .blog-card-thumb-ph{width:100%;height:160px;background:linear-gradient(135deg,#050a08,#0a1410);display:flex;align-items:center;justify-content:center;font-size:36px;border-bottom:1px solid var(--bord)}
+    .blog-card-body{padding:18px 20px}
+    .blog-card-cat{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:4px;color:var(--orange);margin-bottom:8px}
+    .blog-card-title{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;color:var(--white);margin-bottom:8px;line-height:1.3}
+    .blog-card-meta{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--muted);margin-bottom:10px}
+    .blog-card-excerpt{font-size:13px;color:rgba(237,232,223,0.52);line-height:1.7;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+    .blog-empty{text-align:center;padding:80px 20px;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--muted);line-height:2.5}
+    /* Post detail modal */
+    #blog-modal{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.92);backdrop-filter:blur(14px);display:none;align-items:flex-start;justify-content:center;padding:60px 20px;overflow-y:auto}
+    #blog-modal.open{display:flex}
+    .bm-box{background:var(--bg2);border:1px solid var(--bord);border-radius:4px;width:100%;max-width:720px;overflow:hidden;animation:sviewIn .4s cubic-bezier(.4,0,.2,1)}
+    .bm-close-row{display:flex;justify-content:flex-end;padding:14px 18px;border-bottom:1px solid var(--bord)}
+    .bm-close{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);color:var(--muted);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
+    .bm-close:hover{background:rgba(255,80,80,0.14);border-color:rgba(255,80,80,0.40);color:rgba(255,100,100,0.85)}
+    .bm-head{padding:28px 32px 20px}
+    .bm-cat{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:5px;color:var(--orange);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+    .bm-cat::before{content:'//';color:rgba(255,107,53,0.40)}
+    .bm-title{font-family:'Orbitron',sans-serif;font-size:clamp(18px,3vw,28px);font-weight:900;letter-spacing:2px;color:var(--white);margin-bottom:10px;line-height:1.2}
+    .bm-meta{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--muted)}
+    .bm-thumb{width:100%;max-height:340px;object-fit:cover;display:block;border-top:1px solid var(--bord);border-bottom:1px solid var(--bord)}
+    .bm-body{padding:28px 32px 36px;font-size:15px;color:rgba(237,232,223,0.68);line-height:2;letter-spacing:.4px}
+    .bm-body h1,.bm-body h2,.bm-body h3{font-family:'Orbitron',sans-serif;color:var(--white);margin:20px 0 10px;letter-spacing:2px}
+    .bm-body strong{color:var(--orange)}.bm-body em{color:var(--teal);font-style:normal}
+
+    /* ── FUTURISTIC HERO REDESIGN ── */
+    /* split nav links in hero */
+    .hero-nav-left,.hero-nav-right{position:absolute;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:2px;z-index:10;pointer-events:all}
+    .hero-nav-left{left:80px}
+    .hero-nav-right{right:80px}
+    .hn-link{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(237,232,223,0.55);text-decoration:none;padding:7px 12px;border-radius:2px;text-transform:uppercase;transition:color .25s,background .25s;cursor:none;white-space:nowrap}
+    .hn-link:hover{color:var(--white);background:rgba(245,166,35,0.09)}
+    /* gamepad controller */
+    .hero-controller-wrap{position:absolute;left:50%;bottom:52%;transform:translateX(-50%) translateY(30%) rotate(-20deg) scale(.6);z-index:2;pointer-events:none;opacity:0;animation:ctrlRise 1.4s .2s cubic-bezier(.15,.9,.35,1) forwards}
+    @keyframes ctrlRise{
+      0%  {opacity:0;transform:translateX(-50%) translateY(40%) rotate(-20deg) scale(.6)}
+      55% {opacity:0.90;transform:translateX(-50%) translateY(-8%) rotate(6deg) scale(1.08)}
+      75% {opacity:0.75;transform:translateX(-50%) translateY(-2%) rotate(3deg) scale(1.03)}
+      100%{opacity:0.10;transform:translateX(-50%) translateY(-5%) rotate(4deg) scale(1.0)}
+    }
+    .ctrl-svg{width:clamp(170px,20vw,260px);height:auto;filter:drop-shadow(0 0 28px rgba(245,166,35,0.60)) drop-shadow(0 0 60px rgba(255,107,53,0.30))}
+    /* new title animation */
+    .hero-title-wrap{text-align:center;position:relative;z-index:3}
+    .htn-line{display:block;opacity:0;transform:translateY(55px);will-change:transform,opacity}
+    .htn-synth{font-family:'Orbitron',sans-serif;font-size:clamp(52px,9vw,112px);font-weight:900;letter-spacing:6px;color:var(--white);filter:drop-shadow(0 0 24px rgba(255,255,255,0.28));animation:titlePush .85s .92s cubic-bezier(.2,.9,.4,1) forwards}
+    .htn-rix{font-family:'Orbitron',sans-serif;font-size:clamp(52px,9vw,112px);font-weight:900;letter-spacing:6px;color:var(--orange);filter:drop-shadow(0 0 30px rgba(255,107,53,0.72));animation:titlePush .85s 1.08s cubic-bezier(.2,.9,.4,1) forwards}
+    .htn-studio{font-family:'Share Tech Mono',monospace;font-size:clamp(10px,1.4vw,17px);letter-spacing:16px;color:rgba(237,232,223,0.32);margin-top:8px;animation:titlePush .7s 1.28s cubic-bezier(.2,.9,.4,1) forwards}
+    @keyframes titlePush{to{opacity:1;transform:translateY(0)}}
+    @media(max-width:900px){.hero-nav-left,.hero-nav-right{display:none}}
+
     /* ── LOGIN MODAL ── */
     #login-modal{position:fixed;inset:0;z-index:99990;background:rgba(0,0,0,0.88);backdrop-filter:blur(18px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .35s}
     #login-modal.open{opacity:1;pointer-events:all}
@@ -950,6 +1005,7 @@
     <a href="#downloads" class="nav-a" data-view="downloads">DOWNLOADS</a>
     <a href="#news"      class="nav-a" data-view="news">NEWS</a>
     <a href="#join"      class="nav-a" data-view="join">JOIN TEAM</a>
+    <a href="#blog"         class="nav-a" data-view="blog">BLOG</a>
     <a href="#achievements" class="nav-a" data-view="achievements">ACHIEVEMENTS</a>
     <a href="../index.html" class="nav-a" style="color:rgba(0,201,184,0.50);">GAME LAB &#8599;</a>
     <button class="nav-login-btn" id="nav-login-btn" onclick="openAuthModal('login')">&#9656; LOGIN</button>
@@ -964,45 +1020,76 @@
 <!-- ═══════ VIEW: HOME ═══════ -->
 <div id="v-home" class="sview active">
 <!-- ═══════ HERO ═══════ -->
-<section class="hero" id="home">
+<section class="hero" id="home" style="overflow:hidden">
   <canvas id="hero-canvas"></canvas>
   <div class="hero-glow"></div>
   <div class="hero-scan"></div>
   <div class="hero-rays"></div>
 
-  <!-- floating gaming icons (background decoration) -->
-  <div class="hero-floats" aria-hidden="true">
-    <div class="hf" style="left:7%;top:22%;--fd:7s;--fdl:0s">🎮</div>
-    <div class="hf" style="right:9%;top:28%;--fd:9s;--fdl:-2s">⚔</div>
-    <div class="hf" style="left:14%;bottom:26%;--fd:6s;--fdl:-3.5s">💥</div>
-    <div class="hf" style="right:17%;bottom:20%;--fd:8s;--fdl:-1.2s">⭐</div>
-    <div class="hf" style="left:26%;top:13%;--fd:10s;--fdl:-5s">🎯</div>
-    <div class="hf" style="right:26%;top:16%;--fd:8.5s;--fdl:-4s">⚡</div>
+  <!-- Split navigation overlay inside hero -->
+  <div class="hero-nav-left" aria-hidden="true">
+    <a href="#home"      class="hn-link" onclick="event.preventDefault();switchView('home')">HOME</a>
+    <a href="#about"     class="hn-link" onclick="event.preventDefault();switchView('about')">ABOUT</a>
+    <a href="#games"     class="hn-link" onclick="event.preventDefault();switchView('games')">GAMES</a>
+    <a href="#downloads" class="hn-link" onclick="event.preventDefault();switchView('downloads')">DOWNLOADS</a>
+  </div>
+  <div class="hero-nav-right" aria-hidden="true">
+    <a href="#news"         class="hn-link" onclick="event.preventDefault();switchView('news')">NEWS</a>
+    <a href="#blog"         class="hn-link" onclick="event.preventDefault();switchView('blog')">BLOG</a>
+    <a href="#join"         class="hn-link" onclick="event.preventDefault();switchView('join')">JOIN TEAM</a>
+    <a href="#achievements" class="hn-link" onclick="event.preventDefault();switchView('achievements')">ACHIEVEMENTS</a>
   </div>
 
-  <!-- floating HUD chips -->
-  <div class="hero-chips" aria-hidden="true">
-    <div class="h-chip" style="left:4%;top:38%;--cf:6s;--cfd:1.5s;animation-delay:1.9s">&#11042; UNITY ENGINE</div>
-    <div class="h-chip" style="right:4%;top:44%;--cf:7s;--cfd:1.8s;animation-delay:2.2s">&#10022; UNREAL 5</div>
-    <div class="h-chip" style="left:4%;bottom:30%;--cf:5.5s;--cfd:2s;animation-delay:2.5s">&#9650; 5+ GAMES</div>
-    <div class="h-chip" style="right:4%;bottom:26%;--cf:6.5s;--cfd:2.2s;animation-delay:2.8s">&#11042; EST. 2025</div>
+  <!-- Gamepad controller rising animation -->
+  <div class="hero-controller-wrap" aria-hidden="true">
+    <svg class="ctrl-svg" viewBox="0 0 220 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Controller body -->
+      <path d="M40 50 C20 50 10 75 15 100 L30 125 C36 135 50 138 60 130 L80 110 H140 L160 130 C170 138 184 135 190 125 L205 100 C210 75 200 50 180 50 L140 42 H80 Z" fill="rgba(245,166,35,0.08)" stroke="rgba(245,166,35,0.70)" stroke-width="2"/>
+      <!-- Left bumper -->
+      <path d="M40 50 C38 42 45 36 55 36 L80 36 L80 42" stroke="rgba(245,166,35,0.50)" stroke-width="1.5" fill="none"/>
+      <!-- Right bumper -->
+      <path d="M180 50 C182 42 175 36 165 36 L140 36 L140 42" stroke="rgba(245,166,35,0.50)" stroke-width="1.5" fill="none"/>
+      <!-- D-pad -->
+      <rect x="52" y="68" width="8" height="24" rx="2" fill="rgba(245,166,35,0.30)" stroke="rgba(245,166,35,0.60)" stroke-width="1"/>
+      <rect x="44" y="76" width="24" height="8" rx="2" fill="rgba(245,166,35,0.30)" stroke="rgba(245,166,35,0.60)" stroke-width="1"/>
+      <!-- Action buttons -->
+      <circle cx="155" cy="72" r="6" fill="rgba(0,201,184,0.20)" stroke="rgba(0,201,184,0.80)" stroke-width="1.5"/>
+      <circle cx="171" cy="80" r="6" fill="rgba(255,107,53,0.20)" stroke="rgba(255,107,53,0.80)" stroke-width="1.5"/>
+      <circle cx="155" cy="88" r="6" fill="rgba(245,166,35,0.20)" stroke="rgba(245,166,35,0.80)" stroke-width="1.5"/>
+      <circle cx="139" cy="80" r="6" fill="rgba(139,92,246,0.20)" stroke="rgba(139,92,246,0.80)" stroke-width="1.5"/>
+      <!-- Center button -->
+      <circle cx="110" cy="78" r="10" fill="rgba(245,166,35,0.10)" stroke="rgba(245,166,35,0.55)" stroke-width="1.5"/>
+      <circle cx="110" cy="78" r="4" fill="rgba(245,166,35,0.40)"/>
+      <!-- Left analog -->
+      <circle cx="80" cy="95" r="12" fill="rgba(255,255,255,0.04)" stroke="rgba(245,166,35,0.35)" stroke-width="1.5"/>
+      <circle cx="80" cy="95" r="6" fill="rgba(245,166,35,0.15)"/>
+      <!-- Right analog -->
+      <circle cx="140" cy="95" r="12" fill="rgba(255,255,255,0.04)" stroke="rgba(245,166,35,0.35)" stroke-width="1.5"/>
+      <circle cx="140" cy="95" r="6" fill="rgba(245,166,35,0.15)"/>
+      <!-- Glow dots on buttons -->
+      <circle cx="155" cy="72" r="2" fill="rgba(0,201,184,0.90)"/>
+      <circle cx="171" cy="80" r="2" fill="rgba(255,107,53,0.90)"/>
+      <circle cx="155" cy="88" r="2" fill="rgba(245,166,35,0.90)"/>
+      <circle cx="139" cy="80" r="2" fill="rgba(139,92,246,0.90)"/>
+    </svg>
   </div>
 
-  <div class="hero-content">
+  <!-- New futuristic title -->
+  <div class="hero-content" style="text-align:center;align-items:center">
     <div class="hero-eyebrow">BANGLADESHI INDIE STUDIO &nbsp;&middot;&nbsp; EST. 2025</div>
-    <h1 class="hero-title">
-      <span class="ht-s">SYNTH</span>
-      <span class="ht-r">RIX</span>
-    </h1>
-    <div class="hero-studio">S &nbsp; T &nbsp; U &nbsp; D &nbsp; I &nbsp; O</div>
+    <div class="hero-title-wrap" style="margin:14px 0">
+      <span class="htn-line htn-synth">SYNTH</span>
+      <span class="htn-line htn-rix">RIX</span>
+      <span class="htn-line htn-studio">S &nbsp; T &nbsp; U &nbsp; D &nbsp; I &nbsp; O</span>
+    </div>
     <div class="hero-line"></div>
     <p class="hero-sub">
       <strong>Born in Bangladesh.</strong> Building dark worlds,<br>
       relentless combat &amp; <em>stories worth playing.</em>
     </p>
     <div class="hero-btns">
-      <a href="#games" class="btn-s solid">&#x2B21; EXPLORE GAMES</a>
-      <a href="#join"  class="btn-s outline">&#9654; JOIN THE TEAM</a>
+      <a href="#games" class="btn-s solid" onclick="event.preventDefault();switchView('games')">&#x2B21; EXPLORE GAMES</a>
+      <a href="#join"  class="btn-s outline" onclick="event.preventDefault();switchView('join')">&#9654; JOIN THE TEAM</a>
     </div>
   </div>
   <div class="hero-scroll">&#8595; SCROLL &#8595;</div>
@@ -1718,6 +1805,35 @@
 
 </section></div><!-- end v-join -->
 
+<!-- ═══════ VIEW: BLOG ═══════ -->
+<div id="v-blog" class="sview">
+<section id="blog">
+  <div class="sec-tag">STUDIO UPDATES</div>
+  <h2 class="sec-h2 reveal">BLOG &amp; <span style="color:var(--orange)">POSTS</span></h2>
+  <div id="blog-grid" class="blog-grid"></div>
+  <div id="blog-empty" class="blog-empty" style="display:none">
+    &#9632; NO POSTS PUBLISHED YET<br>
+    <span style="font-size:8px;letter-spacing:2px">CHECK BACK SOON — THE TEAM WILL POST UPDATES HERE</span>
+  </div>
+</section>
+</div>
+
+<!-- Blog post modal -->
+<div id="blog-modal" onclick="if(event.target===this)closeBlogModal()">
+  <div class="bm-box">
+    <div class="bm-close-row">
+      <button class="bm-close" onclick="closeBlogModal()">&#10005;</button>
+    </div>
+    <div class="bm-head">
+      <div class="bm-cat" id="bm-cat"></div>
+      <div class="bm-title" id="bm-title"></div>
+      <div class="bm-meta"  id="bm-meta"></div>
+    </div>
+    <img id="bm-thumb" class="bm-thumb" src="" alt="" style="display:none">
+    <div class="bm-body"  id="bm-body"></div>
+  </div>
+</div>
+
 <!-- ═══════ VIEW: ACHIEVEMENTS ═══════ -->
 <div id="v-achievements" class="sview">
 <section id="achievements">
@@ -2220,7 +2336,8 @@ const _visitedViews=new Set();
 function trackViewAchievements(id){
   _visitedViews.add(id);
   if(id==='news')        unlockAchievement('intel');
-  if(id==='join')      { unlockAchievement('recruit'); }
+  if(id==='join')        unlockAchievement('recruit');
+  if(id==='blog')        renderBlog();
   if(id==='achievements') renderAchievements();
   _achNavCount++; clearTimeout(_achNavTimer);
   if(_achNavCount>=5) unlockAchievement('speedrun');
@@ -2290,10 +2407,46 @@ document.querySelectorAll('.nav-a[data-view],.nav-cta[data-view]').forEach(a=>{
 /* handle page load with hash */
 (function(){
   const hash = location.hash.replace('#','');
-  const validViews = ['home','about','games','downloads','news','join'];
+  const validViews = ['home','about','games','downloads','news','blog','join','achievements'];
   if(hash && validViews.includes(hash)) switchView(hash);
   else switchView('home');
 })();
+
+/* ── BLOG / POSTS ── */
+function renderBlog(){
+  const PKEY = 'sx_posts';
+  const posts = JSON.parse(localStorage.getItem(PKEY)||'[]').filter(p=>p.status==='published');
+  const grid  = document.getElementById('blog-grid');
+  const empty = document.getElementById('blog-empty');
+  if(!grid) return;
+  if(!posts.length){ grid.innerHTML=''; if(empty)empty.style.display='block'; return; }
+  if(empty)empty.style.display='none';
+  grid.innerHTML = posts.map(p=>`
+    <div class="blog-card reveal" onclick="openBlogPost(${p.id})">
+      ${p.thumb
+        ?`<img class="blog-card-thumb" src="${p.thumb}" alt="${p.title}" loading="lazy">`
+        :`<div class="blog-card-thumb-ph">📰</div>`}
+      <div class="blog-card-body">
+        <div class="blog-card-cat">${p.cat||'UPDATE'}</div>
+        <div class="blog-card-title">${p.title}</div>
+        <div class="blog-card-meta">${p.date||''} &nbsp;·&nbsp; ${p.author||'SYNTHRIX'}</div>
+        <div class="blog-card-excerpt">${(p.html||'').replace(/<[^>]+>/g,'').substring(0,180)}</div>
+      </div>
+    </div>`).join('');
+  revealCheck();
+}
+function openBlogPost(id){
+  const PKEY = 'sx_posts';
+  const p = JSON.parse(localStorage.getItem(PKEY)||'[]').find(x=>x.id===id); if(!p) return;
+  document.getElementById('bm-cat').textContent   = p.cat||'UPDATE';
+  document.getElementById('bm-title').textContent = p.title;
+  document.getElementById('bm-meta').textContent  = (p.date||'')+' · '+( p.author||'SYNTHRIX');
+  const th = document.getElementById('bm-thumb');
+  if(p.thumb){ th.src=p.thumb; th.style.display='block'; } else { th.style.display='none'; }
+  document.getElementById('bm-body').innerHTML = p.html||'';
+  document.getElementById('blog-modal').classList.add('open');
+}
+function closeBlogModal(){ document.getElementById('blog-modal').classList.remove('open'); }
 
 /* ── TIME-OF-DAY THEME ── */
 (function(){
