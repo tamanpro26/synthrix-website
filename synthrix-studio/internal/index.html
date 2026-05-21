@@ -627,12 +627,29 @@
         <div class="card-title">// CONFIGURATION</div>
         <div class="ai-model-row">
           <select class="ai-model-sel" id="ai-model-sel">
-            <option value="qwen/qwen-2.5-72b-instruct">🧠 Qwen 2.5 72B — Planning &amp; Reasoning</option>
-            <option value="deepseek/deepseek-coder">💻 DeepSeek Coder — Code Generation</option>
-            <option value="qwen/qwen-2.5-coder-32b-instruct">🔧 Qwen Coder 32B — Debug &amp; Optimize</option>
-            <option value="meta-llama/llama-3.1-70b-instruct">⚡ LLaMA 3.1 70B — Fast Tasks</option>
-            <option value="mistralai/mistral-7b-instruct">🌀 Mistral 7B — Lightweight</option>
+            <optgroup label="── QWEN (Recommended)">
+              <option value="qwen/qwen-2.5-72b-instruct">🧠 Qwen 2.5 72B — Planning &amp; Reasoning</option>
+              <option value="qwen/qwen-2.5-coder-32b-instruct">🔧 Qwen Coder 32B — Code &amp; Debug</option>
+              <option value="qwen/qwen-2-7b-instruct:free">🆓 Qwen 2 7B — Free Tier</option>
+            </optgroup>
+            <optgroup label="── DEEPSEEK">
+              <option value="deepseek/deepseek-chat">💻 DeepSeek Chat (V3)</option>
+              <option value="deepseek/deepseek-coder-v2-instruct">🖥️ DeepSeek Coder V2</option>
+            </optgroup>
+            <optgroup label="── META LLAMA">
+              <option value="meta-llama/llama-3.1-70b-instruct">⚡ LLaMA 3.1 70B</option>
+              <option value="meta-llama/llama-3.1-8b-instruct:free">🆓 LLaMA 3.1 8B — Free Tier</option>
+              <option value="meta-llama/llama-3.2-3b-instruct:free">🆓 LLaMA 3.2 3B — Free Tier</option>
+            </optgroup>
+            <optgroup label="── MISTRAL">
+              <option value="mistralai/mistral-7b-instruct:free">🆓 Mistral 7B — Free Tier</option>
+              <option value="mistralai/mixtral-8x7b-instruct">🌀 Mixtral 8x7B</option>
+            </optgroup>
+            <optgroup label="── GOOGLE">
+              <option value="google/gemma-2-9b-it:free">🆓 Gemma 2 9B — Free Tier</option>
+            </optgroup>
           </select>
+          <button class="btn outline" style="font-size:7px;padding:7px 12px;letter-spacing:2px;white-space:nowrap" onclick="loadOpenRouterModels()" title="Fetch live model list from OpenRouter">&#8635; LOAD MODELS</button>
           <input class="ai-key-inp" id="ai-key-inp" type="password" placeholder="Paste OpenRouter API key (sk-or-v1-...)">
           <button class="btn p" style="white-space:nowrap;padding:8px 14px;font-size:8px;letter-spacing:3px" onclick="saveAIKey()">SAVE KEY</button>
           <span class="ai-key-status unset" id="ai-key-status">NO KEY</span>
@@ -1766,6 +1783,42 @@ const AI_KEY_STORE = 'sx_ai_key';
 const AI_HIST_STORE = 'sx_ai_history';
 let _aiTyping = false;
 let _aiHistory = []; /* conversation history */
+
+/* ── LOAD LIVE MODELS FROM OPENROUTER ── */
+async function loadOpenRouterModels(){
+  const key = getAIKey();
+  if(!key){ notify('ADD API KEY FIRST THEN CLICK LOAD MODELS'); return; }
+  notify('FETCHING LIVE MODEL LIST FROM OPENROUTER...');
+  try {
+    const res = await fetch('https://openrouter.ai/api/v1/models',{
+      headers:{ 'Authorization':'Bearer '+key }
+    });
+    if(!res.ok){ notify('FAILED TO FETCH MODELS — CHECK API KEY'); return; }
+    const data = await res.json();
+    const models = (data.data||[])
+      .filter(m => m.id && m.name)
+      .sort((a,b)=> {
+        /* free first, then by name */
+        const af = a.pricing?.prompt==='0'; const bf = b.pricing?.prompt==='0';
+        if(af&&!bf) return -1; if(!af&&bf) return 1;
+        return a.name.localeCompare(b.name);
+      });
+    const sel = document.getElementById('ai-model-sel');
+    if(!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = models.map(m=>{
+      const isFree = m.pricing?.prompt==='0';
+      return `<option value="${m.id}">${isFree?'🆓 ':''}${m.name}${isFree?' (FREE)':''}</option>`;
+    }).join('');
+    /* restore previous selection if still available */
+    for(let i=0;i<sel.options.length;i++){
+      if(sel.options[i].value===cur){ sel.selectedIndex=i; break; }
+    }
+    notify('✓ LOADED '+models.length+' MODELS — '+models.filter(m=>m.pricing?.prompt==='0').length+' FREE');
+  } catch(e){
+    notify('ERROR FETCHING MODELS: '+e.message);
+  }
+}
 
 /* ── KEY MANAGEMENT ── */
 function saveAIKey(){
