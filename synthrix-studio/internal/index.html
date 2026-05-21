@@ -221,6 +221,56 @@
     .ach-prev-id{font-size:7px;letter-spacing:3px;color:rgba(34,197,94,0.45);margin-top:5px}
     .ach-trigger-note{font-size:8px;letter-spacing:2px;color:rgba(255,107,53,0.55);margin-top:6px;line-height:1.7;padding:7px 10px;background:rgba(255,107,53,0.05);border:1px solid rgba(255,107,53,0.15);border-radius:2px}
 
+    /* ── AI AGENT PANEL ── */
+    .ai-model-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+    .ai-model-sel{background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.35);border-radius:2px;padding:8px 12px;font-family:'Courier New',monospace;font-size:11px;color:var(--white);outline:none;cursor:pointer;transition:.2s}
+    .ai-model-sel:focus{border-color:rgba(139,92,246,0.65)}
+    .ai-key-inp{flex:1;min-width:180px;background:rgba(255,255,255,0.03);border:1px solid rgba(139,92,246,0.28);border-radius:2px;padding:8px 12px;font-family:'Courier New',monospace;font-size:11px;color:var(--white);outline:none;transition:.2s;letter-spacing:2px}
+    .ai-key-inp:focus{border-color:rgba(139,92,246,0.55)}
+    .ai-key-inp::placeholder{color:rgba(226,232,228,0.18);letter-spacing:1px}
+    .ai-key-status{font-size:8px;letter-spacing:3px;padding:4px 10px;border-radius:2px;flex-shrink:0}
+    .ai-key-status.set{background:rgba(34,197,94,0.10);border:1px solid rgba(34,197,94,0.28);color:rgba(34,197,94,0.80)}
+    .ai-key-status.unset{background:rgba(239,68,68,0.09);border:1px solid rgba(239,68,68,0.22);color:rgba(239,68,68,0.70)}
+    /* action buttons */
+    .ai-actions-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:7px;margin-bottom:14px}
+    .ai-act-btn{display:flex;align-items:center;gap:7px;padding:9px 12px;background:rgba(139,92,246,0.07);border:1px solid rgba(139,92,246,0.22);border-radius:2px;font-family:'Courier New',monospace;font-size:8px;letter-spacing:3px;color:rgba(200,180,255,0.80);cursor:pointer;transition:.2s;text-align:left}
+    .ai-act-btn:hover{background:rgba(139,92,246,0.16);border-color:rgba(139,92,246,0.50);color:#fff}
+    .ai-act-ico{font-size:14px;flex-shrink:0}
+    /* chat */
+    .ai-chat{height:380px;overflow-y:auto;background:rgba(255,255,255,0.018);border:1px solid rgba(139,92,246,0.18);border-radius:3px;padding:14px;margin-bottom:10px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
+    .ai-chat::-webkit-scrollbar{width:4px}
+    .ai-chat::-webkit-scrollbar-track{background:transparent}
+    .ai-chat::-webkit-scrollbar-thumb{background:rgba(139,92,246,0.30);border-radius:2px}
+    .ai-msg{display:flex;gap:10px;align-items:flex-start;max-width:92%}
+    .ai-msg.user{align-self:flex-end;flex-direction:row-reverse}
+    .ai-msg-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:2px}
+    .ai-msg.ai   .ai-msg-avatar{background:rgba(139,92,246,0.20);border:1px solid rgba(139,92,246,0.35)}
+    .ai-msg.user .ai-msg-avatar{background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.30)}
+    .ai-msg-bubble{padding:10px 14px;border-radius:3px;font-size:12px;line-height:1.75;letter-spacing:.4px;white-space:pre-wrap;word-break:break-word}
+    .ai-msg.ai   .ai-msg-bubble{background:rgba(139,92,246,0.09);border:1px solid rgba(139,92,246,0.20);color:var(--white)}
+    .ai-msg.user .ai-msg-bubble{background:rgba(34,197,94,0.09);border:1px solid rgba(34,197,94,0.22);color:rgba(226,232,228,0.85)}
+    .ai-msg-bubble strong{color:rgba(200,180,255,0.90)}
+    .ai-msg-bubble code{background:rgba(0,0,0,0.30);padding:1px 6px;border-radius:2px;font-family:'Courier New',monospace;font-size:10px;color:var(--teal)}
+    /* apply button on AI messages */
+    .ai-apply-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(139,92,246,0.15)}
+    .ai-apply-btn{font-size:7px;letter-spacing:3px;padding:4px 10px;border-radius:2px;background:linear-gradient(135deg,rgba(139,92,246,0.20),rgba(0,201,184,0.15));border:1px solid rgba(139,92,246,0.38);color:rgba(200,180,255,0.85);cursor:pointer;transition:.2s}
+    .ai-apply-btn:hover{background:linear-gradient(135deg,rgba(139,92,246,0.38),rgba(0,201,184,0.28));color:#fff}
+    /* typing indicator */
+    .ai-typing{display:flex;align-items:center;gap:4px;padding:10px 14px}
+    .ai-typing span{width:5px;height:5px;border-radius:50%;background:rgba(139,92,246,0.60);animation:aiDot 1.2s ease-in-out infinite}
+    .ai-typing span:nth-child(2){animation-delay:.2s}
+    .ai-typing span:nth-child(3){animation-delay:.4s}
+    @keyframes aiDot{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+    /* input row */
+    .ai-input-row{display:flex;gap:8px;align-items:flex-end}
+    .ai-textarea{flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(139,92,246,0.25);border-radius:2px;padding:10px 12px;font-family:'Courier New',monospace;font-size:12px;color:var(--white);outline:none;resize:none;min-height:42px;max-height:120px;transition:border-color .2s;line-height:1.5;letter-spacing:.3px}
+    .ai-textarea:focus{border-color:rgba(139,92,246,0.55)}
+    .ai-textarea::placeholder{color:rgba(226,232,228,0.20)}
+    .ai-send-btn{padding:10px 18px;background:linear-gradient(135deg,rgba(139,92,246,0.70),rgba(0,201,184,0.55));border:none;border-radius:2px;color:#fff;font-family:'Courier New',monospace;font-size:9px;letter-spacing:4px;cursor:pointer;transition:.2s;flex-shrink:0;height:42px}
+    .ai-send-btn:hover{opacity:.85;box-shadow:0 0 20px rgba(139,92,246,0.40)}
+    .ai-send-btn:disabled{opacity:.35;cursor:not-allowed}
+    .ai-empty{text-align:center;padding:60px 20px;font-size:9px;letter-spacing:3px;color:rgba(226,232,228,0.22);line-height:2.5}
+
     /* ── MESSAGES ── */
     .sb-badge{display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;border-radius:9px;background:var(--red);color:#fff;font-size:7px;font-weight:bold;margin-left:auto;padding:0 4px;flex-shrink:0}
     .msg-item{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border:1px solid var(--bord);border-radius:2px;margin-bottom:7px;cursor:pointer;background:var(--bg2);transition:border-color .2s,background .2s;position:relative}
@@ -330,6 +380,7 @@
     </div>
     <nav class="sb-nav">
       <div class="sb-item on"  data-p="overview"  onclick="sp('overview')"> <span class="sb-ico">⬡</span>OVERVIEW</div>
+      <div class="sb-item"     data-p="ai"        onclick="sp('ai')">       <span class="sb-ico">🤖</span>AI AGENT<span style="font-size:6px;letter-spacing:2px;padding:1px 5px;background:linear-gradient(90deg,rgba(139,92,246,0.40),rgba(0,201,184,0.30));border-radius:2px;margin-left:6px;color:#fff">BETA</span></div>
       <div class="sb-item"     data-p="messages"  onclick="sp('messages')"> <span class="sb-ico">💬</span>MESSAGES<span class="sb-badge" id="msg-badge" style="display:none">0</span></div>
       <div class="sb-item"     data-p="employees" onclick="sp('employees')"><span class="sb-ico">👤</span>EMPLOYEES</div>
       <div class="sb-item"     data-p="roster"    onclick="sp('roster')">   <span class="sb-ico">🎖️</span>ROSTER</div>
@@ -546,6 +597,63 @@
       <div class="card">
         <div class="card-title">// CUSTOM ACHIEVEMENTS LIBRARY &nbsp;<span id="ac-count" style="color:var(--muted);font-weight:normal;font-size:8px"></span></div>
         <div class="ach-preview-grid" id="ac-grid"></div>
+      </div>
+    </div>
+
+    <!-- AI AGENT -->
+    <div class="db-panel" id="p-ai">
+      <div class="p-tag">// POWERED BY OPENROUTER — QWEN · DEEPSEEK · LLAMA · MISTRAL</div>
+      <div class="p-title">AI <span>AGENT</span></div>
+
+      <!-- API Key + Model settings -->
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-title">// CONFIGURATION</div>
+        <div class="ai-model-row">
+          <select class="ai-model-sel" id="ai-model-sel">
+            <option value="qwen/qwen-2.5-72b-instruct">🧠 Qwen 2.5 72B — Planning &amp; Reasoning</option>
+            <option value="deepseek/deepseek-coder">💻 DeepSeek Coder — Code Generation</option>
+            <option value="qwen/qwen-2.5-coder-32b-instruct">🔧 Qwen Coder 32B — Debug &amp; Optimize</option>
+            <option value="meta-llama/llama-3.1-70b-instruct">⚡ LLaMA 3.1 70B — Fast Tasks</option>
+            <option value="mistralai/mistral-7b-instruct">🌀 Mistral 7B — Lightweight</option>
+          </select>
+          <input class="ai-key-inp" id="ai-key-inp" type="password" placeholder="Paste OpenRouter API key (sk-or-v1-...)">
+          <button class="btn p" style="white-space:nowrap;padding:8px 14px;font-size:8px;letter-spacing:3px" onclick="saveAIKey()">SAVE KEY</button>
+          <span class="ai-key-status unset" id="ai-key-status">NO KEY</span>
+        </div>
+        <div style="font-size:8px;letter-spacing:2px;color:var(--muted);line-height:1.9">
+          Get a free API key at <strong style="color:rgba(139,92,246,0.80)">openrouter.ai</strong> — free tier includes Qwen, LLaMA, Mistral &amp; more. Key is stored locally only.
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-title">// QUICK ACTIONS — AI WILL GENERATE &amp; LET YOU APPLY WITH ONE CLICK</div>
+        <div class="ai-actions-grid">
+          <button class="ai-act-btn" onclick="aiAction('blog_post')">    <span class="ai-act-ico">📰</span>BLOG POST</button>
+          <button class="ai-act-btn" onclick="aiAction('game_desc')">    <span class="ai-act-ico">🎮</span>GAME DESCRIPTION</button>
+          <button class="ai-act-btn" onclick="aiAction('announcement')"> <span class="ai-act-ico">📡</span>ANNOUNCEMENT</button>
+          <button class="ai-act-btn" onclick="aiAction('employee_bio')"> <span class="ai-act-ico">👤</span>EMPLOYEE BIO</button>
+          <button class="ai-act-btn" onclick="aiAction('page_content')"> <span class="ai-act-ico">📄</span>PAGE CONTENT</button>
+          <button class="ai-act-btn" onclick="aiAction('roster_entry')"> <span class="ai-act-ico">🎖️</span>ROSTER ENTRY</button>
+          <button class="ai-act-btn" onclick="aiAction('release_notes')"><span class="ai-act-ico">🚀</span>RELEASE NOTES</button>
+          <button class="ai-act-btn" onclick="aiAction('lore_entry')">   <span class="ai-act-ico">📖</span>LORE / UNIVERSE</button>
+        </div>
+      </div>
+
+      <!-- Chat window -->
+      <div class="card" style="margin-bottom:0">
+        <div class="card-title" id="ai-chat-title">// AI CHAT — DESCRIBE WHAT YOU NEED</div>
+        <div class="ai-chat" id="ai-chat">
+          <div class="ai-empty">
+            🤖 AI AGENT READY<br>
+            <span>Select a quick action above or type a message below</span><br>
+            <span style="color:rgba(139,92,246,0.50)">Uses Qwen · DeepSeek Coder · LLaMA · Mistral via OpenRouter</span>
+          </div>
+        </div>
+        <div class="ai-input-row" style="margin-top:10px">
+          <textarea class="ai-textarea" id="ai-input" rows="2" placeholder="Ask the AI anything — write a game description, employee bio, blog post, page layout..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAI()}"></textarea>
+          <button class="ai-send-btn" id="ai-send-btn" onclick="sendAI()">SEND</button>
+        </div>
       </div>
     </div>
 
@@ -1312,7 +1420,7 @@ launch = function(admin){
     initQuills(); renderPosts(); renderSnippets();
     renderPBSaved(); renderNavItems();
     loadTheme(); renderAnalytics(); renderRoles(); renderDatabase();
-    renderMessages(); checkUnreadOnLogin();
+    renderMessages(); checkUnreadOnLogin(); initAI();
   }, 150);
 };
 
@@ -1631,6 +1739,310 @@ function renderRoles(){
       <span class="badge ${levelBadge(a.level)}" style="font-size:7px;letter-spacing:3px;padding:3px 9px">${(a.level||'editor').toUpperCase()}</span>
       <button class="btn d" style="font-size:7px;padding:3px 7px" onclick="(()=>{const d=JSON.parse(localStorage.getItem('${ADKEY}')||'[]');const i=d.findIndex(x=>x.id==='${a.id}');if(i>=0){delete d[i].level;d[i].level='editor';localStorage.setItem('${ADKEY}',JSON.stringify(d));notify('ROLE RESET TO EDITOR');renderRoles();}})()">RESET</button>
     </div></div>`).join(''):'<div style="color:var(--muted);font-size:9px;letter-spacing:2px">NO DYNAMIC ADMIN ACCOUNTS — CREATE ONE IN THE EMPLOYEES PANEL</div>';
+}
+
+/* ════════════════════════════════════════
+   AI AGENT SYSTEM — OpenRouter Integration
+   Models: Qwen, DeepSeek Coder, LLaMA 3, Mistral
+════════════════════════════════════════ */
+const AI_KEY_STORE = 'sx_ai_key';
+const AI_HIST_STORE = 'sx_ai_history';
+let _aiTyping = false;
+let _aiHistory = []; /* conversation history */
+
+/* ── KEY MANAGEMENT ── */
+function saveAIKey(){
+  const k = document.getElementById('ai-key-inp').value.trim();
+  if(!k || !k.startsWith('sk-or-')){ notify('INVALID KEY FORMAT — MUST START WITH sk-or-'); return; }
+  localStorage.setItem(AI_KEY_STORE, k);
+  document.getElementById('ai-key-inp').value = '';
+  updateAIKeyStatus();
+  notify('API KEY SAVED SECURELY IN LOCALSTORAGE');
+}
+function getAIKey(){ return localStorage.getItem(AI_KEY_STORE)||''; }
+function updateAIKeyStatus(){
+  const k = getAIKey();
+  const el = document.getElementById('ai-key-status');
+  if(!el) return;
+  if(k){ el.textContent='KEY SET ✓'; el.className='ai-key-status set'; }
+  else  { el.textContent='NO KEY';   el.className='ai-key-status unset'; }
+}
+
+/* ── CONTEXT BUILDER — gives AI knowledge of current data ── */
+function buildAIContext(){
+  const games  = JSON.parse(localStorage.getItem(GKEY)||'[]');
+  const accs   = JSON.parse(localStorage.getItem(ADKEY)||'[]');
+  const posts  = JSON.parse(localStorage.getItem(PKEY)||'[]');
+  const anns   = JSON.parse(localStorage.getItem(AKEY)||'[]');
+  return `You are an AI agent for SYNTHRIX Studio — an independent game development studio from Bangladesh.
+
+CURRENT DATA IN SYSTEM:
+Games Library: ${games.map(g=>`${g.title} (${g.genre}, ${g.status})`).join(', ')||'None yet'}
+Admin Accounts: ${[...ADMIN_DB,...accs].map(a=>`${a.display}(${a.role||a.level})`).join(', ')}
+Blog Posts: ${posts.length} posts (${posts.filter(p=>p.status==='published').length} published)
+Announcements: ${anns.length} total
+
+AVAILABLE ACTIONS YOU CAN SUGGEST (use [ACTION:type] markers in your response):
+- [ACTION:fill_blog_post] title="..." category="..." content="..."
+- [ACTION:fill_game_desc] title="..." genre="..." description="..."
+- [ACTION:fill_announcement] title="..." category="..." content="..."
+- [ACTION:fill_employee] username="..." display="..." level="editor"
+
+When you include an [ACTION:...] marker, the user will see an "APPLY" button to automatically fill the form.
+Always be concise, use a dark/gaming aesthetic in your writing tone, and match SYNTHRIX Studio's brand voice: intense, futuristic, Bangladeshi indie pride.`;
+}
+
+/* ── QUICK ACTIONS ── */
+const AI_ACTIONS = {
+  blog_post:    'Write a compelling blog post for SYNTHRIX Studio. Include a title, category (choose from: News/Update/Dev Log/Release), and full content in HTML with formatting.',
+  game_desc:    'Write a game description for a new SYNTHRIX Studio game. Create a title, genre, and atmospheric 2-3 sentence description that captures dark/sci-fi gaming vibes.',
+  announcement: 'Write an official announcement for SYNTHRIX Studio. Include a punchy title, category, and announcement body.',
+  employee_bio: 'Create an employee account suggestion for a new SYNTHRIX Studio team member. Suggest a username, display name/callsign, and pick a level (editor or moderator).',
+  page_content: 'Create page content for SYNTHRIX Studio website. Write a hero heading, tagline, and body paragraph in a futuristic game studio style.',
+  roster_entry: 'Suggest a team roster entry update for SYNTHRIX Studio. Include the member\'s display name, skill/role, chosen unit (Vanguard Syndicate/Protocol/Frontier/Division/Axis), and a creative bio.',
+  release_notes:'Write release notes for a new SYNTHRIX Studio game update. Include version number, feature highlights, and bug fixes in a HUD/game-UI style.',
+  lore_entry:   'Write a lore/universe entry for the SYNTHRIX universe (sci-fi, dark, set in 2087 post-collapse Bangladesh). Include a title, year, and atmospheric description.',
+};
+
+function aiAction(type){
+  const prompt = AI_ACTIONS[type];
+  if(!prompt) return;
+  document.getElementById('ai-input').value = prompt;
+  sendAI();
+}
+
+/* ── SEND MESSAGE ── */
+async function sendAI(){
+  const key   = getAIKey();
+  if(!key){ notify('ADD YOUR OPENROUTER API KEY IN AI AGENT SETTINGS FIRST'); sp('ai'); return; }
+  if(_aiTyping) return;
+
+  const input = document.getElementById('ai-input');
+  const msg   = input.value.trim();
+  if(!msg) return;
+
+  input.value = '';
+  _aiTyping   = true;
+  const sendBtn = document.getElementById('ai-send-btn');
+  if(sendBtn) sendBtn.disabled = true;
+
+  /* add user message to history and UI */
+  _aiHistory.push({ role:'user', content:msg });
+  appendAIMsg('user', msg);
+
+  /* show typing indicator */
+  const typingId = 'ai-typing-'+Date.now();
+  appendTyping(typingId);
+
+  const model = document.getElementById('ai-model-sel')?.value || 'qwen/qwen-2.5-72b-instruct';
+
+  try {
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${key}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://synthrixstudios.vercel.app',
+        'X-Title': 'SYNTHRIX Mission Control AI'
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role:'system', content: buildAIContext() },
+          ..._aiHistory
+        ],
+        temperature: 0.75,
+        max_tokens: 1200
+      })
+    });
+
+    removeTyping(typingId);
+
+    if(!res.ok){
+      const err = await res.json().catch(()=>({}));
+      appendAIMsg('ai', `ERROR ${res.status}: ${err.error?.message||'Request failed. Check your API key.'}`);
+      _aiTyping = false; if(sendBtn) sendBtn.disabled=false; return;
+    }
+
+    const data  = await res.json();
+    const reply = data.choices?.[0]?.message?.content || 'No response from model.';
+
+    /* add to history */
+    _aiHistory.push({ role:'assistant', content:reply });
+    /* keep history to last 12 messages to avoid token overflow */
+    if(_aiHistory.length > 12) _aiHistory = _aiHistory.slice(-12);
+
+    /* parse ACTION markers and render */
+    appendAIMsg('ai', reply, true);
+
+  } catch(e) {
+    removeTyping(typingId);
+    appendAIMsg('ai', `NETWORK ERROR: ${e.message}\n\nCheck your internet connection and API key.`);
+  }
+
+  _aiTyping = false;
+  if(sendBtn) sendBtn.disabled = false;
+}
+
+/* ── CHAT UI ── */
+function appendAIMsg(role, content, parseActions=false){
+  const chat = document.getElementById('ai-chat'); if(!chat) return;
+  /* remove empty state */
+  const empty = chat.querySelector('.ai-empty');
+  if(empty) empty.remove();
+
+  const wrap = document.createElement('div');
+  wrap.className = `ai-msg ${role}`;
+
+  const avatar = document.createElement('div');
+  avatar.className = 'ai-msg-avatar';
+  avatar.textContent = role==='ai' ? '🤖' : '👤';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'ai-msg-bubble';
+
+  /* format content */
+  let display = content
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/`([^`]+)`/g,'<code>$1</code>')
+    .replace(/\[ACTION:[^\]]+\]/g,''); /* strip action markers from display */
+
+  bubble.innerHTML = display;
+
+  /* parse ACTION markers for apply buttons */
+  if(parseActions){
+    const actions = [...content.matchAll(/\[ACTION:(\w+)\s+(.*?)\]/gs)];
+    if(actions.length){
+      const applyRow = document.createElement('div');
+      applyRow.className = 'ai-apply-row';
+      actions.forEach(([,type,params])=>{
+        const btn = document.createElement('button');
+        btn.className = 'ai-apply-btn';
+        btn.textContent = '▶ APPLY TO ' + type.replace(/_/g,' ').toUpperCase();
+        btn.onclick = ()=>applyAIAction(type, parseParams(params), content);
+        applyRow.appendChild(btn);
+      });
+      bubble.appendChild(applyRow);
+    } else {
+      /* no explicit action markers — offer generic apply options */
+      const applyRow = document.createElement('div');
+      applyRow.className = 'ai-apply-row';
+      if(content.toLowerCase().includes('blog') || content.toLowerCase().includes('post')){
+        const b=document.createElement('button');b.className='ai-apply-btn';b.textContent='▶ FILL BLOG POST FORM';b.onclick=()=>smartApply('blog_post',content);applyRow.appendChild(b);
+      }
+      if(content.toLowerCase().includes('game') || content.toLowerCase().includes('description')){
+        const b=document.createElement('button');b.className='ai-apply-btn';b.textContent='▶ FILL GAME FORM';b.onclick=()=>smartApply('game_desc',content);applyRow.appendChild(b);
+      }
+      if(content.toLowerCase().includes('announcement') || content.toLowerCase().includes('announce')){
+        const b=document.createElement('button');b.className='ai-apply-btn';b.textContent='▶ FILL ANNOUNCEMENT';b.onclick=()=>smartApply('announcement',content);applyRow.appendChild(b);
+      }
+      const copy=document.createElement('button');copy.className='ai-apply-btn';copy.textContent='📋 COPY TEXT';
+      copy.onclick=()=>{ navigator.clipboard.writeText(content.replace(/\[ACTION:[^\]]+\]/g,'').trim()).then(()=>notify('AI OUTPUT COPIED')); };
+      applyRow.appendChild(copy);
+      if(applyRow.children.length) bubble.appendChild(applyRow);
+    }
+  }
+
+  wrap.appendChild(avatar);
+  wrap.appendChild(bubble);
+  chat.appendChild(wrap);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function appendTyping(id){
+  const chat = document.getElementById('ai-chat'); if(!chat) return;
+  const wrap = document.createElement('div');
+  wrap.id = id;
+  wrap.className = 'ai-msg ai';
+  const av = document.createElement('div'); av.className='ai-msg-avatar'; av.textContent='🤖';
+  const bub = document.createElement('div'); bub.className='ai-msg-bubble';
+  bub.innerHTML='<div class="ai-typing"><span></span><span></span><span></span></div>';
+  wrap.appendChild(av); wrap.appendChild(bub);
+  chat.appendChild(wrap);
+  chat.scrollTop = chat.scrollHeight;
+}
+function removeTyping(id){ document.getElementById(id)?.remove(); }
+
+/* ── APPLY AI OUTPUT TO FORMS ── */
+function parseParams(str){
+  const obj={};
+  const re = /(\w+)="([^"]+)"/g; let m;
+  while((m=re.exec(str))!==null) obj[m[1]]=m[2];
+  return obj;
+}
+
+function applyAIAction(type, params, fullContent){
+  switch(type){
+    case 'fill_blog_post':    applyToBlog(params.title, params.category, params.content||fullContent); break;
+    case 'fill_game_desc':    applyToGame(params.title, params.genre, params.description||fullContent); break;
+    case 'fill_announcement': applyToAnn(params.title, params.category, params.content||fullContent); break;
+    case 'fill_employee':     applyToEmployee(params.username, params.display, params.level); break;
+  }
+}
+
+function smartApply(type, content){
+  /* extract title as first line, rest as body */
+  const lines = content.replace(/\*\*/g,'').split('\n').map(l=>l.trim()).filter(Boolean);
+  const title = lines[0]?.replace(/^#+\s*/,'').substring(0,80) || 'AI Generated';
+  const body  = lines.slice(1).join('\n');
+
+  if(type==='blog_post'){
+    applyToBlog(title, 'Update', content);
+  } else if(type==='game_desc'){
+    applyToGame(title, 'Action', body||content);
+  } else if(type==='announcement'){
+    applyToAnn(title, 'STUDIO UPDATE', body||content);
+  }
+}
+
+function applyToBlog(title, cat, content){
+  sp('posts');
+  setTimeout(()=>{
+    const t=document.getElementById('pt-title'); if(t)t.value=title||'';
+    /* set category select */
+    const cs=document.getElementById('pt-cat');
+    if(cs&&cat){ for(let i=0;i<cs.options.length;i++){ if(cs.options[i].text.toLowerCase().includes((cat||'').toLowerCase())){ cs.selectedIndex=i; break; }}}
+    if(window.ptQuill) ptQuill.root.innerHTML = content.replace(/\n/g,'<br>');
+    notify('✓ AI OUTPUT APPLIED TO BLOG POST FORM');
+  },200);
+}
+
+function applyToGame(title, genre, desc){
+  sp('games');
+  setTimeout(()=>{
+    const t=document.getElementById('g-title'); if(t)t.value=title||'';
+    const g=document.getElementById('g-genre'); if(g)g.value=genre||'';
+    const d=document.getElementById('g-desc');  if(d)d.value=desc.replace(/<[^>]+>/g,'')||'';
+    notify('✓ AI OUTPUT APPLIED TO GAME FORM');
+  },200);
+}
+
+function applyToAnn(title, cat, content){
+  sp('announce');
+  setTimeout(()=>{
+    const t=document.getElementById('a-title'); if(t)t.value=title||'';
+    const cs=document.getElementById('a-cat');
+    if(cs&&cat){ for(let i=0;i<cs.options.length;i++){ if(cs.options[i].text.toLowerCase().includes((cat||'').toLowerCase())){ cs.selectedIndex=i; break; }}}
+    const b=document.getElementById('a-body'); if(b)b.value=content.replace(/<[^>]+>/g,'')||'';
+    notify('✓ AI OUTPUT APPLIED TO ANNOUNCEMENT FORM');
+  },200);
+}
+
+function applyToEmployee(username, display, level){
+  sp('employees');
+  setTimeout(()=>{
+    const u=document.getElementById('e-user'); if(u)u.value=(username||'').toLowerCase();
+    const n=document.getElementById('e-name'); if(n)n.value=(display||'').toUpperCase();
+    const ls=document.getElementById('e-level');
+    if(ls&&level){ for(let i=0;i<ls.options.length;i++){ if(ls.options[i].value===level){ ls.selectedIndex=i; break; }}}
+    notify('✓ AI OUTPUT APPLIED TO EMPLOYEE FORM');
+  },200);
+}
+
+/* init on launch */
+function initAI(){
+  updateAIKeyStatus();
+  _aiHistory = [];
 }
 
 /* ════════════════════════════════════════
