@@ -732,7 +732,8 @@
     .hn-link{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(237,232,223,0.55);text-decoration:none;padding:7px 12px;border-radius:2px;text-transform:uppercase;transition:color .25s,background .25s;cursor:none;white-space:nowrap}
     .hn-link:hover{color:var(--white);background:rgba(245,166,35,0.09)}
     /* gamepad controller */
-    .hero-controller-wrap{position:absolute;left:50%;bottom:52%;transform:translateX(-50%) translateY(30%) rotate(-20deg) scale(.6);z-index:2;pointer-events:none;opacity:0;animation:ctrlRise 1.4s .2s cubic-bezier(.15,.9,.35,1) forwards}
+    .hero-controller-wrap{position:absolute;left:50%;bottom:52%;transform:translateX(-50%) translateY(30%) rotate(-20deg) scale(.6);z-index:2;pointer-events:none;opacity:0}
+    .hero-controller-wrap.play{animation:ctrlRise 1.4s .05s cubic-bezier(.15,.9,.35,1) forwards}
     @keyframes ctrlRise{
       0%  {opacity:0;transform:translateX(-50%) translateY(40%) rotate(-20deg) scale(.6)}
       55% {opacity:0.90;transform:translateX(-50%) translateY(-8%) rotate(6deg) scale(1.08)}
@@ -743,9 +744,10 @@
     /* new title animation */
     .hero-title-wrap{text-align:center;position:relative;z-index:3}
     .htn-line{display:block;opacity:0;transform:translateY(55px);will-change:transform,opacity}
-    .htn-synth{font-family:'Orbitron',sans-serif;font-size:clamp(52px,9vw,112px);font-weight:900;letter-spacing:6px;color:var(--white);filter:drop-shadow(0 0 24px rgba(255,255,255,0.28));animation:titlePush .85s .92s cubic-bezier(.2,.9,.4,1) forwards}
-    .htn-rix{font-family:'Orbitron',sans-serif;font-size:clamp(52px,9vw,112px);font-weight:900;letter-spacing:6px;color:var(--orange);filter:drop-shadow(0 0 30px rgba(255,107,53,0.72));animation:titlePush .85s 1.08s cubic-bezier(.2,.9,.4,1) forwards}
-    .htn-studio{font-family:'Share Tech Mono',monospace;font-size:clamp(10px,1.4vw,17px);letter-spacing:16px;color:rgba(237,232,223,0.32);margin-top:8px;animation:titlePush .7s 1.28s cubic-bezier(.2,.9,.4,1) forwards}
+    .htn-synth{font-family:'Orbitron',sans-serif;font-size:clamp(52px,9vw,112px);font-weight:900;letter-spacing:6px;color:var(--white);filter:drop-shadow(0 0 24px rgba(255,255,255,0.28))}
+    .htn-rix{font-family:'Orbitron',sans-serif;font-size:clamp(52px,9vw,112px);font-weight:900;letter-spacing:6px;color:var(--orange);filter:drop-shadow(0 0 30px rgba(255,107,53,0.72))}
+    .htn-studio{font-family:'Share Tech Mono',monospace;font-size:clamp(10px,1.4vw,17px);letter-spacing:16px;color:rgba(237,232,223,0.32);margin-top:8px}
+    .htn-line.play{animation:titlePush .85s cubic-bezier(.2,.9,.4,1) forwards}
     @keyframes titlePush{to{opacity:1;transform:translateY(0)}}
     @media(max-width:900px){.hero-nav-left,.hero-nav-right{display:none}}
 
@@ -1911,7 +1913,15 @@ document.querySelectorAll('a,button,input,select,textarea').forEach(el => {
     $('i-bar-b').classList.add('open');
     setTimeout(() => {
       intro.classList.add('gone');
-      setTimeout(() => { intro.style.display = 'none'; }, 550);
+      setTimeout(() => {
+        intro.style.display = 'none';
+        /* NOW trigger hero animations — controller rises, then title follows */
+        const ctrl = document.querySelector('.hero-controller-wrap');
+        if(ctrl) ctrl.classList.add('play');
+        document.querySelectorAll('.htn-line').forEach((el, i) => {
+          setTimeout(() => el.classList.add('play'), 600 + i * 160);
+        });
+      }, 550);
     }, 700);
   }
 
