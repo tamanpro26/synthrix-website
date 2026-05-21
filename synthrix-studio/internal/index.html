@@ -223,8 +223,10 @@
 
     /* ── AI AGENT PANEL ── */
     .ai-model-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
-    .ai-model-sel{background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.35);border-radius:2px;padding:8px 12px;font-family:'Courier New',monospace;font-size:11px;color:var(--white);outline:none;cursor:pointer;transition:.2s}
-    .ai-model-sel:focus{border-color:rgba(139,92,246,0.65)}
+    .ai-model-sel{background:#0a0a12;border:1px solid rgba(139,92,246,0.40);border-radius:2px;padding:8px 12px;font-family:'Courier New',monospace;font-size:11px;color:#e2e8e4;outline:none;cursor:pointer;transition:.2s;-webkit-appearance:none;appearance:none}
+    .ai-model-sel:focus{border-color:rgba(139,92,246,0.70);box-shadow:0 0 10px rgba(139,92,246,0.18)}
+    .ai-model-sel option{background:#0a0a12;color:#e2e8e4}
+    .ai-model-sel optgroup{background:#0d0d1a;color:rgba(200,180,255,0.65);font-style:normal;font-size:9px}
     .ai-key-inp{flex:1;min-width:180px;background:rgba(255,255,255,0.03);border:1px solid rgba(139,92,246,0.28);border-radius:2px;padding:8px 12px;font-family:'Courier New',monospace;font-size:11px;color:var(--white);outline:none;transition:.2s;letter-spacing:2px}
     .ai-key-inp:focus{border-color:rgba(139,92,246,0.55)}
     .ai-key-inp::placeholder{color:rgba(226,232,228,0.18);letter-spacing:1px}
