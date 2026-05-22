@@ -498,9 +498,9 @@
 
     /* ── TEAM ROSTER ── */
     .roster-section{margin-top:70px;padding-top:60px;border-top:1px solid var(--bord)}
-    .roster-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-top:8px}
-    .r-card{background:rgba(255,255,255,0.025);border:1px solid var(--bord);border-radius:3px;padding:16px 18px;position:relative;overflow:hidden;transition:border-color .3s,background .3s,transform .3s;cursor:default}
-    .r-card:hover{border-color:var(--bordhi);background:rgba(245,166,35,0.04);transform:translateY(-2px)}
+    .roster-grid{display:flex;flex-direction:column;gap:7px;margin-top:8px}
+    .r-card{background:rgba(255,255,255,0.025);border:1px solid var(--bord);border-radius:3px;padding:13px 18px;position:relative;overflow:hidden;transition:border-color .3s,background .3s,transform .3s;cursor:default;display:grid;grid-template-columns:52px 1fr auto auto;align-items:center;gap:16px}
+    .r-card:hover{border-color:var(--bordhi);background:rgba(245,166,35,0.04);transform:translateX(5px)}
     .r-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;transform:scaleX(0);transform-origin:left;transition:transform .4s}
     .r-card:hover::before{transform:scaleX(1)}
     /* unit accent colours */
@@ -512,21 +512,21 @@
     .r-unit-mentor     .r-card::before,.r-unit-mentor     {--uc:rgba(245,166,35,0.80);--ucb:rgba(245,166,35,0.18)}
     .r-card::before{background:linear-gradient(90deg,var(--uc),transparent)}
     .r-card:hover{border-color:var(--uc)!important}
-    .r-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+    .r-head{display:contents} /* let children participate in parent grid */
     .r-id{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:rgba(245,166,35,0.40);background:rgba(245,166,35,0.06);padding:2px 8px;border-radius:2px;border:1px solid rgba(245,166,35,0.15)}
     .r-status{display:flex;align-items:center;gap:5px;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:3px;color:rgba(34,197,94,0.65)}
     .r-status-dot{width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;animation:spulse 2s ease-in-out infinite;flex-shrink:0}
-    .r-name{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;letter-spacing:2px;color:var(--white);margin-bottom:5px;word-break:break-all}
-    .r-skill{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:10px}
-    .r-unit-tag{display:inline-flex;align-items:center;gap:5px;font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2.5px;padding:4px 10px;border-radius:2px;border:1px solid var(--ucb);color:var(--uc);background:var(--ucb)}
+    .r-name{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:900;letter-spacing:2px;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .r-skill{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--muted);margin-top:3px}
+    .r-unit-tag{display:inline-flex;align-items:center;gap:5px;font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2.5px;padding:4px 10px;border-radius:2px;border:1px solid var(--ucb);color:var(--uc);background:var(--ucb);white-space:nowrap;flex-shrink:0}
     .r-unit-tag::before{content:'▸';font-size:7px}
-    .r-rp{position:absolute;top:14px;right:14px;font-family:'Orbitron',monospace;font-size:10px;font-weight:700;color:var(--gold);filter:drop-shadow(0 0 8px rgba(245,166,35,0.6))}
+    .r-rp{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;color:var(--gold);filter:drop-shadow(0 0 8px rgba(245,166,35,0.6));white-space:nowrap;flex-shrink:0}
     .r-key-badge{display:inline-flex;align-items:center;gap:5px;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:3px;padding:3px 9px;border-radius:2px;background:linear-gradient(90deg,rgba(245,166,35,0.18),rgba(255,107,53,0.18));border:1px solid rgba(245,166,35,0.45);color:var(--gold);margin-top:7px}
     .r-key-badge::before{content:'★';font-size:8px}
     .roster-legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;padding:16px 18px;background:rgba(255,255,255,0.02);border:1px solid var(--bord);border-radius:3px}
     .rl-item{display:flex;align-items:center;gap:7px;font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--muted)}
     .rl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-    @media(max-width:900px){.roster-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}}
+    @media(max-width:600px){.r-card{grid-template-columns:36px 1fr}.r-unit-tag,.r-card>div:last-child{display:none}}
 
     /* ── HOW WE WORK SECTION ── */
     .hww-intro{color:rgba(237,232,223,0.62);font-size:16px;line-height:2;letter-spacing:.3px;margin-bottom:48px;max-width:760px}
@@ -1256,14 +1256,22 @@
     <div class="roster-grid">
 
       <div class="r-unit-mentor"><div class="r-card reveal">
-        <div class="r-head"><span class="r-id">MENTOR</span><span class="r-status"><span class="r-status-dot"></span>RECRUITED</span></div>
+        <span class="r-id">MENTOR</span>
+        <div><div class="r-name"></div><div class="r-skill"></div></div>
+        <div class="r-unit-tag"></div>
+        <div style="display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:3px;color:rgba(34,197,94,0.65);white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;flex-shrink:0;display:inline-block"></span>RECRUITED</div>
+      </div>
         <div class="r-name">SKYARK</div>
         <div class="r-skill">MENTOR &nbsp;&middot;&nbsp; GUIDANCE &amp; OVERSIGHT</div>
         <div class="r-unit-tag">SENIOR ADVISOR</div>
       </div></div>
 
       <div class="r-unit-syndicate"><div class="r-card reveal">
-        <div class="r-head"><span class="r-id">#101</span><span class="r-status"><span class="r-status-dot"></span>RECRUITED</span></div>
+        <span class="r-id">#101</span>
+        <div><div class="r-name"></div><div class="r-skill"></div></div>
+        <div class="r-unit-tag"></div>
+        <div style="display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:3px;color:rgba(34,197,94,0.65);white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;flex-shrink:0;display:inline-block"></span>RECRUITED</div>
+      </div>
         <div class="r-name">LK PLAYZ</div>
         <div class="r-skill">GAME DEV &nbsp;&middot;&nbsp; UNITY</div>
         <div class="r-unit-tag">VANGUARD SYNDICATE</div>
@@ -1279,28 +1287,44 @@
       </div></div>
 
       <div class="r-unit-syndicate"><div class="r-card reveal">
-        <div class="r-head"><span class="r-id">#103</span><span class="r-status"><span class="r-status-dot"></span>RECRUITED</span></div>
+        <span class="r-id">#103</span>
+        <div><div class="r-name"></div><div class="r-skill"></div></div>
+        <div class="r-unit-tag"></div>
+        <div style="display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:3px;color:rgba(34,197,94,0.65);white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;flex-shrink:0;display:inline-block"></span>RECRUITED</div>
+      </div>
         <div class="r-name">HASAN-AYUB</div>
         <div class="r-skill">GAME DEV &nbsp;&middot;&nbsp; UNITY</div>
         <div class="r-unit-tag">VANGUARD SYNDICATE</div>
       </div></div>
 
       <div class="r-unit-frontier"><div class="r-card reveal">
-        <div class="r-head"><span class="r-id">#104</span><span class="r-status"><span class="r-status-dot"></span>RECRUITED</span></div>
+        <span class="r-id">#104</span>
+        <div><div class="r-name"></div><div class="r-skill"></div></div>
+        <div class="r-unit-tag"></div>
+        <div style="display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:3px;color:rgba(34,197,94,0.65);white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;flex-shrink:0;display:inline-block"></span>RECRUITED</div>
+      </div>
         <div class="r-name">SURVIVAL74</div>
         <div class="r-skill">3D MODELLING &nbsp;&middot;&nbsp; ASSET CREATION</div>
         <div class="r-unit-tag">VANGUARD FRONTIER</div>
       </div></div>
 
       <div class="r-unit-syndicate"><div class="r-card reveal">
-        <div class="r-head"><span class="r-id">#105</span><span class="r-status"><span class="r-status-dot"></span>RECRUITED</span></div>
+        <span class="r-id">#105</span>
+        <div><div class="r-name"></div><div class="r-skill"></div></div>
+        <div class="r-unit-tag"></div>
+        <div style="display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:3px;color:rgba(34,197,94,0.65);white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;flex-shrink:0;display:inline-block"></span>RECRUITED</div>
+      </div>
         <div class="r-name">PIYUSH</div>
         <div class="r-skill">GAME DEV &nbsp;&middot;&nbsp; UNITY</div>
         <div class="r-unit-tag">VANGUARD SYNDICATE</div>
       </div></div>
 
       <div class="r-unit-division"><div class="r-card reveal">
-        <div class="r-head"><span class="r-id">#106</span><span class="r-status"><span class="r-status-dot"></span>RECRUITED</span></div>
+        <span class="r-id">#106</span>
+        <div><div class="r-name"></div><div class="r-skill"></div></div>
+        <div class="r-unit-tag"></div>
+        <div style="display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:3px;color:rgba(34,197,94,0.65);white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;flex-shrink:0;display:inline-block"></span>RECRUITED</div>
+      </div>
         <div class="r-name">PRANKEY</div>
         <div class="r-skill">GAME DESIGNER &nbsp;&middot;&nbsp; LEVEL DESIGN</div>
         <div class="r-unit-tag">VANGUARD DIVISION</div>
@@ -1308,63 +1332,99 @@
       </div></div>
 
       <div class="r-unit-frontier"><div class="r-card reveal">
-        <div class="r-head"><span class="r-id">#107</span><span class="r-status"><span class="r-status-dot"></span>RECRUITED</span></div>
+        <span class="r-id">#107</span>
+        <div><div class="r-name"></div><div class="r-skill"></div></div>
+        <div class="r-unit-tag"></div>
+        <div style="display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:3px;color:rgba(34,197,94,0.65);white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;flex-shrink:0;display:inline-block"></span>RECRUITED</div>
+      </div>
         <div class="r-name">UNITYVERSE</div>
         <div class="r-skill">GAME DEV &nbsp;&middot;&nbsp; UNITY</div>
         <div class="r-unit-tag">VANGUARD FRONTIER</div>
       </div></div>
 
       <div class="r-unit-frontier"><div class="r-card reveal">
-        <div class="r-head"><span class="r-id">#108</span><span class="r-status"><span class="r-status-dot"></span>RECRUITED</span></div>
+        <span class="r-id">#108</span>
+        <div><div class="r-name"></div><div class="r-skill"></div></div>
+        <div class="r-unit-tag"></div>
+        <div style="display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:3px;color:rgba(34,197,94,0.65);white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;flex-shrink:0;display:inline-block"></span>RECRUITED</div>
+      </div>
         <div class="r-name">LAZY ZONE</div>
         <div class="r-skill">GAME DEV &nbsp;&middot;&nbsp; UNITY</div>
         <div class="r-unit-tag">VANGUARD FRONTIER</div>
       </div></div>
 
       <div class="r-unit-syndicate"><div class="r-card reveal">
-        <div class="r-head"><span class="r-id">#109</span><span class="r-status"><span class="r-status-dot"></span>RECRUITED</span></div>
+        <span class="r-id">#109</span>
+        <div><div class="r-name"></div><div class="r-skill"></div></div>
+        <div class="r-unit-tag"></div>
+        <div style="display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:3px;color:rgba(34,197,94,0.65);white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;flex-shrink:0;display:inline-block"></span>RECRUITED</div>
+      </div>
         <div class="r-name">CHILL GUY</div>
         <div class="r-skill">GAME DEV &nbsp;&middot;&nbsp; UNITY</div>
         <div class="r-unit-tag">VANGUARD SYNDICATE</div>
       </div></div>
 
       <div class="r-unit-protocol"><div class="r-card reveal">
-        <div class="r-head"><span class="r-id">#110</span><span class="r-status"><span class="r-status-dot"></span>RECRUITED</span></div>
+        <span class="r-id">#110</span>
+        <div><div class="r-name"></div><div class="r-skill"></div></div>
+        <div class="r-unit-tag"></div>
+        <div style="display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:3px;color:rgba(34,197,94,0.65);white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;flex-shrink:0;display:inline-block"></span>RECRUITED</div>
+      </div>
         <div class="r-name">LIGHT</div>
         <div class="r-skill">GAME DEV &nbsp;&middot;&nbsp; UNITY</div>
         <div class="r-unit-tag">VANGUARD PROTOCOL</div>
       </div></div>
 
       <div class="r-unit-axis"><div class="r-card reveal">
-        <div class="r-head"><span class="r-id">#111</span><span class="r-status"><span class="r-status-dot"></span>RECRUITED</span></div>
+        <span class="r-id">#111</span>
+        <div><div class="r-name"></div><div class="r-skill"></div></div>
+        <div class="r-unit-tag"></div>
+        <div style="display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:3px;color:rgba(34,197,94,0.65);white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;flex-shrink:0;display:inline-block"></span>RECRUITED</div>
+      </div>
         <div class="r-name">SHADOWREN21</div>
         <div class="r-skill">GAME DEV &nbsp;&middot;&nbsp; UNITY</div>
         <div class="r-unit-tag">VANGUARD AXIS</div>
       </div></div>
 
       <div class="r-unit-protocol"><div class="r-card reveal">
-        <div class="r-head"><span class="r-id">#112</span><span class="r-status"><span class="r-status-dot"></span>RECRUITED</span></div>
+        <span class="r-id">#112</span>
+        <div><div class="r-name"></div><div class="r-skill"></div></div>
+        <div class="r-unit-tag"></div>
+        <div style="display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:3px;color:rgba(34,197,94,0.65);white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;flex-shrink:0;display:inline-block"></span>RECRUITED</div>
+      </div>
         <div class="r-name">IGNITEASCND</div>
         <div class="r-skill">GAME DEV &nbsp;&middot;&nbsp; UNITY</div>
         <div class="r-unit-tag">VANGUARD PROTOCOL</div>
       </div></div>
 
       <div class="r-unit-axis"><div class="r-card reveal">
-        <div class="r-head"><span class="r-id">#113</span><span class="r-status"><span class="r-status-dot"></span>RECRUITED</span></div>
+        <span class="r-id">#113</span>
+        <div><div class="r-name"></div><div class="r-skill"></div></div>
+        <div class="r-unit-tag"></div>
+        <div style="display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:3px;color:rgba(34,197,94,0.65);white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;flex-shrink:0;display:inline-block"></span>RECRUITED</div>
+      </div>
         <div class="r-name">JOTEEN1856</div>
         <div class="r-skill">GAME DEV &nbsp;&middot;&nbsp; UNITY</div>
         <div class="r-unit-tag">VANGUARD AXIS</div>
       </div></div>
 
       <div class="r-unit-axis"><div class="r-card reveal">
-        <div class="r-head"><span class="r-id">#114</span><span class="r-status"><span class="r-status-dot"></span>RECRUITED</span></div>
+        <span class="r-id">#114</span>
+        <div><div class="r-name"></div><div class="r-skill"></div></div>
+        <div class="r-unit-tag"></div>
+        <div style="display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:3px;color:rgba(34,197,94,0.65);white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;flex-shrink:0;display:inline-block"></span>RECRUITED</div>
+      </div>
         <div class="r-name">PROSOON</div>
         <div class="r-skill">GAME DEV &nbsp;&middot;&nbsp; UNITY</div>
         <div class="r-unit-tag">VANGUARD AXIS</div>
       </div></div>
 
       <div class="r-unit-axis"><div class="r-card reveal">
-        <div class="r-rp">&#9733; 2 RP</div>
+        <span class="r-id"></span>
+        <div><div class="r-name"></div><div class="r-skill"></div></div>
+        <div class="r-unit-tag"></div>
+        <div style="display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:3px;color:rgba(34,197,94,0.65);white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;flex-shrink:0;display:inline-block"></span>RECRUITED &#9733; 2 RP</div>
+      </div>
         <div class="r-head"><span class="r-id">#115</span><span class="r-status"><span class="r-status-dot"></span>RECRUITED</span></div>
         <div class="r-name">LEGENDHAPPYZ</div>
         <div class="r-skill">GAME DEV &nbsp;&middot;&nbsp; UNITY</div>
@@ -1372,7 +1432,11 @@
       </div></div>
 
       <div class="r-unit-syndicate"><div class="r-card reveal">
-        <div class="r-head"><span class="r-id">#116</span><span class="r-status"><span class="r-status-dot"></span>RECRUITED</span></div>
+        <span class="r-id">#116</span>
+        <div><div class="r-name"></div><div class="r-skill"></div></div>
+        <div class="r-unit-tag"></div>
+        <div style="display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:3px;color:rgba(34,197,94,0.65);white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;flex-shrink:0;display:inline-block"></span>RECRUITED</div>
+      </div>
         <div class="r-name">UI_DANIAL</div>
         <div class="r-skill">GAME DEV &nbsp;&middot;&nbsp; UNITY</div>
         <div class="r-unit-tag">VANGUARD SYNDICATE</div>
@@ -1381,21 +1445,33 @@
       <!-- NEW MEMBERS -->
 
       <div class="r-unit-syndicate"><div class="r-card reveal">
-        <div class="r-head"><span class="r-id">#117</span><span class="r-status"><span class="r-status-dot"></span>RECRUITED</span></div>
+        <span class="r-id">#117</span>
+        <div><div class="r-name"></div><div class="r-skill"></div></div>
+        <div class="r-unit-tag"></div>
+        <div style="display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:3px;color:rgba(34,197,94,0.65);white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;flex-shrink:0;display:inline-block"></span>RECRUITED</div>
+      </div>
         <div class="r-name">FANG YUAN</div>
         <div class="r-skill">ARTIST &nbsp;&middot;&nbsp; VISUAL DESIGN</div>
         <div class="r-unit-tag">VANGUARD SYNDICATE</div>
       </div></div>
 
       <div class="r-unit-division"><div class="r-card reveal">
-        <div class="r-head"><span class="r-id">#118</span><span class="r-status"><span class="r-status-dot"></span>RECRUITED</span></div>
+        <span class="r-id">#118</span>
+        <div><div class="r-name"></div><div class="r-skill"></div></div>
+        <div class="r-unit-tag"></div>
+        <div style="display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:3px;color:rgba(34,197,94,0.65);white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;flex-shrink:0;display:inline-block"></span>RECRUITED</div>
+      </div>
         <div class="r-name">ZAMYAMTENZ124</div>
         <div class="r-skill">GAME DEV &nbsp;&middot;&nbsp; UNITY &nbsp;&middot;&nbsp; SOCIAL MEDIA</div>
         <div class="r-unit-tag">VANGUARD DIVISION</div>
       </div></div>
 
       <div class="r-unit-axis"><div class="r-card reveal">
-        <div class="r-head"><span class="r-id">#119</span><span class="r-status"><span class="r-status-dot"></span>RECRUITED</span></div>
+        <span class="r-id">#119</span>
+        <div><div class="r-name"></div><div class="r-skill"></div></div>
+        <div class="r-unit-tag"></div>
+        <div style="display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:3px;color:rgba(34,197,94,0.65);white-space:nowrap"><span style="width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;flex-shrink:0;display:inline-block"></span>RECRUITED</div>
+      </div>
         <div class="r-name">PRINCE_DBX</div>
         <div class="r-skill">VOICE ARTIST &nbsp;&middot;&nbsp; AUDIO</div>
         <div class="r-unit-tag">VANGUARD AXIS</div>
