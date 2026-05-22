@@ -694,6 +694,66 @@
       body{cursor:auto}
     }
 
+    /* ══════════════════════════════════════════
+       DARK DESIGN SYSTEM — inspired by template
+    ══════════════════════════════════════════ */
+
+    /* Ambient blobs */
+    .ambient-rose{position:fixed;top:-20%;left:-10%;width:50vw;height:50vw;border-radius:50%;background:rgba(190,30,45,0.18);filter:blur(120px);pointer-events:none;z-index:0;animation:blobPulse1 15s ease-in-out infinite}
+    .ambient-zinc{position:fixed;bottom:-20%;right:-10%;width:60vw;height:60vw;border-radius:50%;background:rgba(80,80,90,0.09);filter:blur(150px);pointer-events:none;z-index:0;animation:blobPulse2 20s ease-in-out infinite 2s}
+    .ambient-mouse{position:fixed;width:40vw;height:40vw;border-radius:50%;background:rgba(190,30,45,0.08);filter:blur(100px);pointer-events:none;z-index:0;transform:translate(-50%,-50%);transition:left .8s cubic-bezier(.2,.9,.4,1),top .8s cubic-bezier(.2,.9,.4,1)}
+    @keyframes blobPulse1{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.2);opacity:1}}
+    @keyframes blobPulse2{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.5);opacity:.9}}
+
+    /* Brutalist vertical side text in hero */
+    .hero-side-left,.hero-side-right{position:absolute;top:50%;z-index:4;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.28em;color:rgba(237,232,223,0.28);text-transform:uppercase;pointer-events:none;writing-mode:vertical-rl;display:flex;flex-direction:column;gap:60px}
+    .hero-side-left{left:28px;transform:translateY(-50%);transform:translateY(-50%) rotate(180deg)}
+    .hero-side-right{right:28px;transform:translateY(-50%)}
+
+    /* Hero marquee bottom strip */
+    .hero-marquee-strip{position:absolute;bottom:0;left:0;right:0;z-index:5;border-top:1px solid rgba(237,232,223,0.08);background:rgba(7,7,7,0.55);backdrop-filter:blur(12px);padding:10px 0;overflow:hidden}
+    .hero-marquee-inner{display:inline-flex;white-space:nowrap;gap:32px;animation:marqueeScroll 22s linear infinite}
+    .hero-marquee-item{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:rgba(237,232,223,0.35);display:flex;align-items:center;gap:32px}
+    .hero-marquee-dot{width:5px;height:5px;border-radius:50%;background:rgba(190,30,45,0.85);flex-shrink:0}
+    @keyframes marqueeScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+    /* Manifesto / Doctrine section */
+    #manifesto{background:var(--bg);padding:140px 100px;position:relative;z-index:1;text-align:center}
+    .manifesto-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.3em;color:rgba(237,232,223,0.30);text-transform:uppercase;margin-bottom:64px}
+    .manifesto-label::before,.manifesto-label::after{content:'[';margin-right:6px}
+    .manifesto-label::after{content:']';margin-left:6px;margin-right:0}
+    .manifesto-line{font-family:'Orbitron',sans-serif;font-size:clamp(22px,4.5vw,56px);font-weight:900;letter-spacing:-1px;text-transform:uppercase;color:rgba(237,232,223,0.75);line-height:1.1;opacity:0;transform:translateY(22px);transition:opacity .95s cubic-bezier(.4,0,.2,1),transform .95s cubic-bezier(.4,0,.2,1)}
+    .manifesto-line.on{opacity:1;transform:none}
+    .manifesto-line:nth-child(2){transition-delay:.18s;color:rgba(237,232,223,0.90)}
+    .manifesto-line:nth-child(3){transition-delay:.36s;font-style:italic;color:rgba(190,30,45,0.85)}
+    .manifesto-drop-line{width:1px;height:100px;background:linear-gradient(to bottom,rgba(237,232,223,0.35),transparent);margin:56px auto 0;opacity:0;transition:opacity .8s .6s}
+    .manifesto-drop-line.on{opacity:1}
+    @media(max-width:900px){#manifesto{padding:90px 24px}}
+
+    /* Nav mix-blend + red dot hover */
+    .nav-a-blend{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;color:rgba(237,232,223,0.80);text-decoration:none;padding:8px 14px;border-radius:2px;text-transform:uppercase;transition:color .25s;cursor:none;position:relative}
+    .nav-a-blend::before{content:'';position:absolute;left:4px;top:50%;transform:translateY(-50%);width:4px;height:4px;border-radius:50%;background:rgba(190,30,45,0.90);opacity:0;transition:opacity .2s}
+    .nav-a-blend:hover{color:var(--white)}
+    .nav-a-blend:hover::before{opacity:1}
+
+    /* Card grayscale → color on hover */
+    .gcard .gc-img img{filter:grayscale(.75) brightness(.55) saturate(1.1) blur(0)!important}
+    .gcard.on .gc-img img{filter:grayscale(.75) brightness(.55) saturate(1.1) blur(0)!important}
+    .gcard:hover .gc-img img{filter:grayscale(0) brightness(.88) saturate(1.4) blur(0)!important;transform:scale(1.07)!important}
+
+    /* Editorial numbered card IDs */
+    .gc-num{position:absolute;top:14px;left:14px;z-index:8;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:rgba(237,232,223,0.40)}
+
+    /* Brutalist "Initiate / Enter" button style */
+    .btn-brutal{position:relative;padding:13px 36px;border:1px solid rgba(237,232,223,0.22);background:transparent;color:var(--white);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:5px;text-transform:uppercase;text-decoration:none;display:inline-flex;align-items:center;overflow:hidden;cursor:none;transition:border-color .3s}
+    .btn-brutal::before{content:'';position:absolute;inset:0;background:var(--white);transform:translateY(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);z-index:0}
+    .btn-brutal::after{content:attr(data-text);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:5px;color:var(--bg);transform:translateY(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);z-index:2}
+    .btn-brutal span{position:relative;z-index:1;transition:transform .32s cubic-bezier(.4,0,.2,1)}
+    .btn-brutal:hover::before{transform:translateY(0)}
+    .btn-brutal:hover::after{transform:translateY(0)}
+    .btn-brutal:hover span{transform:translateY(-100%)}
+    .btn-brutal:hover{border-color:var(--white)}
+
     /* ── BLOG / POSTS VIEW ── */
     .blog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
     .blog-card{background:rgba(255,255,255,0.03);border:1px solid var(--bord);border-radius:3px;overflow:hidden;transition:border-color .3s,transform .3s,box-shadow .3s;cursor:pointer}
@@ -863,6 +923,11 @@
   </style>
 </head>
 <body>
+
+<!-- AMBIENT LIGHT SYSTEM -->
+<div class="ambient-rose" aria-hidden="true"></div>
+<div class="ambient-zinc" aria-hidden="true"></div>
+<div class="ambient-mouse" id="ambient-mouse" aria-hidden="true"></div>
 
 <!-- CINEMATIC INTRO -->
 <div id="intro">
@@ -1090,11 +1155,40 @@
       relentless combat &amp; <em>stories worth playing.</em>
     </p>
     <div class="hero-btns">
-      <a href="#games" class="btn-s solid" onclick="event.preventDefault();switchView('games')">&#x2B21; EXPLORE GAMES</a>
-      <a href="#join"  class="btn-s outline" onclick="event.preventDefault();switchView('join')">&#9654; JOIN THE TEAM</a>
+      <a href="#games" class="btn-brutal" data-text="EXPLORE GAMES" onclick="event.preventDefault();switchView('games')"><span>&#x2B21; EXPLORE GAMES</span></a>
+      <a href="#join"  class="btn-brutal" data-text="JOIN THE TEAM"  onclick="event.preventDefault();switchView('join')" style="border-color:rgba(190,30,45,0.45)"><span>&#9654; JOIN THE TEAM</span></a>
     </div>
   </div>
+  <!-- Brutalist vertical side labels -->
+  <div class="hero-side-left" aria-hidden="true">
+    <span>V.2.0.2 // Build</span>
+    <span>Sys.Ops Active</span>
+  </div>
+  <div class="hero-side-right" aria-hidden="true">
+    <span>Bangladesh · Est. 2025</span>
+    <span>Dark Worlds / Relentless Combat</span>
+  </div>
+
+  <!-- Scrolling marquee strip -->
+  <div class="hero-marquee-strip" aria-hidden="true">
+    <div class="hero-marquee-inner">
+      <div class="hero-marquee-item">Enter The Void<span class="hero-marquee-dot"></span>New Release<span class="hero-marquee-dot"></span>Bangladesh Indie<span class="hero-marquee-dot"></span>Dark Worlds<span class="hero-marquee-dot"></span>Relentless Combat<span class="hero-marquee-dot"></span>Stories Worth Playing<span class="hero-marquee-dot"></span>Rhino's Last Protocol<span class="hero-marquee-dot"></span>SYNTHRIX Studio<span class="hero-marquee-dot"></span></div>
+      <div class="hero-marquee-item">Enter The Void<span class="hero-marquee-dot"></span>New Release<span class="hero-marquee-dot"></span>Bangladesh Indie<span class="hero-marquee-dot"></span>Dark Worlds<span class="hero-marquee-dot"></span>Relentless Combat<span class="hero-marquee-dot"></span>Stories Worth Playing<span class="hero-marquee-dot"></span>Rhino's Last Protocol<span class="hero-marquee-dot"></span>SYNTHRIX Studio<span class="hero-marquee-dot"></span></div>
+    </div>
+  </div>
+
   <div class="hero-scroll">&#8595; SCROLL &#8595;</div>
+</section>
+
+<!-- ═══ MANIFESTO / DOCTRINE ═══ -->
+<section id="manifesto">
+  <div class="manifesto-label">THE DOCTRINE</div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:20px">
+    <div class="manifesto-line reveal">We reject the sanitized.</div>
+    <div class="manifesto-line reveal">We embrace the atmospheric.</div>
+    <div class="manifesto-line reveal">Dark worlds. Relentless combat. Stories worth playing.</div>
+  </div>
+  <div class="manifesto-drop-line reveal"></div>
 </section>
 
 <!-- STATS STRIP -->
@@ -1329,6 +1423,7 @@
 
     <!-- Escape the Bridge -->
     <div class="gcard reveal">
+      <div class="gc-num">[01]</div>
       <a class="gc-arr" href="../games/escape-the-bridge/index.html">&#8599;</a>
       <div class="gc-img">
         <img src="https://img.itch.zone/aW1nLzIyOTExMzU0LnBuZw==/347x500/EotLYN.png" alt="Escape the Bridge" loading="lazy">
@@ -1345,6 +1440,7 @@
 
     <!-- BOOM -->
     <div class="gcard reveal">
+      <div class="gc-num">[02]</div>
       <a class="gc-arr" href="../games/boom/index.html">&#8599;</a>
       <div class="gc-img">
         <img src="https://img.itch.zone/aW1nLzIzNTU4NjkyLnBuZw==/347x500/ggCuYf.png" alt="BOOM" loading="lazy">
@@ -1361,6 +1457,7 @@
 
     <!-- OVERDRIVE -->
     <div class="gcard reveal">
+      <div class="gc-num">[03]</div>
       <a class="gc-arr" href="../games/overdrive/index.html">&#8599;</a>
       <div class="gc-img">
         <img src="https://img.itch.zone/aW1nLzIzNDYxNTI3LmpwZw==/original/NLTnuO.jpg" alt="OVERDRIVE" loading="lazy">
@@ -1377,6 +1474,7 @@
 
     <!-- SYNTHPAD -->
     <div class="gcard reveal">
+      <div class="gc-num">[04]</div>
       <a class="gc-arr" href="../games/synthpad-2/index.html">&#8599;</a>
       <div class="gc-img">
         <img src="https://img.itch.zone/aW1hZ2UvNDQwMjE5MC8yNjI0NjA1MS5wbmc=/794x1000/wMU1zn.png" alt="SYNTHPAD 2.0" loading="lazy">
@@ -2457,6 +2555,28 @@ function openBlogPost(id){
   document.getElementById('blog-modal').classList.add('open');
 }
 function closeBlogModal(){ document.getElementById('blog-modal').classList.remove('open'); }
+
+/* ── MOUSE-FOLLOWER AMBIENT LIGHT ── */
+(function(){
+  const el = document.getElementById('ambient-mouse');
+  if(!el) return;
+  let tx=window.innerWidth/2, ty=window.innerHeight/2;
+  let cx=tx, cy=ty;
+  document.addEventListener('mousemove', e=>{ tx=e.clientX; ty=e.clientY; },{passive:true});
+  (function lerp(){
+    cx += (tx-cx)*.06; cy += (ty-cy)*.06;
+    el.style.left = cx+'px'; el.style.top = cy+'px';
+    requestAnimationFrame(lerp);
+  })();
+})();
+
+/* ── MANIFESTO REVEAL ── */
+(function(){
+  const obs = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('on'); });
+  },{threshold:.4});
+  document.querySelectorAll('.manifesto-line,.manifesto-drop-line').forEach(el=>obs.observe(el));
+})();
 
 /* ── TIME-OF-DAY THEME ── */
 (function(){
