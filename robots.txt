@@ -6,4 +6,4 @@ Disallow: /.git/
 Disallow: /.netlifyignore
 Disallow: /netlify.toml
 
-Sitemap: https://synthrixstudios.vercel.app/sitemap.txt
+Sitemap: https://synthrixstudios.vercel.app/sitemap.xml
