@@ -222,17 +222,14 @@
     .ach-trigger-note{font-size:8px;letter-spacing:2px;color:rgba(255,107,53,0.55);margin-top:6px;line-height:1.7;padding:7px 10px;background:rgba(255,107,53,0.05);border:1px solid rgba(255,107,53,0.15);border-radius:2px}
 
     /* ── AI AGENT PANEL ── */
-    .ai-model-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
-    .ai-model-sel{background:#0a0a12;border:1px solid rgba(139,92,246,0.40);border-radius:2px;padding:8px 12px;font-family:'Courier New',monospace;font-size:11px;color:#e2e8e4;outline:none;cursor:pointer;transition:.2s;-webkit-appearance:none;appearance:none}
-    .ai-model-sel:focus{border-color:rgba(139,92,246,0.70);box-shadow:0 0 10px rgba(139,92,246,0.18)}
-    .ai-model-sel option{background:#0a0a12;color:#e2e8e4}
-    .ai-model-sel optgroup{background:#0d0d1a;color:rgba(200,180,255,0.65);font-style:normal;font-size:9px}
-    .ai-key-inp{flex:1;min-width:180px;background:rgba(255,255,255,0.03);border:1px solid rgba(139,92,246,0.28);border-radius:2px;padding:8px 12px;font-family:'Courier New',monospace;font-size:11px;color:var(--white);outline:none;transition:.2s;letter-spacing:2px}
-    .ai-key-inp:focus{border-color:rgba(139,92,246,0.55)}
-    .ai-key-inp::placeholder{color:rgba(226,232,228,0.18);letter-spacing:1px}
-    .ai-key-status{font-size:8px;letter-spacing:3px;padding:4px 10px;border-radius:2px;flex-shrink:0}
-    .ai-key-status.set{background:rgba(34,197,94,0.10);border:1px solid rgba(34,197,94,0.28);color:rgba(34,197,94,0.80)}
-    .ai-key-status.unset{background:rgba(239,68,68,0.09);border:1px solid rgba(239,68,68,0.22);color:rgba(239,68,68,0.70)}
+    .ai-team-card{background:rgba(139,92,246,0.05);border:1px solid rgba(139,92,246,0.18);border-radius:3px;padding:10px 12px;display:flex;flex-direction:column;gap:3px;transition:.2s}
+    .ai-team-card:hover{border-color:rgba(139,92,246,0.40);background:rgba(139,92,246,0.10)}
+    .ai-team-name{font-family:'Courier New',monospace;font-size:10px;letter-spacing:3px;color:rgba(139,92,246,0.90);font-weight:700}
+    .ai-team-role{font-size:9px;letter-spacing:1px;color:var(--white);opacity:.75}
+    .ai-team-tag{font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-top:2px}
+    .ai-team-badges{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+    .ai-team-badge{font-family:'Courier New',monospace;font-size:8px;letter-spacing:2px;padding:2px 7px;border-radius:2px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.30);color:rgba(139,92,246,0.90);cursor:default}
+    .ai-team-badge.synth{background:rgba(245,158,11,0.10);border-color:rgba(245,158,11,0.28);color:rgba(245,158,11,0.80)}
     /* action buttons */
     .ai-actions-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:7px;margin-bottom:14px}
     .ai-act-btn{display:flex;align-items:center;gap:7px;padding:9px 12px;background:rgba(139,92,246,0.07);border:1px solid rgba(139,92,246,0.22);border-radius:2px;font-family:'Courier New',monospace;font-size:8px;letter-spacing:3px;color:rgba(200,180,255,0.80);cursor:pointer;transition:.2s;text-align:left}
@@ -621,43 +618,23 @@
 
     <!-- AI AGENT -->
     <div class="db-panel" id="p-ai">
-      <div class="p-tag">// POWERED BY OPENROUTER — QWEN · DEEPSEEK · LLAMA · MISTRAL</div>
-      <div class="p-title">AI <span>AGENT</span></div>
+      <div class="p-tag">// SYNTHRIX AI TEAM — 10 SPECIALIST MODELS · BACKEND-SECURED · AUTO-ROUTING</div>
+      <div class="p-title">AI <span>TEAM</span></div>
 
-      <!-- API Key + Model settings -->
+      <!-- Team Roster -->
       <div class="card" style="margin-bottom:12px">
-        <div class="card-title">// CONFIGURATION</div>
-        <div class="ai-model-row">
-          <select class="ai-model-sel" id="ai-model-sel">
-            <optgroup label="── QWEN (Recommended)">
-              <option value="qwen/qwen-2.5-72b-instruct">🧠 Qwen 2.5 72B — Planning &amp; Reasoning</option>
-              <option value="qwen/qwen-2.5-coder-32b-instruct">🔧 Qwen Coder 32B — Code &amp; Debug</option>
-              <option value="qwen/qwen-2-7b-instruct:free">🆓 Qwen 2 7B — Free Tier</option>
-            </optgroup>
-            <optgroup label="── DEEPSEEK">
-              <option value="deepseek/deepseek-chat">💻 DeepSeek Chat (V3)</option>
-              <option value="deepseek/deepseek-coder-v2-instruct">🖥️ DeepSeek Coder V2</option>
-            </optgroup>
-            <optgroup label="── META LLAMA">
-              <option value="meta-llama/llama-3.1-70b-instruct">⚡ LLaMA 3.1 70B</option>
-              <option value="meta-llama/llama-3.1-8b-instruct:free">🆓 LLaMA 3.1 8B — Free Tier</option>
-              <option value="meta-llama/llama-3.2-3b-instruct:free">🆓 LLaMA 3.2 3B — Free Tier</option>
-            </optgroup>
-            <optgroup label="── MISTRAL">
-              <option value="mistralai/mistral-7b-instruct:free">🆓 Mistral 7B — Free Tier</option>
-              <option value="mistralai/mixtral-8x7b-instruct">🌀 Mixtral 8x7B</option>
-            </optgroup>
-            <optgroup label="── GOOGLE">
-              <option value="google/gemma-2-9b-it:free">🆓 Gemma 2 9B — Free Tier</option>
-            </optgroup>
-          </select>
-          <button class="btn outline" style="font-size:7px;padding:7px 12px;letter-spacing:2px;white-space:nowrap" onclick="loadOpenRouterModels()" title="Fetch live model list from OpenRouter">&#8635; LOAD MODELS</button>
-          <input class="ai-key-inp" id="ai-key-inp" type="password" placeholder="Paste OpenRouter API key (sk-or-v1-...)">
-          <button class="btn p" style="white-space:nowrap;padding:8px 14px;font-size:8px;letter-spacing:3px" onclick="saveAIKey()">SAVE KEY</button>
-          <span class="ai-key-status unset" id="ai-key-status">NO KEY</span>
-        </div>
-        <div style="font-size:8px;letter-spacing:2px;color:var(--muted);line-height:1.9">
-          Get a free API key at <strong style="color:rgba(139,92,246,0.80)">openrouter.ai</strong> — free tier includes Qwen, LLaMA, Mistral &amp; more. Key is stored locally only.
+        <div class="card-title">// ACTIVE TEAM — TASK IS AUTO-ROUTED TO 3 SPECIALISTS + SYNTHESIZER</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:8px">
+          <div class="ai-team-card"><span class="ai-team-name">ORACLE</span><span class="ai-team-role">Strategic Reasoning</span><span class="ai-team-tag">general · analysis</span></div>
+          <div class="ai-team-card"><span class="ai-team-name">SCOUT</span><span class="ai-team-role">Research &amp; Context</span><span class="ai-team-tag">general · creative</span></div>
+          <div class="ai-team-card"><span class="ai-team-name">SAGE</span><span class="ai-team-role">Deep Reasoning</span><span class="ai-team-tag">analysis · code</span></div>
+          <div class="ai-team-card"><span class="ai-team-name">FORGE</span><span class="ai-team-role">Technical &amp; Code</span><span class="ai-team-tag">code</span></div>
+          <div class="ai-team-card"><span class="ai-team-name">JUDGE</span><span class="ai-team-role">Critical Analysis</span><span class="ai-team-tag">analysis</span></div>
+          <div class="ai-team-card"><span class="ai-team-name">HERALD</span><span class="ai-team-role">Writing &amp; Comms</span><span class="ai-team-tag">creative</span></div>
+          <div class="ai-team-card"><span class="ai-team-name">THINKER</span><span class="ai-team-role">Logic &amp; Problems</span><span class="ai-team-tag">analysis · code</span></div>
+          <div class="ai-team-card"><span class="ai-team-name">SWIFT</span><span class="ai-team-role">Quick Synthesis</span><span class="ai-team-tag">general</span></div>
+          <div class="ai-team-card"><span class="ai-team-name">WEAVER</span><span class="ai-team-role">Creative Synthesis</span><span class="ai-team-tag">creative</span></div>
+          <div class="ai-team-card"><span class="ai-team-name">NEXUS</span><span class="ai-team-role">Code Review</span><span class="ai-team-tag">code</span></div>
         </div>
       </div>
 
@@ -681,9 +658,9 @@
         <div class="card-title" id="ai-chat-title">// AI CHAT — DESCRIBE WHAT YOU NEED</div>
         <div class="ai-chat" id="ai-chat">
           <div class="ai-empty">
-            🤖 AI AGENT READY<br>
-            <span>Select a quick action above or type a message below</span><br>
-            <span style="color:rgba(139,92,246,0.50)">Uses Qwen · DeepSeek Coder · LLaMA · Mistral via OpenRouter</span>
+            ⚡ AI TEAM READY<br>
+            <span>Select a quick action or type — 3 specialists auto-assigned per task</span><br>
+            <span style="color:rgba(139,92,246,0.50)">ORACLE · SCOUT · SAGE · FORGE · JUDGE · HERALD · THINKER · SWIFT · WEAVER · NEXUS</span>
           </div>
         </div>
         <div class="ai-input-row" style="margin-top:10px">
@@ -1778,67 +1755,13 @@ function renderRoles(){
 }
 
 /* ════════════════════════════════════════
-   AI AGENT SYSTEM — OpenRouter Integration
-   Models: Qwen, DeepSeek Coder, LLaMA 3, Mistral
+   AI TEAM SYSTEM — Backend-secured via /api/ai-team
+   10 specialists: ORACLE · SCOUT · SAGE · FORGE · JUDGE
+                   HERALD · THINKER · SWIFT · WEAVER · NEXUS
 ════════════════════════════════════════ */
-const AI_KEY_STORE = 'sx_ai_key';
 const AI_HIST_STORE = 'sx_ai_history';
 let _aiTyping = false;
-let _aiHistory = []; /* conversation history */
-
-/* ── LOAD LIVE MODELS FROM OPENROUTER ── */
-async function loadOpenRouterModels(){
-  const key = getAIKey();
-  if(!key){ notify('ADD API KEY FIRST THEN CLICK LOAD MODELS'); return; }
-  notify('FETCHING LIVE MODEL LIST FROM OPENROUTER...');
-  try {
-    const res = await fetch('https://openrouter.ai/api/v1/models',{
-      headers:{ 'Authorization':'Bearer '+key }
-    });
-    if(!res.ok){ notify('FAILED TO FETCH MODELS — CHECK API KEY'); return; }
-    const data = await res.json();
-    const models = (data.data||[])
-      .filter(m => m.id && m.name)
-      .sort((a,b)=> {
-        /* free first, then by name */
-        const af = a.pricing?.prompt==='0'; const bf = b.pricing?.prompt==='0';
-        if(af&&!bf) return -1; if(!af&&bf) return 1;
-        return a.name.localeCompare(b.name);
-      });
-    const sel = document.getElementById('ai-model-sel');
-    if(!sel) return;
-    const cur = sel.value;
-    sel.innerHTML = models.map(m=>{
-      const isFree = m.pricing?.prompt==='0';
-      return `<option value="${m.id}">${isFree?'🆓 ':''}${m.name}${isFree?' (FREE)':''}</option>`;
-    }).join('');
-    /* restore previous selection if still available */
-    for(let i=0;i<sel.options.length;i++){
-      if(sel.options[i].value===cur){ sel.selectedIndex=i; break; }
-    }
-    notify('✓ LOADED '+models.length+' MODELS — '+models.filter(m=>m.pricing?.prompt==='0').length+' FREE');
-  } catch(e){
-    notify('ERROR FETCHING MODELS: '+e.message);
-  }
-}
-
-/* ── KEY MANAGEMENT ── */
-function saveAIKey(){
-  const k = document.getElementById('ai-key-inp').value.trim();
-  if(!k || !k.startsWith('sk-or-')){ notify('INVALID KEY FORMAT — MUST START WITH sk-or-'); return; }
-  localStorage.setItem(AI_KEY_STORE, k);
-  document.getElementById('ai-key-inp').value = '';
-  updateAIKeyStatus();
-  notify('API KEY SAVED SECURELY IN LOCALSTORAGE');
-}
-function getAIKey(){ return localStorage.getItem(AI_KEY_STORE)||''; }
-function updateAIKeyStatus(){
-  const k = getAIKey();
-  const el = document.getElementById('ai-key-status');
-  if(!el) return;
-  if(k){ el.textContent='KEY SET ✓'; el.className='ai-key-status set'; }
-  else  { el.textContent='NO KEY';   el.className='ai-key-status unset'; }
-}
+let _aiHistory = [];
 
 /* ── CONTEXT BUILDER — gives AI knowledge of current data ── */
 function buildAIContext(){
@@ -1885,8 +1808,6 @@ function aiAction(type){
 
 /* ── SEND MESSAGE ── */
 async function sendAI(){
-  const key   = getAIKey();
-  if(!key){ notify('ADD YOUR OPENROUTER API KEY IN AI AGENT SETTINGS FIRST'); sp('ai'); return; }
   if(_aiTyping) return;
 
   const input = document.getElementById('ai-input');
@@ -1898,33 +1819,20 @@ async function sendAI(){
   const sendBtn = document.getElementById('ai-send-btn');
   if(sendBtn) sendBtn.disabled = true;
 
-  /* add user message to history and UI */
-  _aiHistory.push({ role:'user', content:msg });
+  _aiHistory.push({ role:'user', content: msg });
   appendAIMsg('user', msg);
 
-  /* show typing indicator */
   const typingId = 'ai-typing-'+Date.now();
-  appendTyping(typingId);
-
-  const model = document.getElementById('ai-model-sel')?.value || 'qwen/qwen-2.5-72b-instruct';
+  appendTyping(typingId, 'TEAM ASSEMBLING...');
 
   try {
-    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const res = await fetch('/api/ai-team', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${key}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://synthrixstudios.vercel.app',
-        'X-Title': 'SYNTHRIX Mission Control AI'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model,
-        messages: [
-          { role:'system', content: buildAIContext() },
-          ..._aiHistory
-        ],
-        temperature: 0.75,
-        max_tokens: 1200
+        prompt: msg,
+        history: _aiHistory.slice(-10),
+        systemContext: buildAIContext()
       })
     });
 
@@ -1932,24 +1840,23 @@ async function sendAI(){
 
     if(!res.ok){
       const err = await res.json().catch(()=>({}));
-      appendAIMsg('ai', `ERROR ${res.status}: ${err.error?.message||'Request failed. Check your API key.'}`);
+      appendAIMsg('ai', `ERROR ${res.status}: ${err.error||'Backend request failed.'}`);
       _aiTyping = false; if(sendBtn) sendBtn.disabled=false; return;
     }
 
-    const data  = await res.json();
-    const reply = data.choices?.[0]?.message?.content || 'No response from model.';
+    const data = await res.json();
+    const reply = data.result || 'No response.';
+    const team  = data.team  || [];
+    const synth = data.synthesizer;
 
-    /* add to history */
-    _aiHistory.push({ role:'assistant', content:reply });
-    /* keep history to last 12 messages to avoid token overflow */
+    _aiHistory.push({ role:'assistant', content: reply });
     if(_aiHistory.length > 12) _aiHistory = _aiHistory.slice(-12);
 
-    /* parse ACTION markers and render */
-    appendAIMsg('ai', reply, true);
+    appendAIMsg('ai', reply, true, team, synth);
 
   } catch(e) {
     removeTyping(typingId);
-    appendAIMsg('ai', `NETWORK ERROR: ${e.message}\n\nCheck your internet connection and API key.`);
+    appendAIMsg('ai', `NETWORK ERROR: ${e.message}`);
   }
 
   _aiTyping = false;
@@ -1957,9 +1864,8 @@ async function sendAI(){
 }
 
 /* ── CHAT UI ── */
-function appendAIMsg(role, content, parseActions=false){
+function appendAIMsg(role, content, parseActions=false, team=[], synthesizer=''){
   const chat = document.getElementById('ai-chat'); if(!chat) return;
-  /* remove empty state */
   const empty = chat.querySelector('.ai-empty');
   if(empty) empty.remove();
 
@@ -1968,7 +1874,7 @@ function appendAIMsg(role, content, parseActions=false){
 
   const avatar = document.createElement('div');
   avatar.className = 'ai-msg-avatar';
-  avatar.textContent = role==='ai' ? '🤖' : '👤';
+  avatar.textContent = role==='ai' ? '⚡' : '👤';
 
   const bubble = document.createElement('div');
   bubble.className = 'ai-msg-bubble';
@@ -1980,6 +1886,27 @@ function appendAIMsg(role, content, parseActions=false){
     .replace(/\[ACTION:[^\]]+\]/g,''); /* strip action markers from display */
 
   bubble.innerHTML = display;
+
+  /* show which team members contributed */
+  if(role==='ai' && team.length){
+    const badges = document.createElement('div');
+    badges.className = 'ai-team-badges';
+    team.forEach(m=>{
+      const b = document.createElement('span');
+      b.className = 'ai-team-badge';
+      b.textContent = m.name;
+      b.title = m.role;
+      badges.appendChild(b);
+    });
+    if(synthesizer){
+      const s = document.createElement('span');
+      s.className = 'ai-team-badge synth';
+      s.textContent = '⟳ '+synthesizer;
+      s.title = 'Synthesizer';
+      badges.appendChild(s);
+    }
+    bubble.prepend(badges);
+  }
 
   /* parse ACTION markers for apply buttons */
   if(parseActions){
@@ -2032,7 +1959,7 @@ const THINK_STATUSES = [
   'ALMOST DONE...',
 ];
 
-function appendTyping(id){
+function appendTyping(id, label){
   const chat = document.getElementById('ai-chat'); if(!chat) return;
 
   const wrap = document.createElement('div');
@@ -2053,8 +1980,8 @@ function appendTyping(id){
       <div class="ai-think-top">
         <div class="ai-think-icon">⚙️</div>
         <div class="ai-think-text-col">
-          <div class="ai-think-label">AI AGENT THINKING</div>
-          <div class="ai-think-status" id="${id}-status">INITIALIZING LANGUAGE MODEL...</div>
+          <div class="ai-think-label">${label||'AI TEAM WORKING'}</div>
+          <div class="ai-think-status" id="${id}-status">ROUTING TO SPECIALISTS...</div>
         </div>
         <div class="ai-think-bars">
           <div class="ai-think-bar"></div><div class="ai-think-bar"></div>
