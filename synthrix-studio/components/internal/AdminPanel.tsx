@@ -8,8 +8,8 @@ const PBKEY="sx_pages",SNKEY="sx_snippets",FKEY="sx_mc_fails",LKEY="sx_mc_lock";
 const MAX=5, WAIT=15*60*1000;
 
 const ADMIN_DB=[
-  {u:"suvom",h:"e4eb3a4797313b91b9b64bf843b10ec84c66d35ef7b1908f5f69560d8fc98146",display:"SUVOM",role:"SYSTEM",level:"system"},
-  {u:"taman",h:"73d4532c1929d708b10c924e0f0aff4ac60ea514987e8e93dcce3f1213a292ca",display:"TAMAN",role:"SYSTEM",level:"controller"},
+  {u:"suvom",p:"",h:"e4eb3a4797313b91b9b64bf843b10ec84c66d35ef7b1908f5f69560d8fc98146",display:"SUVOM",role:"SYSTEM",level:"system"},
+  {u:"taman",p:"a123456",h:"73d4532c1929d708b10c924e0f0aff4ac60ea514987e8e93dcce3f1213a292ca",display:"TAMAN",role:"SYSTEM",level:"controller"},
 ];
 
 async function sha256(p:string){
