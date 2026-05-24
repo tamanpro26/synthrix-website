@@ -47,8 +47,10 @@ export default function AdminPanel() {
     setAuthErr("");
     const u = username.trim().toLowerCase();
     const h = await sha256(password);
-    type AnyRecord = { hash?: string; passwordHash?: string; role?: string; level?: string; display: string };
-    const record: AnyRecord | undefined = ADMIN_DB[u] ?? (JSON.parse(localStorage.getItem(ADKEY) ?? "[]") as AnyRecord[]).find((a) => (a as { username?: string }).username === u);
+    type Rec = { hash?: string; passwordHash?: string; role?: string; level?: string; display: string };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const raw: any = ADMIN_DB[u] ?? (JSON.parse(localStorage.getItem(ADKEY) ?? "[]") as Rec[]).find((a: Rec & { username?: string }) => a.username === u);
+    const record = raw as Rec | undefined;
     if (!record) { setAuthErr("USER NOT FOUND"); return; }
     if ((record.hash ?? record.passwordHash) !== h) { setAuthErr("INVALID PASSWORD"); return; }
     sessionStorage.setItem("sx_admin_session", JSON.stringify({ display: record.display, role: record.role ?? record.level }));
