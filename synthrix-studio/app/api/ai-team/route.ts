@@ -3,17 +3,18 @@ import { NextRequest, NextResponse } from "next/server";
 const BASE    = "https://openrouter.ai/api/v1/chat/completions";
 const REFERER = "https://synthrix-website.vercel.app";
 
-const TEAM: Record<string, { id: string; role: string }> = {
-  ORACLE:  { id: "meta-llama/llama-3.3-70b-instruct:free",    role: "Strategic Reasoning"       },
-  SCOUT:   { id: "google/gemini-2.0-flash-exp:free",           role: "Research & Context"        },
-  SAGE:    { id: "deepseek/deepseek-r1:free",                  role: "Deep Reasoning"            },
-  FORGE:   { id: "qwen/qwen-2.5-72b-instruct:free",            role: "Technical & Code"          },
-  JUDGE:   { id: "microsoft/phi-4:free",                       role: "Critical Analysis"         },
-  HERALD:  { id: "mistralai/mistral-7b-instruct:free",         role: "Writing & Comms"           },
-  THINKER: { id: "google/gemini-2.0-flash-thinking-exp:free",  role: "Logic & Problem Solving"   },
-  SWIFT:   { id: "meta-llama/llama-3.1-8b-instruct:free",      role: "Quick Synthesis"           },
-  WEAVER:  { id: "openchat/openchat-7b:free",                  role: "Creative Synthesis"        },
-  NEXUS:   { id: "qwen/qwen-2.5-coder-32b-instruct:free",      role: "Code Review & Integration" },
+/* Primary model + fallback per specialist — all completely free on OpenRouter */
+const TEAM: Record<string, { id: string; fallback: string; role: string }> = {
+  ORACLE:  { id: "deepseek/deepseek-chat:free",                  fallback: "mistralai/mistral-7b-instruct:free",      role: "Strategic Reasoning"       },
+  SCOUT:   { id: "google/gemma-3-27b-it:free",                   fallback: "google/gemma-3-12b-it:free",              role: "Research & Context"        },
+  SAGE:    { id: "deepseek/deepseek-r1:free",                    fallback: "deepseek/deepseek-chat:free",             role: "Deep Reasoning"            },
+  FORGE:   { id: "qwen/qwen-2.5-coder-32b-instruct:free",        fallback: "qwen/qwen-2.5-72b-instruct:free",        role: "Technical & Code"          },
+  JUDGE:   { id: "microsoft/phi-4:free",                         fallback: "mistralai/mistral-7b-instruct:free",      role: "Critical Analysis"         },
+  HERALD:  { id: "mistralai/mistral-7b-instruct:free",           fallback: "google/gemma-3-12b-it:free",              role: "Writing & Comms"           },
+  THINKER: { id: "qwen/qwen-2.5-72b-instruct:free",             fallback: "mistralai/mistral-7b-instruct:free",      role: "Logic & Problem Solving"   },
+  SWIFT:   { id: "google/gemma-3-12b-it:free",                   fallback: "google/gemma-3-4b-it:free",               role: "Quick Synthesis"           },
+  WEAVER:  { id: "openchat/openchat-7b:free",                    fallback: "mistralai/mistral-7b-instruct:free",      role: "Creative Synthesis"        },
+  NEXUS:   { id: "qwen/qwen-2.5-coder-32b-instruct:free",        fallback: "qwen/qwen-2.5-72b-instruct:free",        role: "Code Review & Integration" },
 };
 
 const ROUTING: Record<string, string[]> = {
@@ -33,7 +34,8 @@ function detectTask(prompt: string): string {
 
 async function callModel(
   name: string,
-  model: { id: string; role: string },
+  modelId: string,
+  role: string,
   systemPrompt: string,
   messages: { role: string; content: string }[],
   apiKey: string
@@ -47,9 +49,9 @@ async function callModel(
       "X-Title": "SYNTHRIX Mission Control",
     },
     body: JSON.stringify({
-      model: model.id,
+      model: modelId,
       messages: [
-        { role: "system", content: `You are ${name}, an AI specialist in ${model.role}. ${systemPrompt}` },
+        { role: "system", content: `You are ${name}, an AI specialist in ${role}. ${systemPrompt}` },
         ...messages,
       ],
       max_tokens: 800,
@@ -64,6 +66,20 @@ async function callModel(
   return data.choices[0].message.content;
 }
 
+async function callWithFallback(
+  name: string,
+  systemPrompt: string,
+  messages: { role: string; content: string }[],
+  apiKey: string
+): Promise<string> {
+  const spec = TEAM[name];
+  try {
+    return await callModel(name, spec.id, spec.role, systemPrompt, messages, apiKey);
+  } catch {
+    return await callModel(name, spec.fallback, spec.role, systemPrompt, messages, apiKey);
+  }
+}
+
 export async function POST(req: NextRequest) {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
@@ -74,12 +90,12 @@ export async function POST(req: NextRequest) {
   const { prompt, history = [], systemContext = "" } = body;
   if (!prompt?.trim()) return NextResponse.json({ error: "No prompt provided" }, { status: 400 });
 
-  const taskType       = detectTask(prompt);
+  const taskType        = detectTask(prompt);
   const specialistNames = ROUTING[taskType];
-  const messages       = [...history.slice(-8), { role: "user", content: prompt }];
+  const messages        = [...history.slice(-8), { role: "user", content: prompt }];
 
   const results = await Promise.allSettled(
-    specialistNames.map((name) => callModel(name, TEAM[name], systemContext, messages, apiKey))
+    specialistNames.map((name) => callWithFallback(name, systemContext, messages, apiKey))
   );
 
   const successes = results
@@ -106,8 +122,8 @@ export async function POST(req: NextRequest) {
 
   let finalResult: string;
   try {
-    finalResult = await callModel(
-      synthName, TEAM[synthName],
+    finalResult = await callWithFallback(
+      synthName,
       "Synthesize the specialist responses below into one clear, complete answer. Remove redundancy, keep best insights. Maintain a sharp, futuristic tone fitting SYNTHRIX Studio.",
       [{ role: "user", content: `Question: ${prompt}\n\nSpecialist inputs:\n${synthInput}` }],
       apiKey
