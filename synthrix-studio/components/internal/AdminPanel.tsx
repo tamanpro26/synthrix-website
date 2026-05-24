@@ -2,7 +2,10 @@
 import { useState, useEffect, useRef } from "react";
 
 /* ── Auth ── */
-const ADMIN_DB: Record<string, { hash: string; role: string; display: string }> = {
+type StaticAdmin = { hash: string; role: string; display: string };
+type DynAdmin    = { username: string; hash?: string; passwordHash?: string; role?: string; level?: string; display: string };
+
+const ADMIN_DB: { readonly [key: string]: StaticAdmin | undefined } = {
   suvom: { hash: "e4eb3a47d93e5a729b9c2f3e7e1e0b2a1d4c5f6a7b8c9d0e1f2a3b4c5d6e7f8", role: "SYSTEM", display: "SUVOM KUNDU" },
   taman: { hash: "73d4532c8e1f9a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6", role: "SYSTEM", display: "TAMAN" },
 };
@@ -48,23 +51,23 @@ export default function AdminPanel() {
     const u = username.trim().toLowerCase();
     const h = await sha256(password);
 
-    /* Check hardcoded admins first — known type, no passwordHash needed */
-    const staticAdmin = Object.prototype.hasOwnProperty.call(ADMIN_DB, u) ? ADMIN_DB[u] : undefined;
-    if (staticAdmin) {
+    const staticAdmin: StaticAdmin | undefined = ADMIN_DB[u];
+    if (staticAdmin !== undefined) {
       if (staticAdmin.hash !== h) { setAuthErr("INVALID PASSWORD"); return; }
       sessionStorage.setItem("sx_admin_session", JSON.stringify({ display: staticAdmin.display, role: staticAdmin.role }));
       setAuthed(true); setDisplay(staticAdmin.display); setRole(staticAdmin.role);
       return;
     }
 
-    /* Check dynamic admins from localStorage — may have hash or passwordHash */
-    type DynAdmin = { username: string; hash?: string; passwordHash?: string; role?: string; level?: string; display: string };
-    const dynAdmins: DynAdmin[] = JSON.parse(localStorage.getItem(ADKEY) ?? "[]");
-    const dyn = dynAdmins.find((a) => a.username === u);
-    if (!dyn) { setAuthErr("USER NOT FOUND"); return; }
-    if ((dyn.hash ?? dyn.passwordHash) !== h) { setAuthErr("INVALID PASSWORD"); return; }
-    sessionStorage.setItem("sx_admin_session", JSON.stringify({ display: dyn.display, role: dyn.role ?? dyn.level }));
-    setAuthed(true); setDisplay(dyn.display); setRole(dyn.role ?? dyn.level ?? "");
+    const stored = localStorage.getItem(ADKEY);
+    const dynAdmins: DynAdmin[] = stored ? (JSON.parse(stored) as DynAdmin[]) : [];
+    const dyn: DynAdmin | undefined = dynAdmins.find((a) => a.username === u);
+    if (dyn === undefined) { setAuthErr("USER NOT FOUND"); return; }
+    const dynHash: string | undefined = dyn.hash ?? dyn.passwordHash;
+    if (dynHash !== h) { setAuthErr("INVALID PASSWORD"); return; }
+    const dynRole: string = dyn.role ?? dyn.level ?? "";
+    sessionStorage.setItem("sx_admin_session", JSON.stringify({ display: dyn.display, role: dynRole }));
+    setAuthed(true); setDisplay(dyn.display); setRole(dynRole);
   };
 
   const logout = () => { sessionStorage.removeItem("sx_admin_session"); setAuthed(false); };
