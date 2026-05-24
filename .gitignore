@@ -25,3 +25,4 @@ desktop.ini
 synthrix-studio/.next/
 synthrix-studio/node_modules/
 synthrix-studio/.env.local
+synthrix-studio/tsconfig.tsbuildinfo
