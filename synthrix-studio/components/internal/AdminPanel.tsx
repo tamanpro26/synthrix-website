@@ -47,14 +47,24 @@ export default function AdminPanel() {
     setAuthErr("");
     const u = username.trim().toLowerCase();
     const h = await sha256(password);
-    type Rec = { hash?: string; passwordHash?: string; role?: string; level?: string; display: string };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const raw: any = ADMIN_DB[u] ?? (JSON.parse(localStorage.getItem(ADKEY) ?? "[]") as Rec[]).find((a: Rec & { username?: string }) => a.username === u);
-    const record = raw as Rec | undefined;
-    if (!record) { setAuthErr("USER NOT FOUND"); return; }
-    if ((record.hash ?? record.passwordHash) !== h) { setAuthErr("INVALID PASSWORD"); return; }
-    sessionStorage.setItem("sx_admin_session", JSON.stringify({ display: record.display, role: record.role ?? record.level }));
-    setAuthed(true); setDisplay(record.display); setRole(record.role ?? record.level ?? "");
+
+    /* Check hardcoded admins first — known type, no passwordHash needed */
+    const staticAdmin = Object.prototype.hasOwnProperty.call(ADMIN_DB, u) ? ADMIN_DB[u] : undefined;
+    if (staticAdmin) {
+      if (staticAdmin.hash !== h) { setAuthErr("INVALID PASSWORD"); return; }
+      sessionStorage.setItem("sx_admin_session", JSON.stringify({ display: staticAdmin.display, role: staticAdmin.role }));
+      setAuthed(true); setDisplay(staticAdmin.display); setRole(staticAdmin.role);
+      return;
+    }
+
+    /* Check dynamic admins from localStorage — may have hash or passwordHash */
+    type DynAdmin = { username: string; hash?: string; passwordHash?: string; role?: string; level?: string; display: string };
+    const dynAdmins: DynAdmin[] = JSON.parse(localStorage.getItem(ADKEY) ?? "[]");
+    const dyn = dynAdmins.find((a) => a.username === u);
+    if (!dyn) { setAuthErr("USER NOT FOUND"); return; }
+    if ((dyn.hash ?? dyn.passwordHash) !== h) { setAuthErr("INVALID PASSWORD"); return; }
+    sessionStorage.setItem("sx_admin_session", JSON.stringify({ display: dyn.display, role: dyn.role ?? dyn.level }));
+    setAuthed(true); setDisplay(dyn.display); setRole(dyn.role ?? dyn.level ?? "");
   };
 
   const logout = () => { sessionStorage.removeItem("sx_admin_session"); setAuthed(false); };
