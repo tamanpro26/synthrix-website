@@ -6,8 +6,8 @@ type StaticAdmin = { hash: string; role: string; display: string };
 type DynAdmin    = { username: string; hash?: string; passwordHash?: string; role?: string; level?: string; display: string };
 
 const ADMIN_DB: { readonly [key: string]: StaticAdmin | undefined } = {
-  suvom: { hash: "e4eb3a47d93e5a729b9c2f3e7e1e0b2a1d4c5f6a7b8c9d0e1f2a3b4c5d6e7f8", role: "SYSTEM", display: "SUVOM KUNDU" },
-  taman: { hash: "73d4532c8e1f9a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6", role: "SYSTEM", display: "TAMAN" },
+  suvom: { hash: "2154f598b857a2fbf54b6220728f3f5228af4c4c6161242b6778903318fd3e81", role: "SYSTEM", display: "SUVOM KUNDU" },
+  taman: { hash: "85eca8832050586b32abd2b2f05364b5bfaf4f01ad050c117219fc5cd2ec7bcb", role: "SYSTEM", display: "TAMAN" },
 };
 
 async function sha256(str: string): Promise<string> {

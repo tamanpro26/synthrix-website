@@ -1,31 +1,43 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { GAMES } from "@/lib/games";
 
 export default function GamesView() {
   return (
     <section className="py-20 px-6 md:px-12 max-w-7xl mx-auto">
-      <div className="mb-12">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="mb-12"
+      >
         <div className="inline-flex items-center gap-2 px-4 py-2 mb-4 text-xs tracking-widest uppercase" style={{ fontFamily: "var(--font-mono)", color: "var(--orange)", border: "1px solid rgba(255,107,53,0.32)" }}>
           <span style={{ color: "rgba(255,107,53,0.4)" }}>//</span> GAME LIBRARY
         </div>
-        <h2 className="reveal" style={{ fontFamily: "var(--font-orbitron)", fontSize: "clamp(28px,5vw,52px)", fontWeight: 900, letterSpacing: "4px" }}>
+        <h2 style={{ fontFamily: "var(--font-orbitron)", fontSize: "clamp(28px,5vw,52px)", fontWeight: 900, letterSpacing: "4px" }}>
           THE <span style={{ color: "var(--orange)" }}>VAULT</span>
         </h2>
-      </div>
+      </motion.div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {GAMES.map((g) => (
-          <Link
+        {GAMES.map((g, i) => (
+          <motion.div
             key={g.slug}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.5, delay: i * 0.08 }}
+            whileHover={{ y: -6 }}
+          >
+          <Link
             href={`/games/${g.slug}`}
-            className="group relative overflow-hidden reveal"
+            className="group relative overflow-hidden block"
             style={{
               background: "var(--bg2)",
               border: "1px solid var(--bord)",
               borderRadius: "3px",
-              display: "block",
               minHeight: g.isFeatured ? "380px" : "320px",
               transition: "border-color .3s, box-shadow .3s",
               cursor: "none",
@@ -92,6 +104,7 @@ export default function GamesView() {
               {g.title.toUpperCase()}
             </div>
           </Link>
+          </motion.div>
         ))}
       </div>
     </section>
