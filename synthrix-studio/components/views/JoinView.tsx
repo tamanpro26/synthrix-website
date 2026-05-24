@@ -1,30 +1,34 @@
 "use client";
+import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 
 const GOOGLE_FORM = "https://docs.google.com/forms/d/e/1FAIpQLScbSpOStoarYPRmn27JRwymNxkTeTMCzcM3heHkUdPlLjep1A/viewform?usp=dialog";
+const C = (s: string) => <strong style={{ color: "var(--cream)" }}>{s}</strong>;
 
-const UNITS = [
+type UnitDef = { ico: string; name: string; sub: string; desc: ReactNode; color: string };
+const UNITS: UnitDef[] = [
   { ico: "💻", name: "CORE DEVELOPMENT UNIT", sub: "TECHNICAL BACKBONE",
-    desc: "The technical backbone of our studio. Handles engine architecture (Unity URP/HDRP), writes clean C# scripting, optimizes graphics workflows for various hardware scales, and programs core gameplay mechanics.",
+    desc: <>The technical backbone of our studio. Handles {C("engine architecture")} (Unity URP/HDRP), writes clean C# scripting, optimizes graphics workflows for various hardware scales, and programs core gameplay mechanics.</>,
     color: "#FF6B35" },
   { ico: "🎨", name: "DESIGN & CONCEPT UNIT", sub: "ATMOSPHERE CREATORS",
-    desc: "The creators of our games' unique atmosphere. Responsible for Game Design Documentation (GDD), level blockouts (greyboxing), environmental lighting setups, and scripting environmental storytelling.",
+    desc: <>The creators of our games&apos; unique atmosphere. Responsible for {C("Game Design Documentation (GDD)")}, level blockouts (greyboxing), environmental lighting setups, and scripting environmental storytelling.</>,
     color: "#F5A623" },
   { ico: "🛠️", name: "WEB & SYSTEMS UNIT", sub: "VANGUARD CORE · DIGITAL INFRASTRUCTURE",
-    desc: "The engineers behind our digital infrastructure. Builds and optimizes official web portals, manages backend player databases, deploys gamified user dashboards, and runs technical SEO to secure our global footprint.",
+    desc: <>The engineers behind our digital infrastructure. Builds and optimizes {C("official web portals")}, manages backend player databases, deploys gamified user dashboards, and runs technical SEO to secure our global footprint.</>,
     color: "#00C9B8" },
   { ico: "🚀", name: "VANGUARD SPECIALIST UNIT", sub: "LAUNCHING JULY 2026 · EXPANSION WING",
-    desc: "Our frontline expansion wing. Focuses on rapid prototyping, navigating the mobile gaming market, and onboarding & training raw talent to integrate them seamlessly into professional development pipelines.",
+    desc: <>Our frontline expansion wing. Focuses on {C("rapid prototyping")}, navigating the mobile gaming market, and onboarding &amp; training raw talent to integrate them seamlessly into professional development pipelines.</>,
     color: "#8B5CF6" },
 ];
 
-const PHILOSOPHY = [
+type PhilDef = { ico: string; title: string; text: ReactNode };
+const PHILOSOPHY: PhilDef[] = [
   { ico: "⚙️", title: "PRACTICAL EXECUTION OVER ROTE LEARNING",
-    text: "We value hands-on technical experimentation, logical problem-solving, and a strong personal creative vision above traditional, rigid textbooks." },
+    text: <>We value {C("hands-on technical experimentation")}, logical problem-solving, and a strong personal creative vision above traditional, rigid textbooks.</> },
   { ico: "🎧", title: "IMMERSIVE AUDIO-VISUALS",
-    text: "Every project features a tailored atmosphere where gritty custom sound design and atmospheric soundtracks are integrated tightly with the visuals to boost immersion by 200%." },
+    text: <>Every project features a tailored atmosphere where {C("gritty custom sound design")} and atmospheric soundtracks are integrated tightly with the visuals to boost immersion by 200%.</> },
   { ico: "🤝", title: "TRUE CREATIVE INFLUENCE",
-    text: "We operate in a highly collaborative ecosystem. Every developer, artist, and designer has a direct voice in shaping our game worlds from the ground up — no restrictive corporate hierarchy." },
+    text: <>We operate in a highly {C("collaborative ecosystem")}. Every developer, artist, and designer has a direct voice in shaping our game worlds from the ground up — no restrictive corporate hierarchy.</> },
 ];
 
 const ROLES = [

@@ -46,6 +46,24 @@ export default function AdminPanel() {
     }
   }, []);
 
+  const onLoginSuccess = (displayName: string) => {
+    sessionStorage.setItem("sx_user", displayName);
+    const lc = parseInt(localStorage.getItem("sx_login_count") ?? "0") + 1;
+    localStorage.setItem("sx_login_count", String(lc));
+    const yr = String(new Date().getFullYear());
+    type AchRec = { id: string; title: string; icon: string; desc: string; date: string; unlocked: boolean };
+    const ua = (id: string, title: string, icon: string, desc: string) => {
+      const raw: AchRec[] = JSON.parse(localStorage.getItem("sx_achievements") ?? "[]");
+      if (!raw.find((a) => a.id === id)) {
+        raw.push({ id, title, icon, desc, date: yr, unlocked: true });
+        localStorage.setItem("sx_achievements", JSON.stringify(raw));
+      }
+    };
+    if (lc === 1) ua("logged_in",  "ACCESS GRANTED",    "🔐", "First access to Mission Control.");
+    if (lc >= 2)  ua("comeback",   "RETURNING SIGNAL",  "📡", "Logged in more than once.");
+    if (lc >= 5)  ua("dedicated",  "SWORN OPERATOR",    "⚔️", "Five or more logins. True dedication.");
+  };
+
   const login = async () => {
     setAuthErr("");
     const u = username.trim().toLowerCase();
@@ -56,6 +74,7 @@ export default function AdminPanel() {
       if (staticAdmin.hash !== h) { setAuthErr("INVALID PASSWORD"); return; }
       sessionStorage.setItem("sx_admin_session", JSON.stringify({ display: staticAdmin.display, role: staticAdmin.role }));
       setAuthed(true); setDisplay(staticAdmin.display); setRole(staticAdmin.role);
+      onLoginSuccess(staticAdmin.display);
       return;
     }
 
@@ -68,6 +87,7 @@ export default function AdminPanel() {
     const dynRole: string = dyn.role ?? dyn.level ?? "";
     sessionStorage.setItem("sx_admin_session", JSON.stringify({ display: dyn.display, role: dynRole }));
     setAuthed(true); setDisplay(dyn.display); setRole(dynRole);
+    onLoginSuccess(dyn.display);
   };
 
   const logout = () => { sessionStorage.removeItem("sx_admin_session"); setAuthed(false); };

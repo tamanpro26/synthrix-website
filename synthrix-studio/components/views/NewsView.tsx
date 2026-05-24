@@ -1,7 +1,10 @@
 "use client";
 import Image from "next/image";
+import { useState } from "react";
 
 export default function NewsView() {
+  const [dsgHover, setDsgHover] = useState(false);
+
   return (
     <section className="py-20 px-6 md:px-12 max-w-5xl mx-auto">
       <div className="mb-12">
@@ -35,11 +38,29 @@ export default function NewsView() {
 
           {/* Studio logos */}
           <div className="flex items-center gap-6 mb-8 flex-wrap">
-            <div className="flex flex-col items-center gap-2">
-              <div className="h-14 flex items-center justify-center overflow-hidden">
+            <div
+              className="flex flex-col items-center gap-2"
+              style={{ cursor: "none" }}
+              onMouseEnter={() => setDsgHover(true)}
+              onMouseLeave={() => setDsgHover(false)}
+            >
+              <div
+                className="h-14 flex items-center justify-center overflow-hidden px-2"
+                style={{
+                  transition: "filter 0.35s ease, transform 0.35s ease",
+                  filter: dsgHover
+                    ? "drop-shadow(0 0 10px rgba(245,166,35,0.90)) drop-shadow(0 0 22px rgba(255,107,53,0.55)) brightness(1.15)"
+                    : "none",
+                  transform: dsgHover ? "scale(1.06)" : "scale(1)",
+                }}
+              >
                 <Image src="https://www.darkstargames.org/web/image/586-10e83fa2/DarkStar%20TradeMark.webp" alt="DarkStarGames" width={120} height={56} className="object-contain" />
               </div>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: "8px", letterSpacing: "2px", color: "var(--muted)" }}>DARKSTARGAMES STUDIO</span>
+              <span style={{
+                fontFamily: "var(--font-mono)", fontSize: "8px", letterSpacing: "2px",
+                color: dsgHover ? "var(--gold)" : "var(--muted)",
+                transition: "color 0.3s",
+              }}>DARKSTARGAMES STUDIO</span>
             </div>
             <div style={{ fontFamily: "var(--font-orbitron)", fontSize: "24px", color: "var(--muted)" }}>×</div>
             <div className="flex flex-col items-center gap-2">

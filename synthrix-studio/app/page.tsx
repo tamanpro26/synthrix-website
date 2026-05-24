@@ -37,14 +37,17 @@ export default function StudioPage() {
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
-  /* Reveal observer */
+  /* Reveal observer — delayed so new tab content has time to mount after AnimatePresence exit */
   useEffect(() => {
-    const obs = new IntersectionObserver(
-      (entries) => entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add("visible"); }),
-      { threshold: 0.12 }
-    );
-    document.querySelectorAll(".reveal").forEach((el) => obs.observe(el));
-    return () => obs.disconnect();
+    let obs: IntersectionObserver | null = null;
+    const id = setTimeout(() => {
+      obs = new IntersectionObserver(
+        (entries) => entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add("visible"); }),
+        { threshold: 0.05 }
+      );
+      document.querySelectorAll(".reveal").forEach((el) => obs!.observe(el));
+    }, 420);
+    return () => { clearTimeout(id); obs?.disconnect(); };
   }, [tab]);
 
   /* Scroll to top on tab switch */
