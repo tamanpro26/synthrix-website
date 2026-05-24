@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 const SALT="SX_MC_SALT_V2_2026",SKEY="sx_mc_ses",EKEY="sx_users_v2",ADKEY="sx_admin_accounts";
 const AKEY="sx_announcements",PKEY="sx_posts",GKEY="sx_custom_games",CKEY="sx_custom_achievements";
 const MSGKEY="sx_messages",THKEY="sx_theme",NEKEY="sx_nav_items",ANKEY="sx_analytics";
-const PBKEY="sx_page_layouts",SNKEY="sx_snippets",FKEY="sx_mc_fails",LKEY="sx_mc_lock";
+const PBKEY="sx_pages",SNKEY="sx_snippets",FKEY="sx_mc_fails",LKEY="sx_mc_lock";
 const MAX=5, WAIT=15*60*1000;
 
 const ADMIN_DB=[
@@ -161,7 +161,7 @@ export default function AdminPanel(){
         <div className="lw">
           <div className="l-topbar"/>
           <div className="l-c tl"/><div className="l-c tr"/>
-          <div className="l-c bl2"/><div className="l-c br"/>
+          <div className="l-c bl"/><div className="l-c br"/>
           <div className="l-head">
             <div className="l-tag">// SYNTHRIX STUDIO &nbsp;·&nbsp; INTERNAL SYSTEM</div>
             <div className="l-title">MISSION CONTROL</div>
@@ -225,6 +225,7 @@ export default function AdminPanel(){
             {navItems.map(([ico,label,id])=>(
               <button key={id} className={`sb-item${panel===id?" on":""}`} onClick={()=>setPanel(id)}>
                 <span className="sb-ico">{ico}</span>{label}
+                {id==="ai"&&<span style={{fontSize:"6px",letterSpacing:"2px",padding:"1px 5px",background:"linear-gradient(90deg,rgba(139,92,246,0.40),rgba(0,201,184,0.30))",borderRadius:"2px",marginLeft:"6px",color:"#fff"}}>BETA</span>}
               </button>
             ))}
           </nav>
@@ -557,7 +558,7 @@ function PanelGames({notify}:{notify:(m:string)=>void}){
             <div key={g.id} className="game-card-adm">
               {g.thumb
                 ? <img className="gc-thumb" src={g.thumb} alt={g.title}/>
-                : <div className="gc-thumb-ph">🎮</div>
+                : <div className="gc-thumb-placeholder">🎮</div>
               }
               <div className="gc-body">
                 <div className="gc-status-row">
@@ -765,17 +766,23 @@ function PanelAI({notify:_n}:{notify:(m:string)=>void}){
           ))}
           {thinking&&(
             <div className="ai-msg ai">
-              <div className="ai-msg-avatar">⚙</div>
-              <div style={{background:"rgba(139,92,246,0.08)",border:"1px solid rgba(139,92,246,0.28)",borderRadius:"3px",padding:"16px 18px",minWidth:"260px"}}>
-                <div style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"10px"}}>
-                  <div style={{width:"36px",height:"36px",borderRadius:"50%",border:"2px solid rgba(139,92,246,0.50)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"16px",animation:"thinkSpin 2s linear infinite"}}>⚙</div>
-                  <div>
-                    <div style={{fontSize:"9px",letterSpacing:"4px",color:"rgba(200,180,255,0.90)",fontWeight:"bold",marginBottom:"3px"}}>TEAM PROCESSING...</div>
-                    <div style={{fontSize:"8px",letterSpacing:"2px",color:"rgba(139,92,246,0.65)"}}>ROUTING TO SPECIALISTS</div>
+              <div className="ai-msg-avatar">🤖</div>
+              <div className="ai-msg-bubble" style={{flex:1}}>
+                <div className="ai-thinking-wrap">
+                  <div className="ai-think-top">
+                    <div className="ai-think-icon">⚙️</div>
+                    <div className="ai-think-text-col">
+                      <div className="ai-think-label">AI TEAM WORKING</div>
+                      <div className="ai-think-status">ROUTING TO SPECIALISTS...</div>
+                    </div>
+                    <div className="ai-think-bars">
+                      <div className="ai-think-bar"/><div className="ai-think-bar"/>
+                      <div className="ai-think-bar"/><div className="ai-think-bar"/>
+                      <div className="ai-think-bar"/><div className="ai-think-bar"/>
+                      <div className="ai-think-bar"/>
+                    </div>
                   </div>
-                </div>
-                <div style={{height:"2px",background:"rgba(255,255,255,0.05)",borderRadius:"2px",overflow:"hidden"}}>
-                  <div style={{height:"100%",width:"30%",background:"linear-gradient(90deg,transparent,rgba(139,92,246,0.80),rgba(0,201,184,0.60),transparent)",animation:"thinkScan 1.4s ease-in-out infinite"}}/>
+                  <div className="ai-think-scan-wrap"><div className="ai-think-scan"/></div>
                 </div>
               </div>
             </div>
@@ -793,7 +800,7 @@ function PanelAI({notify:_n}:{notify:(m:string)=>void}){
 }
 
 /* ═══════════════════════════ MESSAGES ══════════════════════════════ */
-type Msg={id:string;from:string;to:string;subject:string;body:string;date:string;read:boolean};
+type Msg={id:string;from:string;fromDisplay:string;to:string;subject:string;body:string;ts:number;read:boolean};
 function PanelMessages({admin,notify}:{admin:Admin;notify:(m:string)=>void}){
   const [msgTab,setMsgTab]=useState<"inbox"|"compose"|"sent">("inbox");
   const [msgs,setMsgs]=useState<Msg[]>([]);
@@ -815,7 +822,7 @@ function PanelMessages({admin,notify}:{admin:Admin;notify:(m:string)=>void}){
     if(!mto)return setMErr("SELECT RECIPIENT");
     if(!msub)return setMErr("SUBJECT REQUIRED");
     if(!mbody)return setMErr("MESSAGE REQUIRED");
-    const nm=[...msgs,{id:Date.now().toString(),from:admin.u,to:mto,subject:msub,body:mbody,date:new Date().toLocaleString("en-GB"),read:false}];
+    const nm=[...msgs,{id:Date.now().toString(),from:admin.u,fromDisplay:admin.display,to:mto,subject:msub,body:mbody,ts:Date.now(),read:false}];
     setMsgs(nm);lsSet(MSGKEY,nm);setMto("");setMsub("");setMbody("");
     notify("MESSAGE SENT");setMsgTab("sent");
   }
@@ -840,8 +847,8 @@ function PanelMessages({admin,notify}:{admin:Admin;notify:(m:string)=>void}){
             <div key={m.id} className={`msg-item${m.read?"":" unread"}`} onClick={()=>openMsg(m)}>
               <div className={`msg-dot${m.read?" read":""}`}/>
               <div style={{flex:1}}>
-                <div className="msg-subject-text">{m.subject}</div>
-                <div className="msg-meta">FROM: {m.from.toUpperCase()} · {m.date}</div>
+                <div className="msg-subject">{m.subject}</div>
+                <div className="msg-meta">FROM: {m.fromDisplay||m.from.toUpperCase()} &nbsp;·&nbsp; {new Date(m.ts).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"2-digit"}).toUpperCase()+' '+new Date(m.ts).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}</div>
                 <div className="msg-preview">{m.body}</div>
               </div>
             </div>
@@ -869,8 +876,8 @@ function PanelMessages({admin,notify}:{admin:Admin;notify:(m:string)=>void}){
             <div key={m.id} className="msg-item" onClick={()=>setModalMsg(m)}>
               <div className="msg-dot read"/>
               <div style={{flex:1}}>
-                <div className="msg-subject-text">{m.subject}</div>
-                <div className="msg-meta">TO: {m.to.toUpperCase()} · {m.date}</div>
+                <div className="msg-subject">{m.subject}</div>
+                <div className="msg-meta">TO: {m.to.toUpperCase()} &nbsp;·&nbsp; {new Date(m.ts).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"2-digit"}).toUpperCase()+' '+new Date(m.ts).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}</div>
                 <div className="msg-preview">{m.body}</div>
               </div>
             </div>
@@ -879,15 +886,15 @@ function PanelMessages({admin,notify}:{admin:Admin;notify:(m:string)=>void}){
       )}
       {modalMsg&&(
         <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setModalMsg(null)}>
-          <div className="modal-box green">
-            <div className="modal-head">
+          <div className="msg-modal-box">
+            <div className="msg-modal-head">
               <div>
-                <div className="modal-title">{modalMsg.subject}</div>
-                <div className="modal-meta">FROM: {modalMsg.from.toUpperCase()} · TO: {modalMsg.to.toUpperCase()} · {modalMsg.date}</div>
+                <div className="msg-modal-subject">{modalMsg.subject}</div>
+                <div className="msg-modal-meta">FROM: {modalMsg.fromDisplay||modalMsg.from.toUpperCase()} (@{modalMsg.from}) &nbsp;·&nbsp; {new Date(modalMsg.ts).toLocaleString("en-GB")}</div>
               </div>
-              <button className="modal-close" onClick={()=>setModalMsg(null)}>✕</button>
+              <button className="msg-modal-close" onClick={()=>setModalMsg(null)}>✕</button>
             </div>
-            <div className="modal-body">{modalMsg.body}</div>
+            <div className="msg-modal-body">{modalMsg.body}</div>
           </div>
         </div>
       )}
@@ -1029,7 +1036,7 @@ type PBBlock={id:string;type:string;content:string};
 const PB_TYPES=["HERO","ABOUT","FEATURES","TEAM","GAMES","BLOG","CTA","FOOTER","CUSTOM"];
 function PanelPageBuilder({notify}:{notify:(m:string)=>void}){
   const [canvas,setCanvas]=useState<PBBlock[]>([]);
-  const [saved,setSaved]=useState<{name:string;blocks:PBBlock[]}[]>([]);
+  const [saved,setSaved]=useState<{id:string;name:string;blocks:PBBlock[]}[]>([]);
   useEffect(()=>setSaved(ls(PBKEY,[])),[]);
   function addBlock(type:string){
     setCanvas(c=>[...c,{id:Date.now().toString(),type,content:type+" content"}]);
@@ -1037,8 +1044,11 @@ function PanelPageBuilder({notify}:{notify:(m:string)=>void}){
   function savePage(){
     const name=prompt("Page name:");
     if(!name)return;
-    const na=[{name,blocks:canvas},...saved.filter(s=>s.name!==name)];
-    setSaved(na);lsSet(PBKEY,na);notify("PAGE LAYOUT SAVED");
+    const existing=saved.findIndex(s=>s.name===name);
+    let na;
+    if(existing>=0){na=saved.map((s,i)=>i===existing?{...s,blocks:canvas}:s);}
+    else{na=[...saved,{id:Date.now().toString(),name,blocks:canvas}];}
+    setSaved(na);lsSet(PBKEY,na);notify("PAGE SAVED: "+name.toUpperCase());
   }
   return (
     <div>
@@ -1071,14 +1081,14 @@ function PanelPageBuilder({notify}:{notify:(m:string)=>void}){
       <div className="card">
         <div className="card-title">// SAVED PAGES</div>
         {saved.length ? saved.map(s=>(
-          <div key={s.name} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"11px 0",borderBottom:"1px solid var(--bord)"}}>
+          <div key={s.id||s.name} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"11px 0",borderBottom:"1px solid var(--bord)"}}>
             <div>
               <div style={{fontSize:"11px",letterSpacing:"2px",color:"var(--white)"}}>{s.name}</div>
               <div style={{fontSize:"8px",color:"var(--muted)"}}>{s.blocks.length} BLOCK{s.blocks.length!==1?"S":""}</div>
             </div>
             <div style={{display:"flex",gap:"6px"}}>
               <button className="btn outline" style={{fontSize:"7px",padding:"4px 8px"}} onClick={()=>setCanvas(s.blocks)}>LOAD</button>
-              <button className="btn d" style={{fontSize:"7px",padding:"4px 8px"}} onClick={()=>{const na=saved.filter(x=>x.name!==s.name);setSaved(na);lsSet(PBKEY,na);}}>DEL</button>
+              <button className="btn d" style={{fontSize:"7px",padding:"4px 8px"}} onClick={()=>{const na=saved.filter(x=>(x.id||x.name)!==(s.id||s.name));setSaved(na);lsSet(PBKEY,na);}}>DEL</button>
             </div>
           </div>
         )) : <div style={{color:"var(--muted)",fontSize:"9px",letterSpacing:"2px"}}>NO SAVED PAGES</div>}
@@ -1380,16 +1390,16 @@ function PanelDatabase({notify}:{notify:(m:string)=>void}){
       </div>
       {modal.account&&(
         <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setModal({type:"",account:null})}>
-          <div className="modal-box red">
-            <div className="modal-head" style={{padding:"16px 20px"}}>
-              <div className="modal-title" style={{fontSize:"11px",letterSpacing:"3px"}}>
+          <div className="db-modal-box">
+            <div className="db-modal-head">
+              <div className="db-modal-title">
                 {modal.type==="visitor"
                   ? "// VISITOR ACCOUNT: "+(modal.account as Visitor).displayName
                   : "// ADMIN ACCOUNT: "+(modal.account as DynAdmin).display}
               </div>
-              <button className="modal-close" onClick={()=>setModal({type:"",account:null})}>✕</button>
+              <button className="db-modal-close" onClick={()=>setModal({type:"",account:null})}>✕</button>
             </div>
-            <div className="modal-body" style={{padding:"18px 20px",fontSize:"inherit",lineHeight:"inherit",whiteSpace:"normal"}}>
+            <div className="db-modal-body">
               {modal.type==="visitor" ? (()=>{
                 const v=modal.account as Visitor;
                 const achs=Object.keys(v.achievements||{});
