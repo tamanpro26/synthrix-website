@@ -20,3 +20,8 @@ desktop.ini
 
 # Editor
 .vscode/
+
+# Next.js
+synthrix-studio/.next/
+synthrix-studio/node_modules/
+synthrix-studio/.env.local
