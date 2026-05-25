@@ -1,5 +1,15 @@
 /* SYNTHRIX MISSION CONTROL — exact port of internal/index.html styles */
 
+/* globals.css sets *{cursor:none!important} — restore normal cursors for /internal */
+body:has(.mc-root){cursor:auto!important}
+.mc-root,.mc-root *,.mc-root *::before,.mc-root *::after{cursor:auto!important}
+.mc-root button,.mc-root [role="button"],.mc-root .sb-item,.mc-root .l-btn,
+.mc-root .btn,.mc-root .msg-item,.mc-root .drop-zone,.mc-root .ai-act-btn,
+.mc-root .ai-send-btn,.mc-root .msg-modal-close,.mc-root .db-modal-close,
+.mc-root .tog-track,.mc-root .pb-add-btn,.mc-root .msg-tab{cursor:pointer!important}
+.mc-root input[type="text"],.mc-root input[type="password"],.mc-root .l-inp,
+.mc-root .fi,.mc-root .ai-textarea,.mc-root .db-search{cursor:text!important}
+
 .mc-root {
   --bg:#060a08;--bg2:#0a100d;--bg3:#0f1a14;
   --green:#22c55e;--orange:#FF6B35;--gold:#F5A623;--teal:#00C9B8;
