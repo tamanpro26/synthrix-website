@@ -5,16 +5,16 @@ const REFERER = "https://synthrix-website.vercel.app";
 
 /* Primary model + fallback per specialist — all completely free on OpenRouter */
 const TEAM: Record<string, { id: string; fallback: string; role: string }> = {
-  ORACLE:  { id: "deepseek/deepseek-chat:free",                  fallback: "mistralai/mistral-7b-instruct:free",      role: "Strategic Reasoning"       },
-  SCOUT:   { id: "google/gemma-3-27b-it:free",                   fallback: "google/gemma-3-12b-it:free",              role: "Research & Context"        },
-  SAGE:    { id: "deepseek/deepseek-r1:free",                    fallback: "deepseek/deepseek-chat:free",             role: "Deep Reasoning"            },
-  FORGE:   { id: "qwen/qwen-2.5-coder-32b-instruct:free",        fallback: "qwen/qwen-2.5-72b-instruct:free",        role: "Technical & Code"          },
-  JUDGE:   { id: "microsoft/phi-4:free",                         fallback: "mistralai/mistral-7b-instruct:free",      role: "Critical Analysis"         },
-  HERALD:  { id: "mistralai/mistral-7b-instruct:free",           fallback: "google/gemma-3-12b-it:free",              role: "Writing & Comms"           },
-  THINKER: { id: "qwen/qwen-2.5-72b-instruct:free",             fallback: "mistralai/mistral-7b-instruct:free",      role: "Logic & Problem Solving"   },
-  SWIFT:   { id: "google/gemma-3-12b-it:free",                   fallback: "google/gemma-3-4b-it:free",               role: "Quick Synthesis"           },
-  WEAVER:  { id: "openchat/openchat-7b:free",                    fallback: "mistralai/mistral-7b-instruct:free",      role: "Creative Synthesis"        },
-  NEXUS:   { id: "qwen/qwen-2.5-coder-32b-instruct:free",        fallback: "qwen/qwen-2.5-72b-instruct:free",        role: "Code Review & Integration" },
+  ORACLE:  { id: "google/gemma-3-27b-it:free",                   fallback: "meta-llama/llama-3.1-8b-instruct:free",  role: "Strategic Reasoning"       },
+  SCOUT:   { id: "meta-llama/llama-3.1-8b-instruct:free",        fallback: "google/gemma-3-12b-it:free",             role: "Research & Context"        },
+  SAGE:    { id: "qwen/qwen-2.5-72b-instruct:free",              fallback: "google/gemma-3-27b-it:free",             role: "Deep Reasoning"            },
+  FORGE:   { id: "qwen/qwen-2.5-coder-32b-instruct:free",        fallback: "meta-llama/llama-3.1-8b-instruct:free",  role: "Technical & Code"          },
+  JUDGE:   { id: "microsoft/phi-4:free",                         fallback: "google/gemma-3-12b-it:free",             role: "Critical Analysis"         },
+  HERALD:  { id: "mistralai/mistral-7b-instruct:free",           fallback: "google/gemma-3-12b-it:free",             role: "Writing & Comms"           },
+  THINKER: { id: "qwen/qwen-2.5-72b-instruct:free",             fallback: "google/gemma-3-27b-it:free",             role: "Logic & Problem Solving"   },
+  SWIFT:   { id: "google/gemma-3-12b-it:free",                   fallback: "google/gemma-3-4b-it:free",              role: "Quick Synthesis"           },
+  WEAVER:  { id: "mistralai/mistral-7b-instruct:free",           fallback: "google/gemma-3-12b-it:free",             role: "Creative Synthesis"        },
+  NEXUS:   { id: "qwen/qwen-2.5-coder-32b-instruct:free",        fallback: "meta-llama/llama-3.1-8b-instruct:free",  role: "Code Review & Integration" },
 };
 
 const ROUTING: Record<string, string[]> = {
