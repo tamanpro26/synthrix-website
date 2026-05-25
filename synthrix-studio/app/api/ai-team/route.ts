@@ -3,18 +3,18 @@ import { NextRequest, NextResponse } from "next/server";
 const BASE    = "https://openrouter.ai/api/v1/chat/completions";
 const REFERER = "https://synthrix-website.vercel.app";
 
-/* Primary model + fallback per specialist — all completely free on OpenRouter */
+/* Primary model + fallback per specialist — verified free on OpenRouter as of May 2026 */
 const TEAM: Record<string, { id: string; fallback: string; role: string }> = {
-  ORACLE:  { id: "google/gemma-3-27b-it:free",                   fallback: "meta-llama/llama-3.1-8b-instruct:free",  role: "Strategic Reasoning"       },
-  SCOUT:   { id: "meta-llama/llama-3.1-8b-instruct:free",        fallback: "google/gemma-3-12b-it:free",             role: "Research & Context"        },
-  SAGE:    { id: "qwen/qwen-2.5-72b-instruct:free",              fallback: "google/gemma-3-27b-it:free",             role: "Deep Reasoning"            },
-  FORGE:   { id: "qwen/qwen-2.5-coder-32b-instruct:free",        fallback: "meta-llama/llama-3.1-8b-instruct:free",  role: "Technical & Code"          },
-  JUDGE:   { id: "microsoft/phi-4:free",                         fallback: "google/gemma-3-12b-it:free",             role: "Critical Analysis"         },
-  HERALD:  { id: "mistralai/mistral-7b-instruct:free",           fallback: "google/gemma-3-12b-it:free",             role: "Writing & Comms"           },
-  THINKER: { id: "qwen/qwen-2.5-72b-instruct:free",             fallback: "google/gemma-3-27b-it:free",             role: "Logic & Problem Solving"   },
-  SWIFT:   { id: "google/gemma-3-12b-it:free",                   fallback: "google/gemma-3-4b-it:free",              role: "Quick Synthesis"           },
-  WEAVER:  { id: "mistralai/mistral-7b-instruct:free",           fallback: "google/gemma-3-12b-it:free",             role: "Creative Synthesis"        },
-  NEXUS:   { id: "qwen/qwen-2.5-coder-32b-instruct:free",        fallback: "meta-llama/llama-3.1-8b-instruct:free",  role: "Code Review & Integration" },
+  ORACLE:  { id: "google/gemma-4-31b-it:free",                        fallback: "deepseek/deepseek-v4-flash:free",               role: "Strategic Reasoning"       },
+  SCOUT:   { id: "deepseek/deepseek-v4-flash:free",                   fallback: "google/gemma-4-26b-a4b-it:free",                role: "Research & Context"        },
+  SAGE:    { id: "nvidia/nemotron-3-super-120b-a12b:free",            fallback: "google/gemma-4-31b-it:free",                    role: "Deep Reasoning"            },
+  FORGE:   { id: "deepseek/deepseek-v4-flash:free",                   fallback: "google/gemma-4-31b-it:free",                    role: "Technical & Code"          },
+  JUDGE:   { id: "arcee-ai/trinity-large-thinking:free",              fallback: "google/gemma-4-31b-it:free",                    role: "Critical Analysis"         },
+  HERALD:  { id: "google/gemma-4-26b-a4b-it:free",                    fallback: "deepseek/deepseek-v4-flash:free",               role: "Writing & Comms"           },
+  THINKER: { id: "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",fallback: "arcee-ai/trinity-large-thinking:free",          role: "Logic & Problem Solving"   },
+  SWIFT:   { id: "deepseek/deepseek-v4-flash:free",                   fallback: "google/gemma-4-26b-a4b-it:free",                role: "Quick Synthesis"           },
+  WEAVER:  { id: "google/gemma-4-31b-it:free",                        fallback: "baidu/cobuddy:free",                            role: "Creative Synthesis"        },
+  NEXUS:   { id: "deepseek/deepseek-v4-flash:free",                   fallback: "google/gemma-4-31b-it:free",                    role: "Code Review & Integration" },
 };
 
 const ROUTING: Record<string, string[]> = {
