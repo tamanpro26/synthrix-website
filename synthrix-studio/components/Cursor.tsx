@@ -3,14 +3,12 @@ import { useEffect } from "react";
 
 export default function Cursor() {
   useEffect(() => {
-    const cursor = document.getElementById("sx-cursor");
-    const dot    = document.getElementById("sx-dot");
-    const trail  = document.getElementById("sx-trail");
+    const cur = document.getElementById("cur");
+    const dot = document.getElementById("cur-dot");
     const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
-    if (isTouch || !cursor || !dot || !trail) {
-      if (cursor) cursor.style.display = "none";
-      if (dot)    dot.style.display    = "none";
-      if (trail)  trail.style.display  = "none";
+    if (isTouch || !cur || !dot) {
+      if (cur) cur.style.display = "none";
+      if (dot) dot.style.display = "none";
       document.body.style.cursor = "auto";
       return;
     }
@@ -20,49 +18,40 @@ export default function Cursor() {
     const onMove = (e: MouseEvent) => {
       mx = e.clientX; my = e.clientY;
       dot.style.left = mx + "px"; dot.style.top = my + "px";
-      trail.style.left = mx + "px"; trail.style.top = my + "px";
-      trail.style.opacity = "0.5";
     };
     document.addEventListener("mousemove", onMove);
 
     const animate = () => {
       cx += (mx - cx) * 0.12;
       cy += (my - cy) * 0.12;
-      cursor.style.left = cx + "px";
-      cursor.style.top  = cy + "px";
+      cur.style.left = cx + "px";
+      cur.style.top  = cy + "px";
       requestAnimationFrame(animate);
     };
     animate();
 
-    document.addEventListener("mousedown", () => cursor.classList.add("clicking"));
-    document.addEventListener("mouseup",   () => cursor.classList.remove("clicking"));
-
-    const addHover = () => { cursor.classList.add("hovered"); trail.style.opacity = "0"; };
-    const rmHover  = () => { cursor.classList.remove("hovered"); trail.style.opacity = "0.5"; };
+    const addBig = () => cur.classList.add("big");
+    const rmBig  = () => cur.classList.remove("big");
 
     const attach = () => {
-      document.querySelectorAll("a,button,.game-card,.news-item,.contact-link,.gw-panel").forEach((el) => {
-        el.removeEventListener("mouseenter", addHover);
-        el.removeEventListener("mouseleave", rmHover);
-        el.addEventListener("mouseenter", addHover);
-        el.addEventListener("mouseleave", rmHover);
+      document.querySelectorAll("a,button,.gcard,.r-card,.dl-row,.blog-card,.role-row,.portal-btn").forEach((el) => {
+        el.removeEventListener("mouseenter", addBig);
+        el.removeEventListener("mouseleave", rmBig);
+        el.addEventListener("mouseenter", addBig);
+        el.addEventListener("mouseleave", rmBig);
       });
     };
     attach();
     const obs = new MutationObserver(attach);
     obs.observe(document.body, { childList: true, subtree: true });
 
-    return () => {
-      document.removeEventListener("mousemove", onMove);
-      obs.disconnect();
-    };
+    return () => { document.removeEventListener("mousemove", onMove); obs.disconnect(); };
   }, []);
 
   return (
     <>
-      <div id="sx-cursor" className="cursor" />
-      <div id="sx-dot"    className="cursor-dot" />
-      <div id="sx-trail"  className="cursor-trail" style={{ width: "60px", height: "60px", opacity: 0 }} />
+      <div id="cur" />
+      <div id="cur-dot" />
     </>
   );
 }

@@ -2,96 +2,81 @@
 import { useState, useEffect } from "react";
 import type { Tab } from "@/app/page";
 
-interface Props { active: Tab; onSwitch: (t: Tab) => void; dark: boolean; onToggleDark: () => void; }
-
 const NAV_LINKS: { id: Tab; label: string }[] = [
-  { id: "home",    label: "HOME" },
-  { id: "games",   label: "GAMES" },
-  { id: "lore",    label: "THE WORLD" },
-  { id: "news",    label: "DEVLOG" },
-  { id: "contact", label: "CONTACT" },
+  { id: "home",          label: "HOME" },
+  { id: "about",         label: "ABOUT" },
+  { id: "games",         label: "GAMES" },
+  { id: "downloads",     label: "DOWNLOADS" },
+  { id: "news",          label: "NEWS" },
+  { id: "join",          label: "JOIN TEAM" },
+  { id: "blog",          label: "BLOG" },
+  { id: "achievements",  label: "ACHIEVEMENTS" },
 ];
 
-export default function Navbar({ active, onSwitch, dark, onToggleDark }: Props) {
+export default function Navbar({ active, onSwitch }: { active: Tab; onSwitch: (t: Tab) => void }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen]         = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
+    const fn = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", fn);
+    return () => window.removeEventListener("scroll", fn);
   }, []);
 
+  const go = (t: Tab) => { onSwitch(t); setOpen(false); };
+
   return (
-    <header id="header" className={scrolled ? "scrolled" : ""}>
-      {/* Logo */}
-      <a
-        href="#home"
-        className="logo-area"
-        onClick={(e) => { e.preventDefault(); onSwitch("home"); }}
-        style={{ textDecoration: "none", cursor: "none" }}
-      >
-        <div style={{ display: "flex", flexDirection: "column", lineHeight: 1 }}>
-          <div style={{ fontFamily: "var(--font-orbitron)", fontSize: "14px", fontWeight: 900, letterSpacing: "3.5px", color: "var(--ink)", transition: "color .25s" }}>
-            SYNTH<span style={{ color: "var(--orange)" }}>RIX</span>
-          </div>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: "7px", letterSpacing: "3.5px", color: "var(--ink-muted)", marginTop: "2px" }}>
-            STUDIO
-          </div>
-        </div>
+    <header className={scrolled ? "scrolled" : ""}>
+      <a href="#home" className="logo" onClick={(e) => { e.preventDefault(); go("home"); }}>
+        <span>SYNTH<span className="logo-accent">RIX</span></span>
+        <span className="logo-sub-txt">STUDIO</span>
       </a>
 
-      {/* Desktop nav */}
-      <nav style={{ display: "flex", alignItems: "center", gap: "1px" }}>
+      <nav>
         {NAV_LINKS.map((link) => (
           <a
             key={link.id}
             href={`#${link.id}`}
-            className={`nav-link${active === link.id ? " active" : ""}`}
-            onClick={(e) => { e.preventDefault(); onSwitch(link.id); setOpen(false); }}
+            className={`nav-a${active === link.id ? " nav-active" : ""}`}
+            onClick={(e) => { e.preventDefault(); go(link.id); }}
           >
             {link.label}
           </a>
         ))}
-        <button
-          className="theme-btn"
-          onClick={onToggleDark}
-          title={dark ? "Switch to light mode" : "Switch to dark mode"}
-          style={{ marginLeft: "8px" }}
+        <a
+          href="https://synthrixstudios.vercel.app"
+          className="nav-a"
+          style={{ color: "rgba(0,201,184,0.50)" }}
+          target="_blank"
+          rel="noopener"
         >
-          {dark ? "☀" : "🌙"}
-        </button>
+          GAME LAB ↗
+        </a>
+        <a href="#join" className="nav-cta" onClick={(e) => { e.preventDefault(); go("join"); }}>
+          ▶ APPLY NOW
+        </a>
       </nav>
 
-      {/* Mobile hamburger */}
+      {/* Mobile burger */}
       <button
-        onClick={() => setOpen(!open)}
-        style={{ display: "none", background: "none", border: "none", cursor: "none", flexDirection: "column", gap: "5px", padding: "4px" }}
         className="mobile-burger"
-        aria-label="Menu"
+        onClick={() => setOpen(!open)}
+        aria-label="Toggle menu"
+        style={{ display: "none" }}
       >
-        <span style={{ display: "block", width: "22px", height: "1.5px", background: "var(--orange)", transition: ".3s" }} />
-        <span style={{ display: "block", width: "22px", height: "1.5px", background: "var(--orange)", transition: ".3s", opacity: open ? 0 : 1 }} />
-        <span style={{ display: "block", width: "22px", height: "1.5px", background: "var(--orange)", transition: ".3s" }} />
+        <span style={{ display:"block",width:"22px",height:"1.5px",background:"var(--orange)",transition:".3s" }} />
+        <span style={{ display:"block",width:"22px",height:"1.5px",background:"var(--orange)",transition:".3s",opacity:open?0:1 }} />
+        <span style={{ display:"block",width:"22px",height:"1.5px",background:"var(--orange)",transition:".3s" }} />
       </button>
 
-      {/* Mobile menu */}
       {open && (
-        <div style={{
-          position: "absolute", top: "52px", left: 0, right: 0,
-          background: dark ? "rgba(11,11,15,0.97)" : "rgba(255,248,237,0.97)",
-          borderBottom: "1px solid rgba(245,166,35,0.22)",
-          backdropFilter: "blur(24px)",
-          display: "flex", flexDirection: "column", alignItems: "center", gap: "0",
-          zIndex: 999,
-        }}>
+        <div className="mobile-menu">
           {NAV_LINKS.map((link) => (
             <a
               key={link.id}
               href={`#${link.id}`}
-              className={`nav-link${active === link.id ? " active" : ""}`}
-              style={{ width: "100%", textAlign: "center", padding: "16px", fontSize: "12px", letterSpacing: "4px" }}
-              onClick={(e) => { e.preventDefault(); onSwitch(link.id); setOpen(false); }}
+              className={`nav-a${active === link.id ? " nav-active" : ""}`}
+              onClick={(e) => { e.preventDefault(); go(link.id); }}
             >
               {link.label}
             </a>
@@ -99,12 +84,7 @@ export default function Navbar({ active, onSwitch, dark, onToggleDark }: Props) 
         </div>
       )}
 
-      <style>{`
-        @media(max-width:700px) {
-          header nav { display: none !important; }
-          .mobile-burger { display: flex !important; }
-        }
-      `}</style>
+      <style>{`@media(max-width:700px){header nav{display:none!important}.mobile-burger{display:flex!important}}`}</style>
     </header>
   );
 }
