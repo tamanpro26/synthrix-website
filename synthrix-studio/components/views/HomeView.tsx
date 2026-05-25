@@ -1,235 +1,215 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { motion } from "framer-motion";
-import gsap from "gsap";
 import type { Tab } from "@/app/page";
 
-const MARQUEE_TEXT = ["Enter The Void", "New Release", "Bangladesh Indie", "Dark Worlds", "Relentless Combat", "Stories Worth Playing", "Rhino's Last Protocol", "SYNTHRIX Studio"];
+const TICKER_ITEMS = ["ESCAPE THE BRIDGE","BOOM","OVERDRIVE","SYNTHPAD 2.0","RHINO'S LAST PROTOCOL","MADE IN BANGLADESH","INDIE STUDIO","EST. 2025"];
 
 export default function HomeView({ onSwitch }: { onSwitch: (t: Tab) => void }) {
-  const ctrlRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLDivElement>(null);
-  const statRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  /* GSAP hero entry sequence */
+  /* Particle embers canvas */
   useEffect(() => {
-    const tl = gsap.timeline();
-    if (ctrlRef.current) {
-      tl.fromTo(
-        ctrlRef.current,
-        { opacity: 0, y: 80, rotate: -25, scale: 0.55 },
-        { opacity: 0.95, y: -30, rotate: 6, scale: 1.08, duration: 1.0, ease: "back.out(1.2)" }
-      ).to(ctrlRef.current, {
-        opacity: 0.12, y: -20, rotate: 4, scale: 1, duration: 0.6, ease: "power2.out",
-      });
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    let W = 0, H = 0, raf = 0;
+    const resize = () => { W = canvas.width = canvas.offsetWidth; H = canvas.height = canvas.offsetHeight; };
+    resize();
+    window.addEventListener("resize", resize);
+    const COLORS = ["rgba(245,166,35,","rgba(255,107,53,","rgba(0,201,184,","rgba(255,213,128,"];
+    type P = { x:number; y:number; size:number; speedY:number; speedX:number; life:number; maxLife:number; color:string; wobble:number; wobbleSpeed:number; reset():void; };
+    const particles: P[] = [];
+    for (let i = 0; i < 45; i++) {
+      const p = {} as P;
+      p.reset = () => {
+        p.x = Math.random() * W; p.y = H + 10;
+        p.size = Math.random() * 2.5 + 0.5;
+        p.speedY = -(Math.random() * 1.2 + 0.4); p.speedX = (Math.random() - 0.5) * 0.6;
+        p.life = 0; p.maxLife = Math.random() * 180 + 80;
+        p.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+        p.wobble = Math.random() * Math.PI * 2; p.wobbleSpeed = (Math.random() - 0.5) * 0.06;
+      };
+      p.reset(); p.y = Math.random() * (H || 600); p.life = Math.random() * p.maxLife;
+      particles.push(p);
     }
-    if (titleRef.current) {
-      const lines = titleRef.current.querySelectorAll(".htn-line");
-      tl.fromTo(
-        lines,
-        { opacity: 0, y: 60 },
-        { opacity: 1, y: 0, duration: 0.6, stagger: 0.12, ease: "power3.out" },
-        "-=0.6"
-      );
-    }
-    /* Animate stat counters */
-    statRefs.current.forEach((el, i) => {
-      if (!el) return;
-      const target = [5, 20, 1, 2025][i];
-      const obj = { val: 0 };
-      gsap.to(obj, {
-        val: target,
-        duration: 1.6,
-        delay: 1.2,
-        ease: "power2.out",
-        onUpdate: () => {
-          if (i === 2) el.textContent = "0" + Math.round(obj.val);
-          else el.textContent = Math.round(obj.val) + (i === 0 || i === 1 ? "+" : "");
-        },
+    const loop = () => {
+      ctx.clearRect(0, 0, W, H);
+      particles.forEach((p) => {
+        p.life++; if (p.life > p.maxLife) p.reset();
+        p.wobble += p.wobbleSpeed; p.x += p.speedX + Math.sin(p.wobble) * 0.4; p.y += p.speedY;
+        const a = Math.sin((p.life / p.maxLife) * Math.PI) * 0.75;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = p.color + a + ")"; ctx.fill();
+        if (p.size > 1.2) {
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.size * 2.5, 0, Math.PI * 2);
+          ctx.fillStyle = p.color + (a * 0.15) + ")"; ctx.fill();
+        }
       });
-    });
+      raf = requestAnimationFrame(loop);
+    };
+    loop();
+    return () => { window.removeEventListener("resize", resize); cancelAnimationFrame(raf); };
+  }, []);
+
+  /* Skill bars */
+  useEffect(() => {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) (e.target as HTMLElement).style.width = (e.target as HTMLElement).dataset.w || "0%";
+      });
+    }, { threshold: 0.3 });
+    document.querySelectorAll(".skill-fill").forEach((el) => obs.observe(el));
+    return () => obs.disconnect();
   }, []);
 
   return (
     <div>
-      {/* HERO */}
-      <section
-        className="relative flex items-center overflow-hidden"
-        style={{ minHeight: "100vh", background: "linear-gradient(135deg, var(--bg) 0%, var(--bg2) 60%, var(--bg3) 100%)" }}
-      >
-        {/* BG */}
-        <div className="absolute inset-0 z-0"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1800')", backgroundSize: "cover", backgroundPosition: "center", opacity: 0.08 }}
-        />
-        <div className="absolute inset-0 z-1" style={{ background: "linear-gradient(to right, rgba(7,7,7,0.97) 40%, transparent 100%)" }} />
-        <div className="absolute bottom-0 left-0 right-0 z-1" style={{ height: "40%", background: "linear-gradient(to top, var(--bg), transparent)" }} />
+      {/* ── HERO ── */}
+      <div className="hero">
+        <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, zIndex: 2, pointerEvents: "none", width: "100%", height: "100%" }} />
 
-        {/* Controller animation */}
-        <div ref={ctrlRef} className="absolute z-2 pointer-events-none" style={{ left: "50%", top: "30%", transform: "translateX(-50%)", opacity: 0 }}>
-          <svg width="260" height="170" viewBox="0 0 220 140" fill="none" xmlns="http://www.w3.org/2000/svg"
-            style={{ filter: "drop-shadow(0 0 28px rgba(245,166,35,0.60)) drop-shadow(0 0 60px rgba(255,107,53,0.30))" }}>
-            <path d="M40 50 C20 50 10 75 15 100 L30 125 C36 135 50 138 60 130 L80 110 H140 L160 130 C170 138 184 135 190 125 L205 100 C210 75 200 50 180 50 L140 42 H80 Z" fill="rgba(245,166,35,0.08)" stroke="rgba(245,166,35,0.70)" strokeWidth="2"/>
-            <path d="M40 50 C38 42 45 36 55 36 L80 36 L80 42" stroke="rgba(245,166,35,0.50)" strokeWidth="1.5" fill="none"/>
-            <path d="M180 50 C182 42 175 36 165 36 L140 36 L140 42" stroke="rgba(245,166,35,0.50)" strokeWidth="1.5" fill="none"/>
-            <rect x="52" y="68" width="8" height="24" rx="2" fill="rgba(245,166,35,0.30)" stroke="rgba(245,166,35,0.60)" strokeWidth="1"/>
-            <rect x="44" y="76" width="24" height="8" rx="2" fill="rgba(245,166,35,0.30)" stroke="rgba(245,166,35,0.60)" strokeWidth="1"/>
-            <circle cx="155" cy="72" r="6" fill="rgba(0,201,184,0.20)" stroke="rgba(0,201,184,0.80)" strokeWidth="1.5"/>
-            <circle cx="171" cy="80" r="6" fill="rgba(255,107,53,0.20)" stroke="rgba(255,107,53,0.80)" strokeWidth="1.5"/>
-            <circle cx="155" cy="88" r="6" fill="rgba(245,166,35,0.20)" stroke="rgba(245,166,35,0.80)" strokeWidth="1.5"/>
-            <circle cx="139" cy="80" r="6" fill="rgba(139,92,246,0.20)" stroke="rgba(139,92,246,0.80)" strokeWidth="1.5"/>
-            <circle cx="110" cy="78" r="10" fill="rgba(245,166,35,0.10)" stroke="rgba(245,166,35,0.55)" strokeWidth="1.5"/>
-            <circle cx="110" cy="78" r="4" fill="rgba(245,166,35,0.40)"/>
-            <circle cx="80" cy="95" r="12" fill="rgba(255,255,255,0.04)" stroke="rgba(245,166,35,0.35)" strokeWidth="1.5"/>
-            <circle cx="80" cy="95" r="6" fill="rgba(245,166,35,0.15)"/>
-            <circle cx="140" cy="95" r="12" fill="rgba(255,255,255,0.04)" stroke="rgba(245,166,35,0.35)" strokeWidth="1.5"/>
-            <circle cx="140" cy="95" r="6" fill="rgba(245,166,35,0.15)"/>
-            <circle cx="155" cy="72" r="2" fill="rgba(0,201,184,0.90)"/>
-            <circle cx="171" cy="80" r="2" fill="rgba(255,107,53,0.90)"/>
-            <circle cx="155" cy="88" r="2" fill="rgba(245,166,35,0.90)"/>
-            <circle cx="139" cy="80" r="2" fill="rgba(139,92,246,0.90)"/>
-          </svg>
+        <div className="hero-bg-mosaic" aria-hidden="true">
+          {[
+            "https://img.itch.zone/aW1nLzIyOTExMzU0LnBuZw==/347x500/EotLYN.png",
+            "https://img.itch.zone/aW1nLzIzNTU4NjkyLnBuZw==/347x500/ggCuYf.png",
+            "https://img.itch.zone/aW1nLzIzNDYxNTI3LmpwZw==/original/NLTnuO.jpg",
+            "https://img.itch.zone/aW1hZ2UvNDQwMjE5MC8yNjI0NjA1MS5wbmc=/794x1000/wMU1zn.png",
+          ].map((src, i) => (
+            <div key={i} className="hbm-col">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={src} alt="" loading="eager" />
+            </div>
+          ))}
         </div>
+        <div className="hero-bg-tint" />
+        <div className="hero-flare" />
+        <div className="hero-teal-orb" />
+        <div className="hero-scan" />
+        <div className="hero-horizon" />
 
-        <div className="relative z-10 max-w-5xl mx-auto px-6 md:px-12 w-full text-center">
-          {/* Eyebrow */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex items-center justify-center gap-3 mb-6"
-            style={{ fontFamily: "var(--font-mono)", fontSize: "10px", letterSpacing: "6px", color: "var(--gold)" }}
-          >
-            <span className="w-9 h-px" style={{ background: "linear-gradient(90deg, transparent, var(--gold))" }} />
-            BANGLADESH INDIE · EST. 2025
-            <span className="w-9 h-px" style={{ background: "linear-gradient(90deg, var(--gold), transparent)" }} />
-          </motion.div>
-
-          {/* GSAP-animated title */}
-          <div ref={titleRef} className="hero-title-wrap">
-            <span className="htn-line block opacity-0" style={{ fontFamily: "var(--font-orbitron)", fontSize: "clamp(52px,9vw,130px)", fontWeight: 900, letterSpacing: "6px", color: "var(--cream)", filter: "drop-shadow(0 0 28px rgba(255,255,255,0.28))" }}>
-              SYNTH
-            </span>
-            <span className="htn-line block opacity-0" style={{ fontFamily: "var(--font-orbitron)", fontSize: "clamp(52px,9vw,130px)", fontWeight: 900, letterSpacing: "6px", color: "var(--orange)", filter: "drop-shadow(0 0 30px rgba(255,107,53,0.72))", marginTop: "-12px" }}>
-              RIX
-            </span>
-            <span className="htn-line block opacity-0" style={{ fontFamily: "var(--font-mono)", fontSize: "clamp(10px,1.4vw,17px)", letterSpacing: "16px", color: "rgba(237,232,223,0.40)", marginTop: "8px" }}>
-              S T U D I O
-            </span>
-          </div>
-
-          <motion.div
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 1, delay: 1.2 }}
-            className="mx-auto my-8 h-px"
-            style={{ background: "linear-gradient(90deg,transparent,var(--orange),transparent)", width: "120px" }}
-          />
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.3 }}
-            className="mb-10 mx-auto max-w-xl"
-            style={{ fontSize: "clamp(15px,2vw,18px)", color: "var(--muted)", lineHeight: 1.7 }}
-          >
-            <strong style={{ color: "var(--cream)" }}>Born in Bangladesh.</strong> Building dark worlds,<br />
-            relentless combat &amp; <em style={{ color: "var(--teal)", fontStyle: "normal" }}>stories worth playing.</em>
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.5 }}
-            className="flex flex-wrap justify-center gap-4"
-          >
-            <motion.button
-              whileHover={{ scale: 1.05, boxShadow: "0 0 50px rgba(232,58,10,0.65)" }}
-              whileTap={{ scale: 0.96 }}
-              onClick={() => onSwitch("games")}
-              className="relative overflow-hidden px-8 py-3 text-white font-bold"
-              style={{ fontFamily: "var(--font-mono)", fontSize: "11px", letterSpacing: "3px", background: "linear-gradient(135deg,var(--orange),var(--red))", border: "1px solid transparent", boxShadow: "0 0 30px rgba(232,58,10,0.42)", cursor: "none" }}
-            >
-              ⬡ EXPLORE GAMES
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05, borderColor: "var(--orange)", backgroundColor: "rgba(255,107,53,0.08)" }}
-              whileTap={{ scale: 0.96 }}
-              onClick={() => onSwitch("join")}
-              className="px-8 py-3"
-              style={{ fontFamily: "var(--font-mono)", fontSize: "11px", letterSpacing: "3px", color: "var(--cream)", border: "1px solid rgba(190,30,45,0.45)", cursor: "none", background: "transparent" }}
-            >
-              ▶ JOIN THE TEAM
-            </motion.button>
-          </motion.div>
-
-          {/* Stats */}
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-px" style={{ border: "1px solid var(--bord)", borderRadius: "2px" }}>
-            {[
-              { label: "GAMES SHIPPED" },
-              { label: "TEAM MEMBERS" },
-              { label: "FLAGSHIP IN DEV" },
-              { label: "FOUNDED" },
-            ].map(({ label }, i) => (
-              <motion.div
-                key={label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 1.6 + i * 0.1 }}
-                whileHover={{ background: "rgba(245,166,35,0.06)" }}
-                className="py-8 text-center"
-                style={{ background: "rgba(255,255,255,0.015)", borderRight: "1px solid var(--bord)" }}
-              >
-                <div
-                  ref={(el) => { statRefs.current[i] = el; }}
-                  style={{ fontFamily: "var(--font-orbitron)", fontSize: "clamp(28px,4vw,48px)", fontWeight: 900, background: "linear-gradient(135deg,#fff,var(--gold))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}
-                >
-                  0
-                </div>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", letterSpacing: "4px", color: "var(--muted)", marginTop: "6px" }}>{label}</div>
-              </motion.div>
-            ))}
+        <div className="hero-content">
+          <div className="hero-eyebrow">BANGLADESHI INDIE STUDIO &nbsp;·&nbsp; EST. 2025</div>
+          <h1 className="glitch" style={{ fontFamily: "var(--font-orbitron)", fontSize: "clamp(58px,9vw,112px)", fontWeight: 900, letterSpacing: "5px", lineHeight: ".88", opacity: 0, animation: "slidein .9s .5s forwards" }}>
+            <span className="h1-main">SYNTH<span className="h1-boxed">RIX</span></span>
+            <span className="h1-sub">STUDIO</span>
+          </h1>
+          <p className="hero-tagline">UNLOCKING THE <em>NEXT LEVEL</em> OF GAMING</p>
+          <div className="hero-divider" />
+          <p className="hero-desc">Independent game development from Bangladesh — crafting immersive worlds, relentless combat, and stories worth playing.</p>
+          <div className="hero-actions">
+            <button className="btn-primary" onClick={() => onSwitch("games")}>⬡ ENTER THE PROTOCOL</button>
+            <button className="btn-secondary" onClick={() => onSwitch("lore")}>◆ DISCOVER THE WORLD</button>
           </div>
         </div>
 
-        {/* Scroll indicator */}
-        <motion.div
-          animate={{ y: [0, 8, 0], opacity: [0.4, 0.8, 0.4] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
-          style={{ fontFamily: "var(--font-mono)", fontSize: "9px", letterSpacing: "5px", color: "var(--muted)" }}
-        >
-          ↓ SCROLL ↓
-        </motion.div>
-      </section>
+        {/* HUD */}
+        <div className="hero-hud" aria-hidden="true">
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "18px", paddingBottom: "14px", borderBottom: "1px solid rgba(245,166,35,0.18)" }}>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", letterSpacing: "3px", color: "var(--teal)", textShadow: "0 0 10px rgba(0,201,184,0.60)" }}>// MISSION CONTROL</span>
+            <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 10px #22c55e", animation: "pulse 2s ease-in-out infinite" }} />
+          </div>
+          {([["STUDIO STATUS","OPERATIONAL","green"],["ACTIVE PROJECT","RLP-2026",""],["LOCATION","BANGLADESH",""],["PROJECTS SHIPPED","5+","green"]] as [string,string,string][]).map(([label, val, cls]) => (
+            <div key={label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "11px" }}>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", letterSpacing: "2px", color: "rgba(255,255,255,0.38)", flexShrink: 0 }}>{label}</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", letterSpacing: "2px", textAlign: "right", color: cls === "green" ? "#22c55e" : "rgba(255,255,255,0.78)", textShadow: cls === "green" ? "0 0 8px rgba(34,197,94,0.60)" : "none" }}>{val}</span>
+            </div>
+          ))}
+          <div style={{ height: "1px", background: "rgba(245,166,35,0.14)", margin: "14px 0" }} />
+          <div style={{ display: "flex", alignItems: "center", marginBottom: "11px" }}>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", letterSpacing: "2px", color: "rgba(255,255,255,0.38)", flexShrink: 0 }}>PROGRESS</span>
+            <div style={{ flex: 1, height: "3px", background: "rgba(255,255,255,0.10)", borderRadius: "2px", overflow: "hidden", margin: "0 10px" }}>
+              <div style={{ height: "100%", width: "42%", background: "linear-gradient(90deg,var(--teal),var(--gold))" }} />
+            </div>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", letterSpacing: "2px", color: "var(--gold)" }}>42%</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", letterSpacing: "2px", color: "rgba(255,255,255,0.38)" }}>SIGNAL</span>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", letterSpacing: "2px", color: "#22c55e", textShadow: "0 0 8px rgba(34,197,94,0.60)" }}>STRONG</span>
+          </div>
+          <div className="hud-scan" />
+        </div>
 
-      {/* Marquee */}
-      <div className="overflow-hidden py-4" style={{ background: "var(--bg2)", borderTop: "1px solid var(--bord)", borderBottom: "1px solid var(--bord)" }}>
-        <div className="marquee-track" style={{ fontFamily: "var(--font-mono)", fontSize: "11px", letterSpacing: "4px", color: "var(--muted)" }}>
-          {[...MARQUEE_TEXT, ...MARQUEE_TEXT].map((t, i) => (
-            <span key={i} className="mx-6">{t}<span className="mx-3" style={{ color: "var(--orange)" }}>◆</span></span>
+        <div className="hero-stats">
+          {[["5+","PROJECTS"],["2025","FOUNDED"],["01","FLAGSHIP"]].map(([num, lbl]) => (
+            <div key={lbl} className="hero-stat"><div className="num">{num}</div><div className="lbl">{lbl}</div></div>
+          ))}
+        </div>
+
+        <div className="hero-reticle" aria-hidden="true">
+          <div className="ret-ring r1" /><div className="ret-ring r2" />
+          <div className="ret-corner tl" /><div className="ret-corner tr" />
+          <div className="ret-corner bl" /><div className="ret-corner br" />
+          <div className="ret-ch h" /><div className="ret-ch v" />
+          <div className="ret-dot" />
+          <div className="ret-label">SYN-001 · TARGET LOCKED</div>
+        </div>
+        <div className="scroll-hint">SCROLL</div>
+      </div>
+
+      {/* ── TICKER ── */}
+      <div className="ticker-wrap" aria-hidden="true">
+        <div className="ticker-inner">
+          {[...TICKER_ITEMS, ...TICKER_ITEMS].map((t, i) => (
+            <div key={i} className="ticker-item">
+              <span className="t-accent">✦</span> {t} <span className="ticker-dot" />
+            </div>
           ))}
         </div>
       </div>
 
-      {/* Manifesto */}
-      <section className="py-32 px-6 md:px-12 max-w-4xl mx-auto text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8 }}
-        >
-          <div className="inline-block mb-8 px-4 py-2 text-xs tracking-widest uppercase" style={{ fontFamily: "var(--font-mono)", color: "var(--orange)", border: "1px solid rgba(255,107,53,0.32)" }}>
-            // THE DOCTRINE
+      {/* ── PROOF STRIP ── */}
+      <div className="proof-strip">
+        {[["5+","GAMES SHIPPED"],["2025","YEAR FOUNDED"],["01","FLAGSHIP IN DEV"],["BD","MADE IN BANGLADESH"]].map(([num, lbl]) => (
+          <div key={lbl} className="proof-item reveal">
+            <div className="proof-num">{num}</div>
+            <div className="proof-divider" />
+            <div className="proof-label">{lbl}</div>
           </div>
-          <h2 className="mb-8" style={{ fontFamily: "var(--font-orbitron)", fontSize: "clamp(28px,5vw,56px)", fontWeight: 900, letterSpacing: "4px", color: "var(--cream)" }}>
-            WE BUILD WORLDS,<br />
-            <span style={{ color: "var(--orange)" }}>NOT PRODUCTS.</span>
-          </h2>
-          <p style={{ fontSize: "18px", color: "var(--muted)", lineHeight: 1.9, maxWidth: "600px", margin: "0 auto" }}>
-            Every game we make is a statement. We don&apos;t chase trends — we carve our own path through the noise with dark themes, tight mechanics, and stories that hit different when you&apos;re from a place the world overlooked.
-          </p>
-        </motion.div>
+        ))}
+      </div>
+
+      {/* ── ABOUT ── */}
+      <section className="section-base" id="about" style={{ position: "relative" }}>
+        <div style={{ position: "absolute", top: "40px", right: "100px", fontFamily: "var(--font-mono)", fontSize: "10px", letterSpacing: "4px", color: "rgba(245,166,35,0.25)", pointerEvents: "none" }}>
+          // 01 — ABOUT
+        </div>
+        <div className="section-header reveal">
+          <div className="section-label">ABOUT THE STUDIO</div>
+          <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+            <div className="section-num">01</div>
+            <h2>ABOUT SYNTHRIX</h2>
+          </div>
+        </div>
+        <div className="about-inner">
+          <div className="about-text reveal-left">
+            <p><strong>SYNTHRIX Studio</strong> is an independent game development studio based in Bangladesh. We craft immersive worlds, emotionally resonant stories, and gameplay experiences built for the gamers of tomorrow.</p>
+            <p>From action-packed shooters to survival horror — every project is defined by atmosphere, tight mechanics, and a relentless commitment to quality.</p>
+            <div className="about-quote"><p>Your Next Adventure Starts Here — with SYNTHRIX.</p></div>
+          </div>
+          <div className="reveal-right">
+            <div className="about-box">
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: "11px", letterSpacing: "3px", color: "var(--teal-deep)", marginBottom: "12px" }}>// FOUNDER &amp; LEAD DEVELOPER</div>
+              <div style={{ fontFamily: "var(--font-orbitron)", fontSize: "26px", fontWeight: 700, letterSpacing: "3px", color: "var(--ink)" }}>SUVOM KUNDU</div>
+              <div style={{ color: "var(--ink-soft)", fontSize: "15px", letterSpacing: "2px", marginTop: "4px" }}>Game Designer · Developer · Storyteller</div>
+              <div style={{ marginTop: "24px", paddingTop: "18px", borderTop: "1px solid rgba(245,166,35,0.22)", fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--ink-muted)", letterSpacing: "2px" }}>
+                FOUNDED <span style={{ color: "var(--orange)" }}>2025</span> · BANGLADESH · INDIE STUDIO
+              </div>
+              <div style={{ marginTop: "28px" }}>
+                {([["GAME DESIGN","90%"],["LEVEL DESIGN","80%"],["PROGRAMMING","75%"],["STORYTELLING","95%"]] as [string,string][]).map(([label, pct]) => (
+                  <div key={label} style={{ marginBottom: "15px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", letterSpacing: "2px", color: "var(--ink-soft)", marginBottom: "6px" }}>
+                      <span>{label}</span><span style={{ color: "var(--orange)" }}>{pct}</span>
+                    </div>
+                    <div style={{ height: "4px", background: "rgba(245,166,35,0.15)", borderRadius: "2px", overflow: "hidden" }}>
+                      <div className="skill-fill" data-w={pct} style={{ height: "100%", width: "0", background: "linear-gradient(90deg,var(--teal),var(--gold),var(--orange))", borderRadius: "2px", transition: "width 1.5s cubic-bezier(.4,0,.2,1)" }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
     </div>
   );

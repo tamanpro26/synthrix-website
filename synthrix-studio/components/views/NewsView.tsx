@@ -1,105 +1,78 @@
 "use client";
-import Image from "next/image";
-import { useState } from "react";
+
+const DEVLOGS = [
+  {
+    date: "MARCH 27, 2026", id: "DEV UPDATE #01",
+    title: "The Sound of SYNTHRIX — 'Crest of the Great Divide' Revealed",
+    body: "We are proud to unveil the official soundtrack for Rhino's Last Protocol: 'Crest of the Great Divide'. This track defines a pivotal location in the game — the majestic mountain peaks encircling a hidden valley, isolated from the chaotic outer world.",
+    extra: "Now playing — hit the player in the bottom-right corner.",
+    download: true,
+  },
+  {
+    date: "MARCH 2026", id: "LOG-003",
+    title: "SYNTHPAD v2.1 Preview — AI Integration In Development",
+    body: "SYNTHPAD v2.1 will feature an embedded AI assistant for game devs — context-aware writing, idea generation, and real-time design notes. Stay tuned for the release window.",
+    status: "IN DEVELOPMENT",
+  },
+  {
+    date: "MARCH 2026", id: "LOG-002",
+    title: "Rhino's Last Protocol — Operational",
+    body: "Development focus has shifted entirely to our flagship Sci-Fi shooter. Combat systems, fluid movement, weapon feedback, and environmental design are all active workstreams.",
+  },
+  {
+    date: "JANUARY 2025", id: "LOG-001",
+    title: "SYNTHRIX Studio Founded",
+    body: "From a solo developer with a vision to a studio with a mission. SYNTHRIX Studio was founded by Suvom Kundu to create games worth playing — stories worth experiencing. The journey begins.",
+  },
+];
 
 export default function NewsView() {
-  const [dsgHover, setDsgHover] = useState(false);
-
   return (
-    <section className="py-20 px-6 md:px-12 max-w-5xl mx-auto">
-      <div className="mb-12">
-        <div className="inline-flex items-center gap-2 px-4 py-2 mb-4" style={{ fontFamily: "var(--font-mono)", fontSize: "10px", letterSpacing: "5px", color: "var(--orange)", border: "1px solid rgba(255,107,53,0.32)" }}>
-          // LATEST NEWS
-        </div>
-        <h2 className="reveal" style={{ fontFamily: "var(--font-orbitron)", fontSize: "clamp(28px,5vw,52px)", fontWeight: 900, letterSpacing: "4px" }}>
-          INTEL &amp; <span style={{ color: "var(--orange)" }}>UPDATES</span>
-        </h2>
-      </div>
-
-      {/* Collaboration announcement */}
-      <div className="reveal" style={{ background: "var(--bg2)", border: "1px solid var(--bordhi)", borderRadius: "3px", overflow: "hidden", position: "relative" }}>
-        <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: "linear-gradient(90deg,var(--orange),var(--gold),var(--teal))" }} />
-
-        <div className="p-6 md:p-8">
-          {/* Head */}
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-            <div className="flex items-center gap-3">
-              <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "var(--teal)" }} />
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", letterSpacing: "4px", color: "var(--teal)" }}>OFFICIAL ANNOUNCEMENT</span>
-            </div>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "9px", letterSpacing: "2px", color: "var(--muted)" }}>16 MAY 2026 · STRATEGIC PARTNERSHIP</span>
+    <div>
+      <section className="section-dark section-base">
+        <div className="section-header reveal" style={{ position: "relative" }}>
+          <div style={{ position: "absolute", top: 0, right: 0, fontFamily: "var(--font-mono)", fontSize: "10px", letterSpacing: "4px", color: "rgba(0,201,184,0.25)", pointerEvents: "none" }}>
+            // INTEL FEED — CLASSIFIED
           </div>
-
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", letterSpacing: "3px", color: "var(--muted)", marginBottom: "8px" }}>// COLLABORATION ANNOUNCEMENT</div>
-          <h3 className="mb-8" style={{ fontSize: "clamp(20px,3vw,32px)", fontWeight: 700, lineHeight: 1.3 }}>
-            <em style={{ fontStyle: "normal", color: "var(--gold)" }}>DarkStarGames Studio</em> Announces<br />
-            Strategic Collaboration with <em style={{ fontStyle: "normal", color: "var(--orange)" }}>SYNTHRIX Studios</em>
-          </h3>
-
-          {/* Studio logos */}
-          <div className="flex items-center gap-6 mb-8 flex-wrap">
-            <div
-              className="flex flex-col items-center gap-2"
-              style={{ cursor: "none" }}
-              onMouseEnter={() => setDsgHover(true)}
-              onMouseLeave={() => setDsgHover(false)}
-            >
-              <div
-                className="h-14 flex items-center justify-center overflow-hidden px-2"
-                style={{
-                  transition: "filter 0.35s ease, transform 0.35s ease",
-                  filter: dsgHover
-                    ? "drop-shadow(0 0 10px rgba(245,166,35,0.90)) drop-shadow(0 0 22px rgba(255,107,53,0.55)) brightness(1.15)"
-                    : "none",
-                  transform: dsgHover ? "scale(1.06)" : "scale(1)",
-                }}
-              >
-                <Image src="https://www.darkstargames.org/web/image/586-10e83fa2/DarkStar%20TradeMark.webp" alt="DarkStarGames" width={120} height={56} className="object-contain" />
-              </div>
-              <span style={{
-                fontFamily: "var(--font-mono)", fontSize: "8px", letterSpacing: "2px",
-                color: dsgHover ? "var(--gold)" : "var(--muted)",
-                transition: "color 0.3s",
-              }}>DARKSTARGAMES STUDIO</span>
-            </div>
-            <div style={{ fontFamily: "var(--font-orbitron)", fontSize: "24px", color: "var(--muted)" }}>×</div>
-            <div className="flex flex-col items-center gap-2">
-              <div className="h-14 flex items-center justify-center px-4" style={{ border: "1px solid rgba(245,166,35,0.28)", background: "rgba(245,166,35,0.05)" }}>
-                <span style={{ fontFamily: "var(--font-orbitron)", fontSize: "20px", fontWeight: 900, letterSpacing: "4px", color: "var(--gold)" }}>SYNTHRIX</span>
-              </div>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: "8px", letterSpacing: "2px", color: "var(--muted)" }}>SYNTHRIX STUDIOS</span>
-            </div>
-          </div>
-
-          {/* Body */}
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="space-y-4" style={{ color: "var(--muted)", lineHeight: 1.8, fontSize: "14px" }}>
-              <p>In a major move set to reshape the independent gaming landscape, <strong style={{ color: "var(--cream)" }}>SYNTHRIX Studios</strong> has officially announced a strategic collaboration with <strong style={{ color: "var(--cream)" }}>DarkStarGames Studio</strong>.</p>
-              <p>The partnership combines creative talent, technical expertise, and operational resources for high-quality interactive entertainment across mobile, PC, and experimental gaming concepts.</p>
-              <blockquote className="pl-4 italic" style={{ borderLeft: "3px solid var(--orange)", color: "var(--cream)", opacity: 0.8 }}>
-                "This collaboration is an important milestone in our expansion journey."
-                <cite className="block not-italic mt-2" style={{ fontFamily: "var(--font-mono)", fontSize: "9px", letterSpacing: "2px", color: "var(--muted)" }}>— SYNTHRIX Studios Spokesperson</cite>
-              </blockquote>
-            </div>
-            <div className="space-y-4">
-              <div className="p-4" style={{ background: "rgba(245,166,35,0.04)", border: "1px solid rgba(245,166,35,0.18)", borderRadius: "2px" }}>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: "9px", letterSpacing: "3px", color: "var(--gold)", marginBottom: "10px" }}>// STRATEGIC GOALS</div>
-                <div className="grid grid-cols-1 gap-2">
-                  {["ADVANCED MOBILE GAME DEVELOPMENT","MULTIPLAYER & LIVE-SERVICE SYSTEMS","BRAND ECOSYSTEM GROWTH","CROSS-PLATFORM LAUNCHES","COMMUNITY EXPANSION","LONG-TERM PUBLISHING"].map(g => (
-                    <div key={g} className="px-3 py-1.5 text-xs" style={{ fontFamily: "var(--font-mono)", letterSpacing: "1px", background: "rgba(255,107,53,0.05)", border: "1px solid rgba(255,107,53,0.12)", color: "var(--muted)" }}>
-                      {g}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+          <div className="section-label light">TACTICAL FEED</div>
+          <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+            <div className="section-num" style={{ color: "var(--gold)" }}>03</div>
+            <h2>INTEL &amp; DEVLOGS</h2>
           </div>
         </div>
 
-        <div className="px-6 py-3 text-xs" style={{ fontFamily: "var(--font-mono)", letterSpacing: "2px", color: "var(--muted)", background: "rgba(255,255,255,0.015)", borderTop: "1px solid var(--bord)" }}>
-          16 MAY 2026 · OFFICIAL PARTNERSHIP ANNOUNCEMENT · SYNTHRIX STUDIOS · MORE ANNOUNCEMENTS EXPECTED SOON
+        <div className="news-grid">
+          {DEVLOGS.map((item) => (
+            <div key={item.id} className="news-item reveal">
+              <div className="news-meta">
+                <span className="news-date">{item.date}</span>
+                <div className="news-id">{item.id}</div>
+              </div>
+              <div className="news-body">
+                <h3>{item.title}</h3>
+                <p>{item.body}</p>
+                {item.extra && (
+                  <p style={{ marginTop: "10px", color: "var(--ink-muted)", fontFamily: "var(--font-mono)", fontSize: "11px", letterSpacing: "2px" }}>{item.extra}</p>
+                )}
+                {item.status && (
+                  <p style={{ color: "var(--ink-muted)", fontFamily: "var(--font-mono)", fontSize: "11px", marginTop: "10px", letterSpacing: "2px" }}>
+                    STATUS: <span style={{ color: "var(--gold)" }}>{item.status}</span>
+                  </p>
+                )}
+                {item.download && (
+                  <a
+                    href="Crest_of_the_Great_Divide.mp3"
+                    download="Crest_of_the_Great_Divide_SYNTHRIX.mp3"
+                    style={{ display: "inline-flex", alignItems: "center", gap: "8px", marginTop: "16px", fontFamily: "var(--font-mono)", fontSize: "12px", letterSpacing: "3px", color: "var(--teal-deep)", textDecoration: "none", border: "1px solid var(--glass-border-teal)", padding: "10px 20px", borderRadius: "3px", background: "rgba(0,201,184,0.06)", transition: ".3s", position: "relative", zIndex: 10 }}
+                  >
+                    ⬇ DOWNLOAD TRACK (MP3)
+                  </a>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 }
