@@ -2,8 +2,17 @@
 import { useEffect, useRef } from "react";
 import type { Tab } from "@/app/page";
 
+const STATS = [
+  { to: 5,    from: 0,    suffix: "+", label: "GAMES SHIPPED" },
+  { to: 2025, from: 2020, suffix: "",  label: "YEAR FOUNDED" },
+  { to: 1,    from: 0,    prefix: "0", suffix: "", label: "FLAGSHIP IN DEV" },
+  { fixed: "BD", label: "MADE IN BANGLADESH" },
+] as const;
+
 export default function HomeView({ active, onSwitch }: { active: boolean; onSwitch: (t: Tab) => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const statsRef  = useRef<HTMLDivElement>(null);
+  const numRefs   = useRef<(HTMLDivElement | null)[]>([]);
 
   /* Particle canvas */
   useEffect(() => {
@@ -43,6 +52,34 @@ export default function HomeView({ active, onSwitch }: { active: boolean; onSwit
     loop();
     return () => { window.removeEventListener("resize",resize); cancelAnimationFrame(raf); };
   }, []);
+
+  /* Count-up animation for stats strip */
+  useEffect(() => {
+    if (!active) return;
+    const strip = statsRef.current;
+    if (!strip) return;
+    let fired = false;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting || fired) return;
+      fired = true;
+      STATS.forEach((stat, i) => {
+        const el = numRefs.current[i];
+        if (!el || "fixed" in stat) return;
+        const { from, to, prefix = "", suffix = "" } = stat as { from:number; to:number; prefix?:string; suffix?:string };
+        const dur = 1500;
+        const t0 = performance.now();
+        const tick = (now: number) => {
+          const p = Math.min((now - t0) / dur, 1);
+          const eased = 1 - Math.pow(1 - p, 3);
+          el.textContent = prefix + Math.round(from + (to - from) * eased) + suffix;
+          if (p < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      });
+    }, { threshold: 0.4 });
+    obs.observe(strip);
+    return () => obs.disconnect();
+  }, [active]);
 
   if (!active) return null;
 
@@ -117,11 +154,15 @@ export default function HomeView({ active, onSwitch }: { active: boolean; onSwit
       </section>
 
       {/* STATS STRIP */}
-      <div className="stats-strip">
-        <div className="stat-item reveal"><div className="stat-num">5+</div><div className="stat-label">GAMES SHIPPED</div></div>
-        <div className="stat-item reveal"><div className="stat-num">2025</div><div className="stat-label">YEAR FOUNDED</div></div>
-        <div className="stat-item reveal"><div className="stat-num">01</div><div className="stat-label">FLAGSHIP IN DEV</div></div>
-        <div className="stat-item reveal"><div className="stat-num">BD</div><div className="stat-label">MADE IN BANGLADESH</div></div>
+      <div className="stats-strip" ref={statsRef}>
+        {STATS.map((s, i) => (
+          <div key={i} className="stat-item reveal">
+            <div className="stat-num" ref={el => { numRefs.current[i] = el; }}>
+              {"fixed" in s ? s.fixed : (("prefix" in s ? s.prefix : "") ?? "") + s.to + s.suffix}
+            </div>
+            <div className="stat-label">{s.label}</div>
+          </div>
+        ))}
       </div>
     </div>
   );

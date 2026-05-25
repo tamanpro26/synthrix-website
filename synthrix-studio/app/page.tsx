@@ -40,7 +40,7 @@ export default function StudioPage() {
         { threshold: 0.05 }
       );
       document.querySelectorAll(".reveal,.reveal-left,.reveal-right").forEach((el) => obs!.observe(el));
-    }, 420);
+    }, 80);
     return () => { clearTimeout(id); obs?.disconnect(); };
   }, [tab]);
 
