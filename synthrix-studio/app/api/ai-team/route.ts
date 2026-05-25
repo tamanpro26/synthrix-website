@@ -1,20 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const maxDuration = 60;
+
 const BASE    = "https://openrouter.ai/api/v1/chat/completions";
 const REFERER = "https://synthrix-website.vercel.app";
 
-/* Primary model + fallback per specialist — verified free on OpenRouter as of May 2026 */
-const TEAM: Record<string, { id: string; fallback: string; role: string }> = {
-  ORACLE:  { id: "google/gemma-4-31b-it:free",                        fallback: "deepseek/deepseek-v4-flash:free",               role: "Strategic Reasoning"       },
-  SCOUT:   { id: "deepseek/deepseek-v4-flash:free",                   fallback: "google/gemma-4-26b-a4b-it:free",                role: "Research & Context"        },
-  SAGE:    { id: "nvidia/nemotron-3-super-120b-a12b:free",            fallback: "google/gemma-4-31b-it:free",                    role: "Deep Reasoning"            },
-  FORGE:   { id: "deepseek/deepseek-v4-flash:free",                   fallback: "google/gemma-4-31b-it:free",                    role: "Technical & Code"          },
-  JUDGE:   { id: "arcee-ai/trinity-large-thinking:free",              fallback: "google/gemma-4-31b-it:free",                    role: "Critical Analysis"         },
-  HERALD:  { id: "google/gemma-4-26b-a4b-it:free",                    fallback: "deepseek/deepseek-v4-flash:free",               role: "Writing & Comms"           },
-  THINKER: { id: "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",fallback: "arcee-ai/trinity-large-thinking:free",          role: "Logic & Problem Solving"   },
-  SWIFT:   { id: "deepseek/deepseek-v4-flash:free",                   fallback: "google/gemma-4-26b-a4b-it:free",                role: "Quick Synthesis"           },
-  WEAVER:  { id: "google/gemma-4-31b-it:free",                        fallback: "baidu/cobuddy:free",                            role: "Creative Synthesis"        },
-  NEXUS:   { id: "deepseek/deepseek-v4-flash:free",                   fallback: "google/gemma-4-31b-it:free",                    role: "Code Review & Integration" },
+/* Ordered by speed — first success wins */
+const FREE_MODELS = [
+  "deepseek/deepseek-v4-flash:free",
+  "google/gemma-4-26b-a4b-it:free",
+  "google/gemma-4-31b-it:free",
+  "baidu/cobuddy:free",
+];
+
+/* Specialist personas — shown in UI, all routed to best available model */
+const TEAM: Record<string, { role: string }> = {
+  ORACLE:  { role: "Strategic Reasoning"       },
+  SCOUT:   { role: "Research & Context"        },
+  SAGE:    { role: "Deep Reasoning"            },
+  FORGE:   { role: "Technical & Code"          },
+  JUDGE:   { role: "Critical Analysis"         },
+  HERALD:  { role: "Writing & Comms"           },
+  THINKER: { role: "Logic & Problem Solving"   },
+  SWIFT:   { role: "Quick Synthesis"           },
+  WEAVER:  { role: "Creative Synthesis"        },
+  NEXUS:   { role: "Code Review & Integration" },
 };
 
 const ROUTING: Record<string, string[]> = {
@@ -32,16 +42,15 @@ function detectTask(prompt: string): string {
   return "general";
 }
 
-async function callModel(
-  name: string,
+async function tryModel(
   modelId: string,
-  role: string,
-  systemPrompt: string,
   messages: { role: string; content: string }[],
-  apiKey: string
+  apiKey: string,
+  timeoutMs = 25000
 ): Promise<string> {
   const res = await fetch(BASE, {
     method: "POST",
+    signal: AbortSignal.timeout(timeoutMs),
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
@@ -50,92 +59,68 @@ async function callModel(
     },
     body: JSON.stringify({
       model: modelId,
-      messages: [
-        { role: "system", content: `You are ${name}, an AI specialist in ${role}. ${systemPrompt}` },
-        ...messages,
-      ],
-      max_tokens: 800,
+      messages,
+      max_tokens: 600,
       temperature: 0.72,
     }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({})) as { error?: { message?: string } };
-    throw new Error(`${name}: ${err?.error?.message ?? res.status}`);
+    throw new Error(`[${modelId}] ${err?.error?.message ?? res.status}`);
   }
   const data = await res.json() as { choices: { message: { content: string } }[] };
   return data.choices[0].message.content;
 }
 
-async function callWithFallback(
-  name: string,
-  systemPrompt: string,
-  messages: { role: string; content: string }[],
-  apiKey: string
-): Promise<string> {
-  const spec = TEAM[name];
-  try {
-    return await callModel(name, spec.id, spec.role, systemPrompt, messages, apiKey);
-  } catch {
-    return await callModel(name, spec.fallback, spec.role, systemPrompt, messages, apiKey);
-  }
-}
-
 export async function POST(req: NextRequest) {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
-    return NextResponse.json({ error: "OPENROUTER_API_KEY not configured. Add it to Vercel Environment Variables." }, { status: 500 });
+    return NextResponse.json(
+      { error: "OPENROUTER_API_KEY not set in Vercel Environment Variables." },
+      { status: 500 }
+    );
   }
 
-  const body = await req.json() as { prompt?: string; history?: { role: string; content: string }[]; systemContext?: string };
+  const body = await req.json() as {
+    prompt?: string;
+    history?: { role: string; content: string }[];
+    systemContext?: string;
+  };
   const { prompt, history = [], systemContext = "" } = body;
   if (!prompt?.trim()) return NextResponse.json({ error: "No prompt provided" }, { status: 400 });
 
   const taskType        = detectTask(prompt);
   const specialistNames = ROUTING[taskType];
-  const messages        = [...history.slice(-8), { role: "user", content: prompt }];
+  const lead            = specialistNames[0];
+  const leadRole        = TEAM[lead].role;
 
-  const results = await Promise.allSettled(
-    specialistNames.map((name) => callWithFallback(name, systemContext, messages, apiKey))
+  const messages = [
+    {
+      role: "system",
+      content: `You are ${lead}, an AI specialist in ${leadRole} for SYNTHRIX Studio — an indie game development studio. ${systemContext} Answer concisely and with a sharp, professional tone.`,
+    },
+    ...history.slice(-6),
+    { role: "user", content: prompt },
+  ];
+
+  const errors: string[] = [];
+  for (const modelId of FREE_MODELS) {
+    try {
+      const result = await tryModel(modelId, messages, apiKey);
+      return NextResponse.json({
+        result,
+        team: specialistNames.map((n) => ({ name: n, role: TEAM[n].role })),
+        synthesizer: lead,
+        taskType,
+        model: modelId,
+      });
+    } catch (e) {
+      errors.push(e instanceof Error ? e.message : String(e));
+    }
+  }
+
+  return NextResponse.json(
+    { error: `All models failed. ${errors.join(" | ")}` },
+    { status: 502 }
   );
-
-  const successes = results
-    .map((r, i) => r.status === "fulfilled" ? { name: specialistNames[i], content: r.value } : null)
-    .filter(Boolean) as { name: string; content: string }[];
-
-  if (successes.length === 0) {
-    const errors = results
-      .map((r, i) => r.status === "rejected" ? `${specialistNames[i]}: ${(r as PromiseRejectedResult).reason?.message}` : null)
-      .filter(Boolean).join(" | ");
-    return NextResponse.json({ error: `All team members failed. ${errors}` }, { status: 502 });
-  }
-
-  if (successes.length === 1) {
-    return NextResponse.json({
-      result: successes[0].content,
-      team: [{ name: successes[0].name, role: TEAM[successes[0].name].role }],
-      taskType,
-    });
-  }
-
-  const synthName  = specialistNames.includes("ORACLE") ? "THINKER" : "ORACLE";
-  const synthInput = successes.map((s) => `[${s.name} — ${TEAM[s.name].role}]:\n${s.content}`).join("\n\n---\n\n");
-
-  let finalResult: string;
-  try {
-    finalResult = await callWithFallback(
-      synthName,
-      "Synthesize the specialist responses below into one clear, complete answer. Remove redundancy, keep best insights. Maintain a sharp, futuristic tone fitting SYNTHRIX Studio.",
-      [{ role: "user", content: `Question: ${prompt}\n\nSpecialist inputs:\n${synthInput}` }],
-      apiKey
-    );
-  } catch {
-    finalResult = successes.sort((a, b) => b.content.length - a.content.length)[0].content;
-  }
-
-  return NextResponse.json({
-    result: finalResult,
-    team: successes.map((s) => ({ name: s.name, role: TEAM[s.name].role })),
-    synthesizer: synthName,
-    taskType,
-  });
 }
