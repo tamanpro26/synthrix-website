@@ -1,23 +1,26 @@
 "use client";
 
 const ROSTER = [
-  { id:"MENTOR",  name:"SKYARK",       skill:"MENTOR · GUIDANCE & OVERSIGHT",           unit:"mentor",   status:"RECRUITED", rp:null,  badge:"SENIOR ADVISOR",     key:null },
-  { id:"#101",    name:"LK PLAYZ",     skill:"GAME DEV · UNITY",                        unit:"syndicate",status:"RECRUITED", rp:null,  badge:null,                  key:null },
-  { id:"#102",    name:"WILD",         skill:"WEB DEV · NEXT.JS / REACT",               unit:"protocol", status:"RECRUITED", rp:"30",  badge:null,                  key:"SOLE WEB DEVELOPER" },
-  { id:"#103",    name:"HASAN-AYUB",   skill:"GAME DEV · UNITY",                        unit:"syndicate",status:"RECRUITED", rp:null,  badge:null,                  key:null },
-  { id:"#104",    name:"SURVIVAL74",   skill:"3D MODELLING · ASSET CREATION",           unit:"frontier", status:"RECRUITED", rp:null,  badge:null,                  key:null },
-  { id:"#105",    name:"PIYUSH",       skill:"GAME DEV · UNITY",                        unit:"syndicate",status:"RECRUITED", rp:null,  badge:null,                  key:null },
-  { id:"#106",    name:"PRANKEY",      skill:"GAME DESIGNER · LEVEL DESIGN",            unit:"division", status:"RECRUITED", rp:null,  badge:null,                  key:"SOLE GAME DESIGNER" },
-  { id:"#107",    name:"UNITYVERSE",   skill:"GAME DEV · UNITY",                        unit:"frontier", status:"RECRUITED", rp:null,  badge:null,                  key:null },
-  { id:"#108",    name:"LAZY ZONE",    skill:"GAME DEV · UNITY",                        unit:"frontier", status:"RECRUITED", rp:null,  badge:null,                  key:null },
-  { id:"#109",    name:"CHILL GUY",    skill:"GAME DEV · UNITY",                        unit:"syndicate",status:"RECRUITED", rp:null,  badge:null,                  key:null },
-  { id:"#110",    name:"LIGHT",        skill:"GAME DEV · UNITY",                        unit:"protocol", status:"RECRUITED", rp:null,  badge:null,                  key:null },
-  { id:"#111",    name:"SHADOWREN21",  skill:"GAME DEV · UNITY",                        unit:"axis",     status:"RECRUITED", rp:null,  badge:null,                  key:null },
-  { id:"#112",    name:"IGNITEASCND",  skill:"GAME DEV · UNITY",                        unit:"protocol", status:"RECRUITED", rp:null,  badge:null,                  key:null },
-  { id:"#113",    name:"JOTEEN1856",   skill:"GAME DEV · UNITY",                        unit:"axis",     status:"RECRUITED", rp:null,  badge:null,                  key:null },
-  { id:"#114",    name:"PROSOON",      skill:"GAME DEV · UNITY",                        unit:"axis",     status:"RECRUITED", rp:null,  badge:null,                  key:null },
-  { id:"#115",    name:"LEGENDHAPPYZ", skill:"GAME DEV · UNITY",                        unit:"axis",     status:"RECRUITED", rp:"2",   badge:null,                  key:null },
-  { id:"#116",    name:"UI_DANIAL",    skill:"GAME DEV · UNITY",                        unit:"syndicate",status:"RECRUITED", rp:null,  badge:null,                  key:null },
+  { id:"MENTOR",  name:"SKYARK",         skill:"MENTOR · GUIDANCE & OVERSIGHT",           unit:"mentor",   status:"RECRUITED", rp:null,  badge:"SENIOR ADVISOR",     key:null },
+  { id:"#101",    name:"LK PLAYZ",       skill:"GAME DEV · UNITY",                        unit:"syndicate",status:"RECRUITED", rp:null,  badge:null,                  key:null },
+  { id:"#102",    name:"TAMAN",          skill:"WEB DEV · NEXT.JS / REACT",               unit:"protocol", status:"RECRUITED", rp:"30",  badge:null,                  key:"SOLE WEB DEVELOPER" },
+  { id:"#103",    name:"HASAN-AYUB",     skill:"GAME DEV · UNITY",                        unit:"syndicate",status:"RECRUITED", rp:null,  badge:null,                  key:null },
+  { id:"#104",    name:"SURVIVAL74",     skill:"3D MODELLING · ASSET CREATION",           unit:"frontier", status:"RECRUITED", rp:null,  badge:null,                  key:null },
+  { id:"#105",    name:"PIYUSH",         skill:"GAME DEV · UNITY",                        unit:"syndicate",status:"RECRUITED", rp:null,  badge:null,                  key:null },
+  { id:"#106",    name:"PRANKEY",        skill:"GAME DESIGNER · LEVEL DESIGN",            unit:"division", status:"RECRUITED", rp:null,  badge:null,                  key:"SOLE GAME DESIGNER" },
+  { id:"#107",    name:"UNITYVERSE",     skill:"GAME DEV · UNITY",                        unit:"frontier", status:"RECRUITED", rp:null,  badge:null,                  key:null },
+  { id:"#108",    name:"LAZY ZONE",      skill:"GAME DEV · UNITY",                        unit:"frontier", status:"RECRUITED", rp:null,  badge:null,                  key:null },
+  { id:"#109",    name:"CHILL GUY",      skill:"GAME DEV · UNITY",                        unit:"syndicate",status:"RECRUITED", rp:null,  badge:null,                  key:null },
+  { id:"#110",    name:"LIGHT",          skill:"GAME DEV · UNITY",                        unit:"protocol", status:"RECRUITED", rp:null,  badge:null,                  key:null },
+  { id:"#111",    name:"SHADOWREN21",    skill:"GAME DEV · UNITY",                        unit:"axis",     status:"RECRUITED", rp:null,  badge:null,                  key:null },
+  { id:"#112",    name:"IGNITEASCXND",   skill:"GAME DEV · UNITY",                        unit:"protocol", status:"RECRUITED", rp:null,  badge:null,                  key:null },
+  { id:"#113",    name:"JOTEEN1856",     skill:"GAME DEV · UNITY",                        unit:"axis",     status:"RECRUITED", rp:null,  badge:null,                  key:null },
+  { id:"#114",    name:"PRASOON",        skill:"GAME DEV · UNITY",                        unit:"axis",     status:"RECRUITED", rp:null,  badge:null,                  key:null },
+  { id:"#115",    name:"LEGENDHAPPYZ",   skill:"GAME DEV · UNITY",                        unit:"axis",     status:"RECRUITED", rp:"2",   badge:null,                  key:null },
+  { id:"#116",    name:"UI_DANIAL",      skill:"GAME DEV · UNITY",                        unit:"syndicate",status:"RECRUITED", rp:null,  badge:null,                  key:null },
+  { id:"#117",    name:"FANG YUAN",      skill:"ARTIST · 2D / 3D ART",                   unit:"syndicate",status:"RECRUITED", rp:null,  badge:null,                  key:null },
+  { id:"#118",    name:"ZAMYAMTENZ124",  skill:"GAME DEV · UNITY / SOCIAL MEDIA",        unit:"division", status:"RECRUITED", rp:null,  badge:null,                  key:null },
+  { id:"#119",    name:"PRINCE_DBX",     skill:"VOICE ARTIST · AUDIO",                   unit:"axis",     status:"RECRUITED", rp:null,  badge:null,                  key:null },
 ];
 
 const LEGEND = [
@@ -107,7 +110,7 @@ export default function AboutView({ active }: { active: boolean }) {
             </div>
           </div>
           <div style={{ fontFamily:"'Share Tech Mono',monospace",fontSize:"9px",letterSpacing:"3px",color:"rgba(237,232,223,0.22)",marginTop:"14px",textAlign:"right" }}>
-            17 MEMBERS &nbsp;&middot;&nbsp; VANGUARD NETWORK &nbsp;&middot;&nbsp; SYNTHRIX STUDIOS
+            20 MEMBERS &nbsp;&middot;&nbsp; VANGUARD NETWORK &nbsp;&middot;&nbsp; SYNTHRIX STUDIOS
           </div>
         </div>
       </section>
