@@ -3,10 +3,10 @@ import { useEffect } from "react";
 import type { Tab } from "@/app/page";
 
 const GAMES = [
-  { title:"ESCAPE THE BRIDGE", genre:"ZOMBIE SURVIVAL · UNITY · FIRST PERSON", status:"LIVE",        color:"live", img:"https://img.itch.zone/aW1nLzIyOTExMzU0LnBuZw==/347x500/EotLYN.png",           href:"../games/escape-the-bridge/index.html", desc:"Zombie survival — survive the night, escape the bridge, face the undead." },
-  { title:"BOOM",              genre:"FPS ACTION · UNITY · HORROR",            status:"LIVE",        color:"live", img:"https://img.itch.zone/aW1nLzIzNTU4NjkyLnBuZw==/347x500/ggCuYf.png",            href:"../games/boom/index.html",              desc:"Fast-paced action. Minimal design, maximum impact." },
-  { title:"OVERDRIVE",         genre:"ARCADE SPEED · UNITY · ACTION",          status:"LIVE",        color:"live", img:"https://img.itch.zone/aW1nLzIzNDYxNTI3LmpwZw==/original/NLTnuO.jpg",           href:"../games/overdrive/index.html",         desc:"High-energy arcade built for speed. Push your reflexes to the limit." },
-  { title:"SYNTHPAD 2.0",      genre:"DEV TOOL · NOTEPAD · PORTABLE",          status:"LIVE",        color:"live", img:"https://img.itch.zone/aW1hZ2UvNDQwMjE5MC8yNjI0NjA1MS5wbmc=/794x1000/wMU1zn.png", href:"../games/synthpad-2/index.html",        desc:"Lightweight dev notepad. Fast, distraction-free, low-end friendly." },
+  { title:"ESCAPE THE BRIDGE", genre:"ZOMBIE SURVIVAL · UNITY · FIRST PERSON", status:"LIVE", color:"live", img:"https://img.itch.zone/aW1nLzIyOTExMzU0LnBuZw==/347x500/EotLYN.png",           href:"/games/escape-the-bridge", desc:"Zombie survival — survive the night, escape the bridge, face the undead." },
+  { title:"BOOM",              genre:"FPS ACTION · UNITY · HORROR",            status:"LIVE", color:"live", img:"https://img.itch.zone/aW1nLzIzNTU4NjkyLnBuZw==/347x500/ggCuYf.png",            href:"/games/boom",              desc:"Fast-paced action. Minimal design, maximum impact." },
+  { title:"OVERDRIVE",         genre:"ARCADE SPEED · UNITY · ACTION",          status:"LIVE", color:"live", img:"https://img.itch.zone/aW1nLzIzNDYxNTI3LmpwZw==/original/NLTnuO.jpg",           href:"/games/overdrive",         desc:"High-energy arcade built for speed. Push your reflexes to the limit." },
+  { title:"SYNTHPAD 2.0",      genre:"DEV TOOL · NOTEPAD · PORTABLE",          status:"LIVE", color:"live", img:"https://img.itch.zone/aW1hZ2UvNDQwMjE5MC8yNjI0NjA1MS5wbmc=/794x1000/wMU1zn.png", href:"/games/synthpad-2",        desc:"Lightweight dev notepad. Fast, distraction-free, low-end friendly." },
 ];
 
 export default function GamesView({ active, onSwitch }: { active: boolean; onSwitch: (t: Tab) => void }) {
