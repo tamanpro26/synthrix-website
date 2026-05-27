@@ -5,15 +5,17 @@ export const maxDuration = 60;
 const BASE    = "https://openrouter.ai/api/v1/chat/completions";
 const REFERER = "https://synthrix-website.vercel.app";
 
-/* Verified live on OpenRouter free tier — first success wins */
+/* All verified live free-tier models — raced in parallel, first success wins */
 const FREE_MODELS = [
   "deepseek/deepseek-v4-flash:free",
-  "google/gemma-4-26b-a4b-it:free",
   "google/gemma-4-31b-it:free",
+  "google/gemma-4-26b-a4b-it:free",
   "nvidia/nemotron-3-super-120b-a12b:free",
+  "poolside/laguna-m.1:free",
+  "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+  "baidu/cobuddy:free",
 ];
 
-/* Specialist personas — shown in UI, all routed to best available model */
 const TEAM: Record<string, { role: string }> = {
   ORACLE:  { role: "Strategic Reasoning"       },
   SCOUT:   { role: "Research & Context"        },
@@ -46,11 +48,10 @@ async function tryModel(
   modelId: string,
   messages: { role: string; content: string }[],
   apiKey: string,
-  timeoutMs = 25000
-): Promise<string> {
+): Promise<{ content: string; modelId: string }> {
   const res = await fetch(BASE, {
     method: "POST",
-    signal: AbortSignal.timeout(timeoutMs),
+    signal: AbortSignal.timeout(28000),
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
@@ -69,7 +70,9 @@ async function tryModel(
     throw new Error(`[${modelId}] ${err?.error?.message ?? res.status}`);
   }
   const data = await res.json() as { choices: { message: { content: string } }[] };
-  return data.choices[0].message.content;
+  const content = data.choices[0]?.message?.content;
+  if (!content) throw new Error(`[${modelId}] Empty response`);
+  return { content, modelId };
 }
 
 export async function POST(req: NextRequest) {
@@ -103,24 +106,24 @@ export async function POST(req: NextRequest) {
     { role: "user", content: prompt },
   ];
 
-  const errors: string[] = [];
-  for (const modelId of FREE_MODELS) {
-    try {
-      const result = await tryModel(modelId, messages, apiKey);
-      return NextResponse.json({
-        result,
-        team: specialistNames.map((n) => ({ name: n, role: TEAM[n].role })),
-        synthesizer: lead,
-        taskType,
-        model: modelId,
-      });
-    } catch (e) {
-      errors.push(e instanceof Error ? e.message : String(e));
-    }
+  try {
+    /* Race all models in parallel — first success returned immediately */
+    const { content, modelId } = await Promise.any(
+      FREE_MODELS.map(id => tryModel(id, messages, apiKey))
+    );
+    return NextResponse.json({
+      result: content,
+      team: specialistNames.map((n) => ({ name: n, role: TEAM[n].role })),
+      synthesizer: lead,
+      taskType,
+      model: modelId,
+    });
+  } catch (e) {
+    const aggErr = e as { errors?: unknown[] };
+    const errors = aggErr.errors?.map(String).join(" | ") ?? String(e);
+    return NextResponse.json(
+      { error: `All models failed. ${errors}` },
+      { status: 502 }
+    );
   }
-
-  return NextResponse.json(
-    { error: `All models failed. ${errors.join(" | ")}` },
-    { status: 502 }
-  );
 }
