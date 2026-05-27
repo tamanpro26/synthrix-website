@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 
 const ROSTER = [
   { id:"MENTOR",  name:"SKYARK",         skill:"MENTOR · GUIDANCE & OVERSIGHT",           unit:"mentor",   status:"RECRUITED", rp:null,  badge:"SENIOR ADVISOR",     key:null },
@@ -32,7 +33,18 @@ const LEGEND = [
   { unit:"mentor",    color:"rgba(245,166,35,0.9)",  label:"MENTOR / ADVISOR" },
 ];
 
+const FILTER_OPTIONS = [
+  { key: "all",       label: "ALL" },
+  { key: "syndicate", label: "SYNDICATE" },
+  { key: "protocol",  label: "PROTOCOL" },
+  { key: "frontier",  label: "FRONTIER" },
+  { key: "division",  label: "DIVISION" },
+  { key: "axis",      label: "AXIS" },
+  { key: "mentor",    label: "MENTOR" },
+];
+
 export default function AboutView({ active }: { active: boolean }) {
+  const [filter, setFilter] = useState("all");
   if (!active) return null;
   return (
     <div>
@@ -81,9 +93,21 @@ export default function AboutView({ active }: { active: boolean }) {
         <div className="roster-section reveal">
           <div className="sec-tag">VANGUARD NETWORK</div>
           <h2 className="sec-h2">TEAM <span style={{ color:"var(--orange)" }}>ROSTER</span></h2>
+          <div className="roster-filter">
+            {FILTER_OPTIONS.map(o => (
+              <button
+                key={o.key}
+                className={`rf-btn${filter === o.key ? " active" : ""}`}
+                onClick={() => setFilter(o.key)}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
           <div className="roster-grid">
             {ROSTER.map((m) => (
-              <div key={m.id} className={`r-unit-${m.unit}`}>
+              <div key={m.id} className={`r-unit-wrapper${filter !== "all" && m.unit !== filter ? " dimmed" : ""}`}>
+              <div className={`r-unit-${m.unit}`}>
                 <div className="r-card reveal">
                   {m.rp && <div className="r-rp">★ {m.rp} RP</div>}
                   <div className="r-head">
@@ -95,6 +119,7 @@ export default function AboutView({ active }: { active: boolean }) {
                   <div className="r-unit-tag">{m.badge || LEGEND.find(l=>l.unit===m.unit)?.label}</div>
                   {m.key && <div className="r-key-badge">{m.key}</div>}
                 </div>
+              </div>
               </div>
             ))}
           </div>

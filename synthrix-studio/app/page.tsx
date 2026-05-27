@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import Cursor from "@/components/Cursor";
 import Intro from "@/components/Intro";
 import Navbar from "@/components/Navbar";
+import UserAuth, { type SUser, getSession, endSession } from "@/components/UserAuth";
 import HomeView from "@/components/views/HomeView";
 import AboutView from "@/components/views/AboutView";
 import GamesView from "@/components/views/GamesView";
@@ -16,8 +17,12 @@ export type Tab = "home" | "about" | "games" | "downloads" | "news" | "join" | "
 const VALID_TABS: Tab[] = ["home","about","games","downloads","news","join","blog","achievements"];
 
 export default function StudioPage() {
-  const [ready, setReady] = useState(false);
-  const [tab, setTab]     = useState<Tab>("home");
+  const [ready, setReady]       = useState(false);
+  const [tab, setTab]           = useState<Tab>("home");
+  const [user, setUser]         = useState<SUser | null>(null);
+  const [authOpen, setAuthOpen] = useState(false);
+
+  useEffect(() => { setUser(getSession()); }, []);
 
   /* Hash-based navigation */
   useEffect(() => {
@@ -57,7 +62,13 @@ export default function StudioPage() {
       <Cursor />
       {!ready && <Intro onDone={() => setReady(true)} />}
       <div style={{ opacity: ready ? 1 : 0, transition: "opacity 0.5s" }}>
-        <Navbar active={tab} onSwitch={switchTab} />
+        <Navbar
+          active={tab}
+          onSwitch={switchTab}
+          user={user}
+          onLoginClick={() => setAuthOpen(true)}
+          onLogout={() => { endSession(); setUser(null); }}
+        />
         <main style={{ paddingTop: "68px" }}>
           <HomeView         active={tab === "home"}          onSwitch={switchTab} />
           <AboutView        active={tab === "about"} />
@@ -66,7 +77,7 @@ export default function StudioPage() {
           <NewsView         active={tab === "news"} />
           <JoinView         active={tab === "join"}          onSwitch={switchTab} />
           <BlogView         active={tab === "blog"} />
-          <AchievementsView active={tab === "achievements"} />
+          <AchievementsView active={tab === "achievements"} user={user} />
         </main>
         <footer>
           <div className="footer-wm" aria-hidden="true">SYNTHRIX</div>
@@ -88,6 +99,12 @@ export default function StudioPage() {
           </div>
         </footer>
       </div>
+      {authOpen && (
+        <UserAuth
+          onLogin={u => { setUser(u); setAuthOpen(false); }}
+          onClose={() => setAuthOpen(false)}
+        />
+      )}
     </>
   );
 }

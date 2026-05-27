@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
+import gsap from "gsap";
 import type { Tab } from "@/app/page";
 
 const STATS = [
@@ -14,24 +15,32 @@ export default function HomeView({ active, onSwitch }: { active: boolean; onSwit
   const statsRef  = useRef<HTMLDivElement>(null);
   const numRefs   = useRef<(HTMLDivElement | null)[]>([]);
 
-  /* Particle canvas */
+  /* Particle canvas with mouse repulsion */
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     let W = 0, H = 0, raf = 0;
+    let mouseX = -9999, mouseY = -9999;
     const resize = () => { W = canvas.width = canvas.offsetWidth; H = canvas.height = canvas.offsetHeight; };
     resize();
     window.addEventListener("resize", resize);
+    const onMouse = (e: MouseEvent) => {
+      const r = canvas.getBoundingClientRect();
+      mouseX = e.clientX - r.left; mouseY = e.clientY - r.top;
+    };
+    const onLeave = () => { mouseX = -9999; mouseY = -9999; };
+    window.addEventListener("mousemove", onMouse);
+    window.addEventListener("mouseleave", onLeave);
     const COLORS = ["rgba(245,166,35,","rgba(255,107,53,","rgba(0,201,184,"];
     type P = { x:number;y:number;size:number;speedY:number;speedX:number;life:number;maxLife:number;color:string;wobble:number;wobbleSpeed:number;reset():void };
     const particles: P[] = [];
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 55; i++) {
       const p = {} as P;
       p.reset = () => {
         p.x = Math.random()*W; p.y = H+10;
-        p.size = Math.random()*2+0.4; p.speedY = -(Math.random()*1+0.3); p.speedX = (Math.random()-.5)*.5;
+        p.size = Math.random()*2.2+0.4; p.speedY = -(Math.random()*1+0.3); p.speedX = (Math.random()-.5)*.5;
         p.life = 0; p.maxLife = Math.random()*160+80; p.color = COLORS[Math.floor(Math.random()*COLORS.length)];
         p.wobble = Math.random()*Math.PI*2; p.wobbleSpeed = (Math.random()-.5)*.05;
       };
@@ -43,6 +52,10 @@ export default function HomeView({ active, onSwitch }: { active: boolean; onSwit
       particles.forEach((p) => {
         p.life++; if (p.life>p.maxLife) p.reset();
         p.wobble+=p.wobbleSpeed; p.x+=p.speedX+Math.sin(p.wobble)*.35; p.y+=p.speedY;
+        /* mouse repulsion */
+        const dx = p.x - mouseX, dy = p.y - mouseY;
+        const d  = Math.sqrt(dx*dx + dy*dy);
+        if (d < 100 && d > 0) { const f = (100 - d) / 100 * 2.2; p.x += (dx/d)*f; p.y += (dy/d)*f; }
         const a = Math.sin((p.life/p.maxLife)*Math.PI)*.65;
         ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
         ctx.fillStyle=p.color+a+")"; ctx.fill();
@@ -50,8 +63,28 @@ export default function HomeView({ active, onSwitch }: { active: boolean; onSwit
       raf = requestAnimationFrame(loop);
     };
     loop();
-    return () => { window.removeEventListener("resize",resize); cancelAnimationFrame(raf); };
+    return () => {
+      window.removeEventListener("resize", resize);
+      window.removeEventListener("mousemove", onMouse);
+      window.removeEventListener("mouseleave", onLeave);
+      cancelAnimationFrame(raf);
+    };
   }, []);
+
+  /* GSAP hero letter slam */
+  useEffect(() => {
+    if (!active) return;
+    const tl = gsap.timeline({ delay: 0.85 });
+    tl.set(".htn-synth",  { opacity: 1, y: 0 })
+      .from(".htn-synth .hero-char", {
+        y: 110, opacity: 0, duration: 0.72, stagger: 0.055, ease: "expo.out",
+      }, "<")
+      .set(".htn-rix",    { opacity: 1, y: 0 }, "-=0.48")
+      .from(".htn-rix .hero-char", {
+        y: 110, opacity: 0, duration: 0.72, stagger: 0.06, ease: "expo.out",
+      }, "<");
+    return () => { tl.kill(); };
+  }, [active]);
 
   /* Count-up animation for stats strip */
   useEffect(() => {
@@ -135,8 +168,12 @@ export default function HomeView({ active, onSwitch }: { active: boolean; onSwit
         <div className="hero-content">
           <div className="hero-eyebrow">BANGLADESHI INDIE STUDIO &nbsp;&middot;&nbsp; EST. 2025</div>
           <div className="hero-title-wrap">
-            <span className="htn-line htn-synth">SYNTH</span>
-            <span className="htn-line htn-rix">RIX</span>
+            <span className="htn-line htn-synth">
+              {"SYNTH".split("").map((c, i) => <span key={i} className="hero-char">{c}</span>)}
+            </span>
+            <span className="htn-line htn-rix">
+              {"RIX".split("").map((c, i) => <span key={i} className="hero-char">{c}</span>)}
+            </span>
             <span className="htn-line htn-studio">S &nbsp; T &nbsp; U &nbsp; D &nbsp; I &nbsp; O</span>
           </div>
           <div className="hero-line" />

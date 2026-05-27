@@ -1,6 +1,7 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { Tab } from "@/app/page";
+import type { SUser } from "@/components/UserAuth";
 
 const NAV_LINKS: { id: Tab; label: string }[] = [
   { id: "home",          label: "HOME" },
@@ -13,9 +14,25 @@ const NAV_LINKS: { id: Tab; label: string }[] = [
   { id: "achievements",  label: "ACHIEVEMENTS" },
 ];
 
-export default function Navbar({ active, onSwitch }: { active: Tab; onSwitch: (t: Tab) => void }) {
-  const [scrolled, setScrolled] = useState(false);
-  const [open, setOpen]         = useState(false);
+const SCRAMBLE_CHARS = "!@#$%^&*_▓█▒░ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+export default function Navbar({
+  active,
+  onSwitch,
+  user,
+  onLoginClick,
+  onLogout,
+}: {
+  active: Tab;
+  onSwitch: (t: Tab) => void;
+  user?: SUser | null;
+  onLoginClick?: () => void;
+  onLogout?: () => void;
+}) {
+  const [scrolled,     setScrolled]     = useState(false);
+  const [open,         setOpen]         = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const cancelMapRef = useRef(new Map<Element, () => void>());
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 40);
@@ -23,7 +40,40 @@ export default function Navbar({ active, onSwitch }: { active: Tab; onSwitch: (t
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  const go = (t: Tab) => { onSwitch(t); setOpen(false); };
+  /* Close user menu on outside click */
+  useEffect(() => {
+    if (!userMenuOpen) return;
+    const close = (e: MouseEvent) => {
+      if (!(e.target as Element).closest?.(".nav-user")) setUserMenuOpen(false);
+    };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [userMenuOpen]);
+
+  const go = (t: Tab) => { onSwitch(t); setOpen(false); setUserMenuOpen(false); };
+
+  const startScramble = (el: HTMLElement, label: string) => {
+    cancelMapRef.current.get(el)?.();
+    let iter = 0;
+    const id = setInterval(() => {
+      el.textContent = label.split("").map((c, i) =>
+        c === " " ? " " : i < iter ? c : SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)]
+      ).join("");
+      if (iter >= label.length) {
+        clearInterval(id);
+        el.textContent = label;
+        cancelMapRef.current.delete(el);
+      }
+      iter += 0.38;
+    }, 28);
+    cancelMapRef.current.set(el, () => { clearInterval(id); el.textContent = label; });
+  };
+
+  const stopScramble = (el: HTMLElement, label: string) => {
+    cancelMapRef.current.get(el)?.();
+    cancelMapRef.current.delete(el);
+    el.textContent = label;
+  };
 
   return (
     <header className={scrolled ? "scrolled" : ""}>
@@ -39,6 +89,8 @@ export default function Navbar({ active, onSwitch }: { active: Tab; onSwitch: (t
             href={`#${link.id}`}
             className={`nav-a${active === link.id ? " nav-active" : ""}`}
             onClick={(e) => { e.preventDefault(); go(link.id); }}
+            onMouseEnter={e => startScramble(e.currentTarget, link.label)}
+            onMouseLeave={e => stopScramble(e.currentTarget, link.label)}
           >
             {link.label}
           </a>
@@ -55,6 +107,30 @@ export default function Navbar({ active, onSwitch }: { active: Tab; onSwitch: (t
         <a href="#join" className="nav-cta" onClick={(e) => { e.preventDefault(); go("join"); }}>
           ▶ APPLY NOW
         </a>
+
+        {user ? (
+          <div className="nav-user">
+            <button className="nav-user-btn" onClick={() => setUserMenuOpen(v => !v)}>
+              <span className="nav-user-dot" />
+              {user.display}
+            </button>
+            {userMenuOpen && (
+              <div className="nav-user-menu">
+                <div className="nu-item nu-head">
+                  {user.username} &nbsp;·&nbsp; ★{user.rp} RP
+                </div>
+                <button className="nu-item" onClick={() => { go("achievements"); }}>
+                  ACHIEVEMENTS
+                </button>
+                <button className="nu-item nu-danger" onClick={() => { onLogout?.(); setUserMenuOpen(false); }}>
+                  LOGOUT
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <button className="nav-login-btn" onClick={() => onLoginClick?.()}>▶ LOGIN</button>
+        )}
       </nav>
 
       {/* Mobile burger */}
@@ -81,6 +157,11 @@ export default function Navbar({ active, onSwitch }: { active: Tab; onSwitch: (t
               {link.label}
             </a>
           ))}
+          {!user && (
+            <button className="nav-login-btn" style={{ margin:"8px auto 16px" }} onClick={() => { onLoginClick?.(); setOpen(false); }}>
+              ▶ LOGIN
+            </button>
+          )}
         </div>
       )}
 
