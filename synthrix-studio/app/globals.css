@@ -497,3 +497,34 @@ footer{background:rgba(4,3,2,0.98);border-top:1px solid var(--bord);padding:50px
 .ach-uc-name{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;letter-spacing:3px;color:var(--white)}
 .ach-uc-meta{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--muted);margin-top:6px;line-height:2}
 .ach-uc-rp{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;color:rgba(245,166,35,0.72);margin-top:10px}
+
+/* ═══════════════════════════ GAME DETAIL PAGE ═══════════════════════════ */
+/* restore cursor on game pages — body:has(.gp-root) re-enables default cursor */
+body:has(.gp-root){cursor:auto!important}
+.gp-root,.gp-root *,.gp-root *::before,.gp-root *::after{cursor:auto!important}
+.gp-root a,.gp-root button,[download]{cursor:pointer!important}
+
+.gp-header{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 48px;background:rgba(7,7,7,0.88);border-bottom:1px solid rgba(245,166,35,0.12);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+
+.gp-title{animation:heroTitleGlitch 10s 2s ease-in-out infinite}
+
+.gp-scanline{position:absolute;inset:0;pointer-events:none;background-image:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.065) 2px,rgba(0,0,0,0.065) 3px);z-index:3}
+
+.gp-dl-btn{display:inline-block;position:relative;overflow:hidden;animation:neonPulse 2.6s ease-in-out infinite;transition:transform .2s,box-shadow .2s!important}
+.gp-dl-btn::before{content:'';position:absolute;top:0;left:-100%;width:55%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent);transform:skewX(-22deg);transition:left .55s}
+.gp-dl-btn:hover::before{left:160%}
+.gp-dl-btn:hover{transform:translateY(-2px);box-shadow:0 0 52px rgba(232,58,10,0.70)!important}
+
+.gp-stat-card{transition:transform .22s,border-color .22s,box-shadow .22s}
+.gp-stat-card:hover{transform:translateY(-5px);border-color:rgba(245,166,35,0.42)!important;box-shadow:0 0 22px rgba(245,166,35,0.16)}
+.gp-stat-card:hover .gp-stat-label{color:rgba(245,166,35,0.65)!important}
+
+.gp-tag{transition:all .15s ease;cursor:default}
+.gp-tag:hover{background:rgba(255,107,53,0.15)!important;border-color:rgba(255,107,53,0.52)!important;color:var(--orange)!important;transform:translateY(-1px)}
+
+.gp-ticker-wrap{overflow:hidden;border-top:1px solid rgba(245,166,35,0.15);border-bottom:1px solid rgba(245,166,35,0.15);background:rgba(245,166,35,0.025)}
+.gp-ticker-track{display:inline-flex;white-space:nowrap;animation:gpMarquee 26s linear infinite}
+@keyframes gpMarquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.gp-dot-pulse{animation:gpDotPulse 1.3s ease-in-out infinite}
+@keyframes gpDotPulse{0%,100%{opacity:1;color:var(--orange)}50%{opacity:0.22;color:var(--red)}}
