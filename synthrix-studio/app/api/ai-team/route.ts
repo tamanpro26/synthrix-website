@@ -5,12 +5,12 @@ export const maxDuration = 60;
 const BASE    = "https://openrouter.ai/api/v1/chat/completions";
 const REFERER = "https://synthrix-website.vercel.app";
 
-/* Ordered by reliability — first success wins */
+/* Verified live on OpenRouter free tier — first success wins */
 const FREE_MODELS = [
-  "deepseek/deepseek-r1:free",
-  "deepseek/deepseek-v3:free",
-  "google/gemma-2-9b-it:free",
-  "meta-llama/llama-3.2-3b-instruct:free",
+  "deepseek/deepseek-v4-flash:free",
+  "google/gemma-4-26b-a4b-it:free",
+  "google/gemma-4-31b-it:free",
+  "nvidia/nemotron-3-super-120b-a12b:free",
 ];
 
 /* Specialist personas — shown in UI, all routed to best available model */
