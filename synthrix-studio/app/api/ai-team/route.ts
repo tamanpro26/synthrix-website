@@ -243,6 +243,25 @@ async function withFallback(
 }
 
 export async function POST(req: NextRequest) {
+  const pythonUrl = process.env.PYTHON_AI_URL;
+  const rawBody   = await req.text();
+
+  /* ── Proxy to Python backend when configured ── */
+  if (pythonUrl) {
+    try {
+      const pyRes = await fetch(`${pythonUrl}/api/ai-team`, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    rawBody,
+        signal:  AbortSignal.timeout(55000),
+      });
+      const pyData = await pyRes.json();
+      return NextResponse.json(pyData, { status: pyRes.status });
+    } catch {
+      /* Python backend unreachable — fall through to direct OpenRouter */
+    }
+  }
+
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
@@ -251,7 +270,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const body = await req.json() as {
+  const body = JSON.parse(rawBody) as {
     prompt?: string;
     history?: { role: string; content: string }[];
     systemContext?: string;
