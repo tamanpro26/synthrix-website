@@ -5,6 +5,7 @@ const SALT="SX_MC_SALT_V2_2026",SKEY="sx_mc_ses",EKEY="sx_users_v2",ADKEY="sx_ad
 const AKEY="sx_announcements",PKEY="sx_posts",GKEY="sx_custom_games",CKEY="sx_custom_achievements";
 const MSGKEY="sx_messages",THKEY="sx_theme",NEKEY="sx_nav_items",ANKEY="sx_analytics";
 const PBKEY="sx_pages",SNKEY="sx_snippets",FKEY="sx_mc_fails",LKEY="sx_mc_lock";
+const AHKEY="sx_ai_history";
 const MAX=5, WAIT=15*60*1000;
 
 const ADMIN_DB=[
@@ -690,12 +691,33 @@ const AI_ACTIONS=[
   {ico:"🚀",label:"RELEASE NOTES",key:"release_notes"},{ico:"📖",label:"LORE / UNIVERSE",key:"lore_entry"},
 ];
 type ChatMsg={role:string;content:string};
+type ChatSession={id:string;ts:number;preview:string;msgs:ChatMsg[]};
 function PanelAI({notify:_n}:{notify:(m:string)=>void}){
   const [hist,setHist]=useState<ChatMsg[]>([]);
   const [input,setInput]=useState("");
   const [thinking,setThinking]=useState(false);
+  const [view,setView]=useState<"chat"|"history">("chat");
+  const [sessions,setSessions]=useState<ChatSession[]>([]);
   const chatRef=useRef<HTMLDivElement>(null);
+  const sidRef=useRef<string>(Date.now().toString());
+
+  useEffect(()=>{setSessions(ls<ChatSession[]>(AHKEY,[]));},[]);
   useEffect(()=>{if(chatRef.current)chatRef.current.scrollTop=chatRef.current.scrollHeight;},[hist,thinking]);
+
+  function saveSession(msgs:ChatMsg[]){
+    if(msgs.length<2)return;
+    const sid=sidRef.current;
+    const preview=msgs.find(m=>m.role==="user")?.content.slice(0,72)||"";
+    setSessions(prev=>{
+      const idx=prev.findIndex(s=>s.id===sid);
+      const entry:ChatSession={id:sid,ts:Date.now(),preview,msgs};
+      const next=idx>=0?prev.map((s,i)=>i===idx?entry:s):[entry,...prev];
+      const trimmed=next.slice(0,60);
+      lsSet(AHKEY,trimmed);
+      return trimmed;
+    });
+  }
+
   async function send(prompt?:string){
     const msg=(prompt||input).trim();
     if(!msg||thinking)return;
@@ -705,10 +727,29 @@ function PanelAI({notify:_n}:{notify:(m:string)=>void}){
     try{
       const res=await fetch("/api/ai-team",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:msg,history:nh.slice(-10)})});
       const data=await res.json() as {result?:string;error?:string};
-      setHist(h=>[...h,{role:"assistant",content:data.result||data.error||"No response."}]);
+      const final=[...nh,{role:"assistant",content:data.result||data.error||"No response."}];
+      setHist(final);
+      saveSession(final);
     }catch(e){setHist(h=>[...h,{role:"assistant",content:`Error: ${(e as Error).message}`}]);}
     setThinking(false);
   }
+
+  function newChat(){
+    setHist([]);setInput("");
+    sidRef.current=Date.now().toString();
+  }
+
+  function loadSession(s:ChatSession){
+    setHist(s.msgs);
+    sidRef.current=s.id;
+    setView("chat");
+  }
+
+  function deleteSession(id:string,e:React.MouseEvent){
+    e.stopPropagation();
+    setSessions(prev=>{const u=prev.filter(s=>s.id!==id);lsSet(AHKEY,u);return u;});
+  }
+
   function aiAction(key:string){
     const prompts:Record<string,string>={
       blog_post:"Write a professional blog post for Synthrix Studio, an indie game studio. Include a catchy title, intro, body, and conclusion.",
@@ -720,81 +761,136 @@ function PanelAI({notify:_n}:{notify:(m:string)=>void}){
       release_notes:"Write release notes for a new Synthrix Studio game update. Include new features, fixes, and improvements.",
       lore_entry:"Write a lore entry for the Synthrix universe. Create compelling world-building content.",
     };
+    setView("chat");
     send(prompts[key]);
   }
+
   return (
     <div>
-      <div className="p-tag">// SYNTHRIX AI TEAM — 10 SPECIALIST MODELS · BACKEND-SECURED · AUTO-ROUTING</div>
+      <div className="p-tag">// SYNTHRIX AI TEAM — 15 SPECIALIST MODELS · LANGCHAIN AGENTS · AUTO-ROUTING</div>
       <div className="p-title">AI <span>TEAM</span></div>
-      <div className="card" style={{marginBottom:"12px"}}>
-        <div className="card-title">// ACTIVE TEAM — TASK IS AUTO-ROUTED TO 3 SPECIALISTS + SYNTHESIZER</div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:"8px",marginTop:"8px"}}>
-          {AI_TEAM.map(t=>(
-            <div key={t.name} className="ai-team-card">
-              <span className="ai-team-name">{t.name}</span>
-              <span className="ai-team-role">{t.role}</span>
-              <span className="ai-team-tag">{t.tag}</span>
-            </div>
-          ))}
+
+      {/* ── view switcher ── */}
+      <div className="ai-view-bar">
+        <div style={{display:"flex",gap:"6px"}}>
+          <button className={`msg-tab${view==="chat"?" on":""}`} onClick={()=>setView("chat")}>⚡ CHAT</button>
+          <button className={`msg-tab${view==="history"?" on":""}`} onClick={()=>setView("history")}>
+            📋 HISTORY{sessions.length>0?` (${sessions.length})`:""}
+          </button>
         </div>
+        {hist.length>0&&(
+          <button className="btn" style={{fontSize:"8px",padding:"4px 12px",letterSpacing:"2px"}} onClick={newChat}>+ NEW CHAT</button>
+        )}
       </div>
-      <div className="card" style={{marginBottom:"12px"}}>
-        <div className="card-title">// QUICK ACTIONS — AI WILL GENERATE &amp; LET YOU APPLY WITH ONE CLICK</div>
-        <div className="ai-actions-grid">
-          {AI_ACTIONS.map(a=>(
-            <button key={a.key} className="ai-act-btn" onClick={()=>aiAction(a.key)}>
-              <span className="ai-act-ico">{a.ico}</span>{a.label}
-            </button>
-          ))}
+
+      {/* ══ CHAT VIEW ══ */}
+      {view==="chat"&&(<>
+        <div className="card" style={{marginBottom:"12px"}}>
+          <div className="card-title">// ACTIVE TEAM — TASK IS AUTO-ROUTED TO 3 SPECIALISTS + SYNTHESIZER</div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:"8px",marginTop:"8px"}}>
+            {AI_TEAM.map(t=>(
+              <div key={t.name} className="ai-team-card">
+                <span className="ai-team-name">{t.name}</span>
+                <span className="ai-team-role">{t.role}</span>
+                <span className="ai-team-tag">{t.tag}</span>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-      <div className="card" style={{marginBottom:0}}>
-        <div className="card-title">// AI CHAT — DESCRIBE WHAT YOU NEED</div>
-        <div className="ai-chat" ref={chatRef}>
-          {hist.length===0&&(
-            <div style={{textAlign:"center",padding:"60px 20px",fontSize:"9px",letterSpacing:"3px",color:"rgba(226,232,228,0.22)",lineHeight:"2.5"}}>
-              ⚡ AI TEAM READY<br/>
-              <span>Select a quick action or type — 3 specialists auto-assigned per task</span><br/>
-              <span style={{color:"rgba(139,92,246,0.50)"}}>ORACLE · SCOUT · SAGE · FORGE · JUDGE · HERALD · THINKER · SWIFT · WEAVER · NEXUS</span>
-            </div>
-          )}
-          {hist.map((m,i)=>(
-            <div key={i} className={`ai-msg ${m.role==="user"?"user":"ai"}`}>
-              <div className="ai-msg-avatar">{m.role==="user"?"👤":"⚡"}</div>
-              <div className="ai-msg-bubble">{m.content}</div>
-            </div>
-          ))}
-          {thinking&&(
-            <div className="ai-msg ai">
-              <div className="ai-msg-avatar">🤖</div>
-              <div className="ai-msg-bubble" style={{flex:1}}>
-                <div className="ai-thinking-wrap">
-                  <div className="ai-think-top">
-                    <div className="ai-think-icon">⚙️</div>
-                    <div className="ai-think-text-col">
-                      <div className="ai-think-label">AI TEAM WORKING</div>
-                      <div className="ai-think-status">ROUTING TO SPECIALISTS...</div>
+        <div className="card" style={{marginBottom:"12px"}}>
+          <div className="card-title">// QUICK ACTIONS — AI WILL GENERATE &amp; LET YOU APPLY WITH ONE CLICK</div>
+          <div className="ai-actions-grid">
+            {AI_ACTIONS.map(a=>(
+              <button key={a.key} className="ai-act-btn" onClick={()=>aiAction(a.key)}>
+                <span className="ai-act-ico">{a.ico}</span>{a.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="card" style={{marginBottom:0}}>
+          <div className="card-title">// AI CHAT — DESCRIBE WHAT YOU NEED</div>
+          <div className="ai-chat" ref={chatRef}>
+            {hist.length===0&&(
+              <div style={{textAlign:"center",padding:"60px 20px",fontSize:"9px",letterSpacing:"3px",color:"rgba(226,232,228,0.22)",lineHeight:"2.5"}}>
+                ⚡ AI TEAM READY<br/>
+                <span>Select a quick action or type — specialists auto-assigned per task</span><br/>
+                <span style={{color:"rgba(139,92,246,0.50)"}}>ORACLE · SCOUT · SAGE · FORGE · JUDGE · HERALD · THINKER · SWIFT · WEAVER · NEXUS</span>
+              </div>
+            )}
+            {hist.map((m,i)=>(
+              <div key={i} className={`ai-msg ${m.role==="user"?"user":"ai"}`}>
+                <div className="ai-msg-avatar">{m.role==="user"?"👤":"⚡"}</div>
+                <div className="ai-msg-bubble">{m.content}</div>
+              </div>
+            ))}
+            {thinking&&(
+              <div className="ai-msg ai">
+                <div className="ai-msg-avatar">🤖</div>
+                <div className="ai-msg-bubble" style={{flex:1}}>
+                  <div className="ai-thinking-wrap">
+                    <div className="ai-think-top">
+                      <div className="ai-think-icon">⚙️</div>
+                      <div className="ai-think-text-col">
+                        <div className="ai-think-label">AI TEAM WORKING</div>
+                        <div className="ai-think-status">ROUTING TO SPECIALISTS...</div>
+                      </div>
+                      <div className="ai-think-bars">
+                        <div className="ai-think-bar"/><div className="ai-think-bar"/>
+                        <div className="ai-think-bar"/><div className="ai-think-bar"/>
+                        <div className="ai-think-bar"/><div className="ai-think-bar"/>
+                        <div className="ai-think-bar"/>
+                      </div>
                     </div>
-                    <div className="ai-think-bars">
-                      <div className="ai-think-bar"/><div className="ai-think-bar"/>
-                      <div className="ai-think-bar"/><div className="ai-think-bar"/>
-                      <div className="ai-think-bar"/><div className="ai-think-bar"/>
-                      <div className="ai-think-bar"/>
-                    </div>
+                    <div className="ai-think-scan-wrap"><div className="ai-think-scan"/></div>
                   </div>
-                  <div className="ai-think-scan-wrap"><div className="ai-think-scan"/></div>
                 </div>
               </div>
+            )}
+          </div>
+          <div className="ai-input-row" style={{marginTop:"10px"}}>
+            <textarea className="ai-textarea" rows={2} placeholder="Ask the AI anything..." value={input}
+              onChange={e=>setInput(e.target.value)}
+              onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}}/>
+            <button className="ai-send-btn" onClick={()=>send()} disabled={thinking}>SEND</button>
+          </div>
+        </div>
+      </>)}
+
+      {/* ══ HISTORY VIEW ══ */}
+      {view==="history"&&(
+        <div className="card" style={{marginBottom:0}}>
+          <div className="card-title" style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <span>// CHAT HISTORY — {sessions.length} SESSION{sessions.length!==1?"S":""}</span>
+            {sessions.length>0&&(
+              <button className="btn d" style={{fontSize:"8px",padding:"3px 10px"}}
+                onClick={()=>{setSessions([]);lsSet(AHKEY,[]);}}>CLEAR ALL</button>
+            )}
+          </div>
+          {sessions.length===0?(
+            <div style={{padding:"60px 20px",textAlign:"center",fontSize:"9px",letterSpacing:"3px",color:"rgba(226,232,228,0.20)",lineHeight:"2.2"}}>
+              📋 NO SAVED SESSIONS<br/>
+              <span style={{fontSize:"8px"}}>Conversations are auto-saved after each AI response</span>
+            </div>
+          ):(
+            <div className="ai-hist-list">
+              {sessions.map((s,i)=>(
+                <div key={s.id} className="ai-hist-row" onClick={()=>loadSession(s)}>
+                  <div className="ai-hist-idx">#{String(i+1).padStart(2,"0")}</div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div className="ai-hist-preview">{s.preview}</div>
+                    <div className="ai-hist-meta">
+                      <span>{new Date(s.ts).toLocaleDateString()} {new Date(s.ts).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}</span>
+                      <span className="ai-hist-dot">·</span>
+                      <span>{Math.floor(s.msgs.length/2)} exchange{Math.floor(s.msgs.length/2)!==1?"s":""}</span>
+                    </div>
+                  </div>
+                  <button className="ai-hist-del" onClick={e=>deleteSession(s.id,e)} title="Delete">✕</button>
+                </div>
+              ))}
             </div>
           )}
         </div>
-        <div className="ai-input-row" style={{marginTop:"10px"}}>
-          <textarea className="ai-textarea" rows={2} placeholder="Ask the AI anything..." value={input}
-            onChange={e=>setInput(e.target.value)}
-            onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}}/>
-          <button className="ai-send-btn" onClick={()=>send()} disabled={thinking}>SEND</button>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
