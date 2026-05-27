@@ -69,7 +69,7 @@ body:has(.mc-root){cursor:auto!important}
 @keyframes sdot{0%,100%{opacity:1}50%{opacity:.3}}
 .mc-root .sb-uname{font-size:10px;letter-spacing:2px;color:rgba(34,197,94,0.82)}
 .mc-root .sb-urole{font-size:7px;letter-spacing:2px;color:var(--muted)}
-.mc-root nav.sb-nav{flex:1;padding:10px 0}
+.mc-root nav.sb-nav{flex:1;padding:10px 0;display:flex;flex-direction:column;align-items:stretch;gap:0}
 .mc-root .sb-item{display:flex;align-items:center;gap:11px;padding:11px 20px;font-size:9px;letter-spacing:3px;color:var(--muted);cursor:pointer;transition:background .2s,color .2s,border-color .2s;border-left:2px solid transparent;background:none;border-top:none;border-right:none;border-bottom:none;width:100%;text-align:left;font-family:'Courier New',monospace;white-space:nowrap;overflow:hidden}
 .mc-root .sb-item:hover{background:rgba(34,197,94,0.05);color:var(--white)}
 .mc-root .sb-item.on{color:var(--green);border-left-color:var(--green);background:rgba(34,197,94,0.07)}
