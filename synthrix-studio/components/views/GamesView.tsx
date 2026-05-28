@@ -1,15 +1,47 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { Tab } from "@/app/page";
 
-const GAMES = [
+const STATIC_GAMES = [
   { title:"ESCAPE THE BRIDGE", genre:"ZOMBIE SURVIVAL · UNITY · FIRST PERSON", status:"LIVE", color:"live", img:"https://img.itch.zone/aW1nLzIyOTExMzU0LnBuZw==/347x500/EotLYN.png",           href:"/games/escape-the-bridge", desc:"Zombie survival — survive the night, escape the bridge, face the undead." },
   { title:"BOOM",              genre:"FPS ACTION · UNITY · HORROR",            status:"LIVE", color:"live", img:"https://img.itch.zone/aW1nLzIzNTU4NjkyLnBuZw==/347x500/ggCuYf.png",            href:"/games/boom",              desc:"Fast-paced action. Minimal design, maximum impact." },
   { title:"OVERDRIVE",         genre:"ARCADE SPEED · UNITY · ACTION",          status:"LIVE", color:"live", img:"https://img.itch.zone/aW1nLzIzNDYxNTI3LmpwZw==/original/NLTnuO.jpg",           href:"/games/overdrive",         desc:"High-energy arcade built for speed. Push your reflexes to the limit." },
   { title:"SYNTHPAD 2.0",      genre:"DEV TOOL · NOTEPAD · PORTABLE",          status:"LIVE", color:"live", img:"https://img.itch.zone/aW1hZ2UvNDQwMjE5MC8yNjI0NjA1MS5wbmc=/794x1000/wMU1zn.png", href:"/games/synthpad-2",        desc:"Lightweight dev notepad. Fast, distraction-free, low-end friendly." },
 ];
 
+type AdminGame = { id:string; title:string; genre:string; desc:string; platform:string; status:string; link:string; size:string; thumb:string };
+
+const STATUS_MAP: Record<string,{label:string;color:string}> = {
+  live:  { label:"LIVE",         color:"live" },
+  dev:   { label:"IN DEV",       color:"dev"  },
+  beta:  { label:"BETA",         color:"live" },
+  soon:  { label:"COMING SOON",  color:"dev"  },
+};
+
 export default function GamesView({ active, onSwitch }: { active: boolean; onSwitch: (t: Tab) => void }) {
+  const [customGames, setCustomGames] = useState<AdminGame[]>([]);
+
+  /* Load custom games added via internal admin panel */
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("sx_custom_games");
+      if (raw) setCustomGames(JSON.parse(raw) as AdminGame[]);
+    } catch { /* ignore parse errors */ }
+  }, []);
+
+  const GAMES = [
+    ...STATIC_GAMES,
+    ...customGames.map(g => ({
+      title:  g.title,
+      genre:  g.genre || "CUSTOM",
+      status: STATUS_MAP[g.status]?.label ?? "LIVE",
+      color:  STATUS_MAP[g.status]?.color ?? "live",
+      img:    g.thumb || "",
+      href:   g.link  || "#",
+      desc:   g.desc  || "",
+    })),
+  ];
+
   /* Shutter-reveal for cards */
   useEffect(() => {
     const obs = new IntersectionObserver(
@@ -18,7 +50,7 @@ export default function GamesView({ active, onSwitch }: { active: boolean; onSwi
     );
     document.querySelectorAll(".gcard").forEach((el) => obs.observe(el));
     return () => obs.disconnect();
-  }, [active]);
+  }, [active, customGames]);
 
   if (!active) return null;
   return (
@@ -37,7 +69,7 @@ export default function GamesView({ active, onSwitch }: { active: boolean; onSwi
               <div className="gc-st" style={{ position:"relative",top:"auto",left:"auto",display:"inline-flex",marginBottom:"20px" }}>
                 <span className="sdot dev" /><span style={{ color:"var(--gold)" }}>IN DEVELOPMENT</span>
               </div>
-              <a href="../index.html" className="gc-link">→ VIEW ON GAME LAB</a>
+              <a href="/games/rhinos-last-protocol" className="gc-link">→ LEARN MORE</a>
             </div>
             <div className="gc-img" style={{ background:"linear-gradient(135deg,#120800,#0a1a14,#1a0d00)" }}>
               <div style={{ position:"absolute",inset:0,backgroundImage:"repeating-linear-gradient(0deg,transparent,transparent 28px,rgba(245,166,35,0.05) 28px,rgba(245,166,35,0.05) 29px),repeating-linear-gradient(90deg,transparent,transparent 28px,rgba(0,201,184,0.04) 28px,rgba(0,201,184,0.04) 29px)" }} />
