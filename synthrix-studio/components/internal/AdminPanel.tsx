@@ -22,7 +22,22 @@ function ls<T>(k:string,fb:T):T{
   if(typeof window==="undefined")return fb;
   try{const v=localStorage.getItem(k);return v?JSON.parse(v):fb;}catch{return fb;}
 }
-function lsSet(k:string,v:unknown){if(typeof window!=="undefined")localStorage.setItem(k,JSON.stringify(v));}
+function lsSet(k:string,v:unknown){
+  if(typeof window==="undefined")return;
+  localStorage.setItem(k,JSON.stringify(v));
+  /* Background sync to Python backend — never blocks UI */
+  fetch("/api/internal/store",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({key:k,value:v})}).catch(()=>{});
+}
+async function bootstrapFromBackend(){
+  try{
+    const res=await fetch("/api/internal/store",{signal:AbortSignal.timeout(5000)});
+    if(!res.ok)return;
+    const all=await res.json() as Record<string,unknown>;
+    /* Restore all sx_ keys — skip security / session keys */
+    const skip=new Set([SKEY,FKEY,LKEY,"sx_login_count","sx_achievements"]);
+    Object.entries(all).forEach(([k,v])=>{if(k.startsWith("sx_")&&!skip.has(k))localStorage.setItem(k,JSON.stringify(v));});
+  }catch{/* backend not deployed yet — fine */}
+}
 
 type Phase="boot"|"login"|"dashboard";
 type Panel="overview"|"ai"|"messages"|"employees"|"roster"|"announce"|"games"|"achievements"|"posts"|"editor"|"pagebuilder"|"naveditor"|"theme"|"analytics"|"roles"|"database"|"controls";
@@ -96,6 +111,8 @@ export default function AdminPanel(){
     if(lc===1)ua("logged_in","ACCESS GRANTED","🔐","First access to Mission Control.");
     if(lc>=2) ua("comeback","RETURNING SIGNAL","📡","Logged in more than once.");
     if(lc>=5) ua("dedicated","SWORN OPERATOR","⚔️","Five or more logins. True dedication.");
+    /* Pull latest data from backend into localStorage */
+    bootstrapFromBackend();
   }
 
   async function doLogin(){
@@ -388,40 +405,166 @@ function PanelEmployees({notify}:{notify:(m:string)=>void}){
 }
 
 /* ═══════════════════════════ ROSTER ════════════════════════════════ */
+type RosterMember={id:string;name:string;role:string;unit:string;rp:number;status:string;notes:string;joined:string};
+const RP_PRESETS=[5,10,25,50];
+const STATUS_COLORS:Record<string,string>={active:"var(--green)",inactive:"var(--muted)",on_leave:"var(--gold)",suspended:"var(--red)"};
 function PanelRoster({notify}:{notify:(m:string)=>void}){
-  const [rn,setRn]=useState("");const [rf,setRf]=useState("rp");const [rv,setRv]=useState("");
-  const [log,setLog]=useState<{name:string;field:string;val:string;time:string}[]>([]);
-  function logChange(){
-    if(!rn||!rv){notify("FILL ALL FIELDS");return;}
-    setLog(l=>[...l,{name:rn,field:rf,val:rv,time:new Date().toLocaleTimeString()}]);
-    notify("CHANGE LOGGED");setRn("");setRv("");
+  const [members,setMembers]=useState<RosterMember[]>([]);
+  const [loading,setLoading]=useState(true);
+  const [adding,setAdding]=useState(false);
+  const [editId,setEditId]=useState<string|null>(null);
+  const [nm,setNm]=useState("");const [nr,setNr]=useState("");
+  const [nu,setNu]=useState("");const [ns,setNs]=useState("active");const [nn,setNn]=useState("");
+  const [err,setErr]=useState("");
+  const [rpDelta,setRpDelta]=useState(10);const [search,setSearch]=useState("");
+
+  async function load(){
+    try{
+      const res=await fetch("/api/internal/roster",{signal:AbortSignal.timeout(5000)});
+      if(res.ok){const data=await res.json() as RosterMember[];setMembers(data);lsSet("sx_roster",data);return;}
+    }catch{}
+    setMembers(ls<RosterMember[]>("sx_roster",[]));
   }
+  useEffect(()=>{load().finally(()=>setLoading(false));},[]);
+
+  async function addMember(){
+    setErr("");if(!nm.trim())return setErr("NAME REQUIRED");
+    const payload={name:nm.trim().toUpperCase(),role:nr.trim().toUpperCase(),unit:nu.trim().toUpperCase(),status:ns,notes:nn.trim(),rp:0};
+    try{
+      const res=await fetch("/api/internal/roster",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+      if(res.ok){const m=await res.json() as RosterMember;const upd=[...members,m];setMembers(upd);lsSet("sx_roster",upd);notify("MEMBER ADDED");resetForm();return;}
+    }catch{}
+    const local:RosterMember={id:Date.now().toString(),...payload,joined:new Date().toISOString()};
+    const upd=[...members,local];setMembers(upd);lsSet("sx_roster",upd);notify("MEMBER ADDED (LOCAL)");resetForm();
+  }
+
+  function resetForm(){setNm("");setNr("");setNu("");setNs("active");setNn("");setAdding(false);setEditId(null);}
+
+  function startEdit(m:RosterMember){setEditId(m.id);setNm(m.name);setNr(m.role);setNu(m.unit);setNs(m.status);setNn(m.notes);setAdding(false);}
+
+  async function saveEdit(){
+    if(!editId)return;
+    const changes={name:nm.trim().toUpperCase(),role:nr.trim().toUpperCase(),unit:nu.trim().toUpperCase(),status:ns,notes:nn.trim()};
+    fetch(`/api/internal/roster/${editId}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(changes)}).catch(()=>{});
+    const upd=members.map(m=>m.id===editId?{...m,...changes}:m);setMembers(upd);lsSet("sx_roster",upd);notify("MEMBER UPDATED");resetForm();
+  }
+
+  async function adjustRP(id:string,delta:number){
+    try{
+      const res=await fetch(`/api/internal/roster/${id}/rp`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({delta})});
+      if(res.ok){const {rp}=await res.json() as {rp:number};const upd=members.map(m=>m.id===id?{...m,rp}:m);setMembers(upd);lsSet("sx_roster",upd);notify(`RP ${delta>0?"+":""}${delta}`);return;}
+    }catch{}
+    const upd=members.map(m=>m.id===id?{...m,rp:Math.max(0,m.rp+delta)}:m);setMembers(upd);lsSet("sx_roster",upd);notify(`RP ${delta>0?"+":""}${delta}`);
+  }
+
+  async function removeMember(id:string){
+    if(!confirm("Remove this member?"))return;
+    fetch(`/api/internal/roster/${id}`,{method:"DELETE"}).catch(()=>{});
+    const upd=members.filter(m=>m.id!==id);setMembers(upd);lsSet("sx_roster",upd);notify("MEMBER REMOVED");
+  }
+
+  const filtered=members.filter(m=>!search||m.name.toLowerCase().includes(search.toLowerCase())||m.role.toLowerCase().includes(search.toLowerCase())||m.unit.toLowerCase().includes(search.toLowerCase()));
+  const sorted=[...filtered].sort((a,b)=>b.rp-a.rp);
+
+  const FormPanel=({isEdit}:{isEdit:boolean})=>(
+    <div className="roster-form">
+      <div className="frow">
+        <div className="fg" style={{margin:0}}><label>NAME</label><input className="fi" type="text" placeholder="TAMAN" value={nm} onChange={e=>setNm(e.target.value)}/></div>
+        <div className="fg" style={{margin:0}}><label>ROLE</label><input className="fi" type="text" placeholder="DEVELOPER" value={nr} onChange={e=>setNr(e.target.value)}/></div>
+      </div>
+      <div className="frow" style={{marginTop:"8px"}}>
+        <div className="fg" style={{margin:0}}><label>UNIT</label><input className="fi" type="text" placeholder="CORE" value={nu} onChange={e=>setNu(e.target.value)}/></div>
+        <div className="fg" style={{margin:0}}><label>STATUS</label>
+          <select className="fsel" value={ns} onChange={e=>setNs(e.target.value)}>
+            <option value="active">ACTIVE</option><option value="inactive">INACTIVE</option>
+            <option value="on_leave">ON LEAVE</option><option value="suspended">SUSPENDED</option>
+          </select>
+        </div>
+      </div>
+      <div className="fg" style={{marginTop:"8px"}}><label>NOTES</label><input className="fi" type="text" placeholder="Optional notes..." value={nn} onChange={e=>setNn(e.target.value)}/></div>
+      {err&&<div className="err-msg">{err}</div>}
+      <div style={{display:"flex",gap:"8px",marginTop:"10px"}}>
+        <button className="btn p" onClick={isEdit?saveEdit:addMember}>▶ {isEdit?"SAVE CHANGES":"CONFIRM ADD"}</button>
+        <button className="btn outline" onClick={resetForm}>CANCEL</button>
+      </div>
+    </div>
+  );
+
   return (
     <div>
       <div className="p-tag">// VANGUARD NETWORK</div>
       <div className="p-title">TEAM <span>ROSTER</span></div>
-      <div className="card">
-        <div className="card-title">// LOG ROSTER CHANGE</div>
-        <div className="frow">
-          <div className="fg" style={{margin:0}}><label>MEMBER NAME OR ID</label><input className="fi" type="text" placeholder="#102 or TAMAN" value={rn} onChange={e=>setRn(e.target.value)}/></div>
-          <div className="fg" style={{margin:0}}><label>FIELD</label>
-            <select className="fsel" value={rf} onChange={e=>setRf(e.target.value)}>
-              <option value="rp">Respect Points</option><option value="role">Role / Skill</option>
-              <option value="unit">Unit</option><option value="status">Status</option>
-            </select>
+
+      {/* ── RP DELTA SELECTOR ── */}
+      <div className="card" style={{marginBottom:"12px"}}>
+        <div className="card-title">// RESPECT POINT INCREMENT</div>
+        <div style={{display:"flex",gap:"8px",flexWrap:"wrap",marginTop:"8px"}}>
+          {RP_PRESETS.map(v=>(
+            <button key={v} className={`btn${rpDelta===v?" p":" outline"}`}
+              style={{fontSize:"9px",padding:"4px 14px",letterSpacing:"2px"}}
+              onClick={()=>setRpDelta(v)}>
+              {v} RP
+            </button>
+          ))}
+          <input type="number" min={1} max={9999} value={rpDelta}
+            onChange={e=>setRpDelta(Math.max(1,+e.target.value))}
+            className="fi" style={{width:"80px",padding:"4px 10px",fontSize:"11px"}}/>
+        </div>
+      </div>
+
+      {/* ── MEMBER LIST ── */}
+      <div className="card" style={{marginBottom:"12px"}}>
+        <div className="card-title" style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:"8px"}}>
+          <span>// MEMBERS — {members.length} TOTAL</span>
+          <div style={{display:"flex",gap:"8px"}}>
+            <input className="fi" type="text" placeholder="SEARCH..." value={search}
+              onChange={e=>setSearch(e.target.value)}
+              style={{padding:"3px 10px",fontSize:"9px",width:"120px"}}/>
+            {!adding&&!editId&&<button className="btn p" style={{fontSize:"8px",padding:"4px 12px"}} onClick={()=>{setAdding(true);setEditId(null);}}>+ ADD</button>}
           </div>
         </div>
-        <div className="fg" style={{marginTop:"11px"}}><label>NEW VALUE</label><input className="fi" type="text" placeholder="New value..." value={rv} onChange={e=>setRv(e.target.value)}/></div>
-        <button className="btn p" onClick={logChange}>▶ LOG CHANGE</button>
-        <div style={{fontSize:"8px",color:"var(--muted)",marginTop:"9px",letterSpacing:"1px",lineHeight:"1.9"}}>Changes logged here need to be applied in source code to go live.</div>
-      </div>
-      <div className="card">
-        <div className="card-title">// PENDING CHANGES THIS SESSION</div>
-        {log.length ? log.map((c,i)=>(
-          <div key={i} style={{fontSize:"10px",color:"var(--muted)",lineHeight:"2.2",letterSpacing:".5px"}}>
-            ■ <span style={{color:"var(--green)"}}>{c.name}</span> · {c.field.toUpperCase()} → <span style={{color:"var(--white)"}}>{c.val}</span> <span style={{color:"var(--muted)",fontSize:"8px"}}>({c.time})</span>
+
+        {adding&&<FormPanel isEdit={false}/>}
+
+        {loading?(
+          <div style={{padding:"24px",textAlign:"center",fontSize:"9px",letterSpacing:"3px",color:"var(--muted)"}}>LOADING...</div>
+        ):sorted.length===0?(
+          <div style={{padding:"24px",textAlign:"center",fontSize:"9px",letterSpacing:"3px",color:"var(--muted)"}}>
+            {search?"NO MATCHES":"NO MEMBERS YET — ADD THE FIRST"}
           </div>
-        )) : <div style={{fontSize:"10px",color:"var(--muted)"}}>No changes logged this session.</div>}
+        ):(
+          <div style={{display:"flex",flexDirection:"column",gap:"6px",marginTop:"10px"}}>
+            {sorted.map((m,i)=>(
+              <div key={m.id}>
+                <div className="roster-row">
+                  <div className="roster-rank">#{String(i+1).padStart(2,"0")}</div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div className="roster-name">{m.name}</div>
+                    <div className="roster-meta">
+                      {m.role&&<span>{m.role}</span>}
+                      {m.unit&&<><span className="roster-dot">·</span><span>{m.unit}</span></>}
+                      {m.notes&&<><span className="roster-dot">·</span><span style={{fontStyle:"italic"}}>{m.notes}</span></>}
+                    </div>
+                  </div>
+                  {/* ── RP controls ── */}
+                  <div className="roster-rp-col">
+                    <button className="rp-btn" onClick={()=>adjustRP(m.id,-rpDelta)} title={`−${rpDelta} RP`}>−</button>
+                    <div className="roster-rp">{m.rp}<span style={{fontSize:"6px",letterSpacing:"1px",color:"var(--muted)",display:"block",textAlign:"center"}}>RP</span></div>
+                    <button className="rp-btn rp-add" onClick={()=>adjustRP(m.id,rpDelta)} title={`+${rpDelta} RP`}>+</button>
+                  </div>
+                  <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:"5px"}}>
+                    <span style={{fontSize:"7px",letterSpacing:"2px",color:STATUS_COLORS[m.status]||"var(--muted)"}}>● {m.status.replace("_"," ").toUpperCase()}</span>
+                    <div style={{display:"flex",gap:"5px"}}>
+                      <button className="btn outline" style={{fontSize:"6px",padding:"2px 7px"}} onClick={()=>startEdit(m)}>EDIT</button>
+                      <button className="btn d" style={{fontSize:"6px",padding:"2px 7px"}} onClick={()=>removeMember(m.id)}>✕</button>
+                    </div>
+                  </div>
+                </div>
+                {editId===m.id&&<FormPanel isEdit={true}/>}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

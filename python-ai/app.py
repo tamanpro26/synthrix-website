@@ -76,6 +76,108 @@ class ConversationDB:
 db = ConversationDB()
 
 
+# ── Internal Panel Database ──────────────────────────────────────────────────
+
+class InternalDB:
+    def __init__(self, db_path: str = "internal.db"):
+        self.db_path = db_path
+        self._init()
+
+    def _init(self) -> None:
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS store (
+                    key        TEXT PRIMARY KEY,
+                    value      TEXT NOT NULL,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS roster (
+                    id             TEXT PRIMARY KEY,
+                    name           TEXT NOT NULL,
+                    role           TEXT DEFAULT '',
+                    unit           TEXT DEFAULT '',
+                    respect_points INTEGER DEFAULT 0,
+                    status         TEXT DEFAULT 'active',
+                    notes          TEXT DEFAULT '',
+                    joined_at      DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    updated_at     DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+
+    # ─── Generic key-value store ──────────────────────────────────────────
+
+    def store_get(self, key: str):
+        with sqlite3.connect(self.db_path) as conn:
+            row = conn.execute("SELECT value FROM store WHERE key=?", (key,)).fetchone()
+        return json.loads(row[0]) if row else None
+
+    def store_set(self, key: str, value) -> None:
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute(
+                "INSERT OR REPLACE INTO store (key, value, updated_at) VALUES (?,?,CURRENT_TIMESTAMP)",
+                (key, json.dumps(value)),
+            )
+
+    def store_all(self) -> dict:
+        with sqlite3.connect(self.db_path) as conn:
+            rows = conn.execute("SELECT key, value FROM store").fetchall()
+        return {k: json.loads(v) for k, v in rows}
+
+    # ─── Roster ───────────────────────────────────────────────────────────
+
+    def _row_to_member(self, row) -> dict:
+        return {"id": row[0], "name": row[1], "role": row[2], "unit": row[3],
+                "rp": row[4], "status": row[5], "notes": row[6], "joined": row[7]}
+
+    def roster_all(self) -> list:
+        with sqlite3.connect(self.db_path) as conn:
+            rows = conn.execute(
+                "SELECT id,name,role,unit,respect_points,status,notes,joined_at "
+                "FROM roster ORDER BY respect_points DESC, name"
+            ).fetchall()
+        return [self._row_to_member(r) for r in rows]
+
+    def roster_add(self, member: dict) -> dict:
+        mid = str(int(datetime.now().timestamp() * 1000))
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute(
+                "INSERT INTO roster (id,name,role,unit,respect_points,status,notes) VALUES (?,?,?,?,?,?,?)",
+                (mid, member["name"], member.get("role",""), member.get("unit",""),
+                 int(member.get("rp", 0)), member.get("status","active"), member.get("notes","")),
+            )
+        return {**member, "id": mid, "rp": int(member.get("rp", 0))}
+
+    def roster_update(self, mid: str, changes: dict) -> None:
+        allowed = {"name", "role", "unit", "respect_points", "status", "notes"}
+        valid   = {k: v for k, v in changes.items() if k in allowed}
+        if not valid:
+            return
+        clause = ", ".join(f"{k}=?" for k in valid)
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute(
+                f"UPDATE roster SET {clause}, updated_at=CURRENT_TIMESTAMP WHERE id=?",
+                [*valid.values(), mid],
+            )
+
+    def roster_delete(self, mid: str) -> None:
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute("DELETE FROM roster WHERE id=?", (mid,))
+
+    def roster_adjust_rp(self, mid: str, delta: int) -> int:
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute(
+                "UPDATE roster SET respect_points=MAX(0, respect_points+?), updated_at=CURRENT_TIMESTAMP WHERE id=?",
+                (delta, mid),
+            )
+            row = conn.execute("SELECT respect_points FROM roster WHERE id=?", (mid,)).fetchone()
+        return row[0] if row else 0
+
+
+idb = InternalDB()
+
+
 # ── Tools ───────────────────────────────────────────────────────────────────
 
 @tool
@@ -316,6 +418,62 @@ def clear_memory():
     session_id = data.get("session_id", "default")
     db.clear(session_id)
     return jsonify({"status": "cleared", "session_id": session_id})
+
+
+# ── Internal Panel: Generic Key-Value Store ───────────────────────────────────
+
+@app.route("/api/internal/store", methods=["GET", "POST", "OPTIONS"])
+def internal_store():
+    if request.method == "OPTIONS":
+        return "", 204
+    if request.method == "GET":
+        key = request.args.get("key")
+        if key:
+            val = idb.store_get(key)
+            return (jsonify(val), 200) if val is not None else (jsonify(None), 404)
+        return jsonify(idb.store_all())
+    data  = request.get_json(force=True) or {}
+    key   = data.get("key")
+    value = data.get("value")
+    if not key:
+        return jsonify({"error": "key required"}), 400
+    idb.store_set(key, value)
+    return jsonify({"ok": True})
+
+
+# ── Internal Panel: Roster ────────────────────────────────────────────────────
+
+@app.route("/api/internal/roster", methods=["GET", "OPTIONS"])
+def roster_list():
+    if request.method == "OPTIONS": return "", 204
+    return jsonify(idb.roster_all())
+
+@app.route("/api/internal/roster", methods=["POST"])
+def roster_add():
+    data = request.get_json(force=True) or {}
+    if not data.get("name"):
+        return jsonify({"error": "name required"}), 400
+    member = idb.roster_add(data)
+    return jsonify(member), 201
+
+@app.route("/api/internal/roster/<mid>", methods=["PATCH", "OPTIONS"])
+def roster_update(mid: str):
+    if request.method == "OPTIONS": return "", 204
+    idb.roster_update(mid, request.get_json(force=True) or {})
+    return jsonify({"ok": True})
+
+@app.route("/api/internal/roster/<mid>", methods=["DELETE", "OPTIONS"])
+def roster_delete_route(mid: str):
+    if request.method == "OPTIONS": return "", 204
+    idb.roster_delete(mid)
+    return jsonify({"ok": True})
+
+@app.route("/api/internal/roster/<mid>/rp", methods=["POST", "OPTIONS"])
+def roster_rp(mid: str):
+    if request.method == "OPTIONS": return "", 204
+    delta  = int((request.get_json(force=True) or {}).get("delta", 0))
+    new_rp = idb.roster_adjust_rp(mid, delta)
+    return jsonify({"rp": new_rp})
 
 
 if __name__ == "__main__":
