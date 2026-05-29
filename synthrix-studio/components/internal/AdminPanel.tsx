@@ -22,24 +22,26 @@ function ls<T>(k:string,fb:T):T{
   if(typeof window==="undefined")return fb;
   try{const v=localStorage.getItem(k);return v?JSON.parse(v):fb;}catch{return fb;}
 }
+/* lsSet: write localStorage + retry-sync to backend (up to 3 attempts) */
+async function _syncToBackend(k:string,v:unknown,attempt=0):Promise<void>{
+  try{
+    const res=await fetch("/api/internal/store",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({key:k,value:v}),signal:AbortSignal.timeout(5000),
+    });
+    if(!res.ok&&res.status!==503&&attempt<2)
+      setTimeout(()=>_syncToBackend(k,v,attempt+1),1500*(attempt+1));
+  }catch{
+    if(attempt<2)setTimeout(()=>_syncToBackend(k,v,attempt+1),1500*(attempt+1));
+  }
+}
 function lsSet(k:string,v:unknown){
   if(typeof window==="undefined")return;
   localStorage.setItem(k,JSON.stringify(v));
-  /* Background sync to Python backend — never blocks UI */
-  fetch("/api/internal/store",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({key:k,value:v})}).catch(()=>{});
-}
-async function bootstrapFromBackend(){
-  try{
-    const res=await fetch("/api/internal/store",{signal:AbortSignal.timeout(5000)});
-    if(!res.ok)return;
-    const all=await res.json() as Record<string,unknown>;
-    /* Restore all sx_ keys — skip security / session keys */
-    const skip=new Set([SKEY,FKEY,LKEY,"sx_login_count","sx_achievements"]);
-    Object.entries(all).forEach(([k,v])=>{if(k.startsWith("sx_")&&!skip.has(k))localStorage.setItem(k,JSON.stringify(v));});
-  }catch{/* backend not deployed yet — fine */}
+  _syncToBackend(k,v,0);
 }
 
-type Phase="boot"|"login"|"dashboard";
+type Phase="boot"|"login"|"syncing"|"dashboard";
 type Panel="overview"|"ai"|"messages"|"employees"|"roster"|"announce"|"games"|"achievements"|"posts"|"editor"|"pagebuilder"|"naveditor"|"theme"|"analytics"|"roles"|"database"|"controls";
 type Admin={u:string;display:string;role:string;level:string};
 
@@ -48,6 +50,7 @@ export default function AdminPanel(){
   const [bootLine,setBootLine]=useState("LOADING...");
   const [admin,setAdmin]=useState<Admin|null>(null);
   const [panel,setPanel]=useState<Panel>("overview");
+  const [backendStatus,setBackendStatus]=useState<"checking"|"online"|"offline">("checking");
   /* login state */
   const [uInput,setUInput]=useState("");
   const [pInput,setPInput]=useState("");
@@ -65,6 +68,27 @@ export default function AdminPanel(){
     toastRef.current=setTimeout(()=>setToast(""),3200);
   },[]);
 
+  /* Pull all data from backend into localStorage; returns true if backend is reachable */
+  async function syncWithBackend():Promise<boolean>{
+    try{
+      const res=await fetch("/api/internal/store",{signal:AbortSignal.timeout(6000)});
+      if(!res.ok){setBackendStatus("offline");return false;}
+      const all=await res.json() as Record<string,unknown>;
+      const skip=new Set([SKEY,FKEY,LKEY,"sx_login_count","sx_achievements"]);
+      Object.entries(all).forEach(([k,v])=>{if(k.startsWith("sx_")&&!skip.has(k))localStorage.setItem(k,JSON.stringify(v));});
+      setBackendStatus("online");
+      return true;
+    }catch{setBackendStatus("offline");return false;}
+  }
+
+  /* Auto-refresh every 30 s while dashboard is open */
+  useEffect(()=>{
+    if(phase!=="dashboard")return;
+    const id=setInterval(()=>syncWithBackend(),30000);
+    return()=>clearInterval(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[phase]);
+
   /* boot */
   useEffect(()=>{
     const ses=sessionStorage.getItem(SKEY);
@@ -72,7 +96,11 @@ export default function AdminPanel(){
       try{
         const d=JSON.parse(atob(ses));
         const a=ADMIN_DB.find(x=>x.u===d.u);
-        if(a){setBootLine("SESSION RESTORED — LOADING DASHBOARD...");setTimeout(()=>{setAdmin(a);setPhase("dashboard");},700);return;}
+        if(a){
+          setBootLine("SESSION RESTORED — SYNCING DATA...");
+          setTimeout(async()=>{setAdmin(a);setPhase("syncing");await syncWithBackend();setPhase("dashboard");},700);
+          return;
+        }
       }catch{sessionStorage.removeItem(SKEY);}
     }
     setBootLine("NO ACTIVE SESSION — LOADING LOGIN...");
@@ -111,8 +139,6 @@ export default function AdminPanel(){
     if(lc===1)ua("logged_in","ACCESS GRANTED","🔐","First access to Mission Control.");
     if(lc>=2) ua("comeback","RETURNING SIGNAL","📡","Logged in more than once.");
     if(lc>=5) ua("dedicated","SWORN OPERATOR","⚔️","Five or more logins. True dedication.");
-    /* Pull latest data from backend into localStorage */
-    bootstrapFromBackend();
   }
 
   async function doLogin(){
@@ -151,6 +177,8 @@ export default function AdminPanel(){
     sessionStorage.setItem(SKEY,btoa(JSON.stringify({u:found.u,t:Date.now()})));
     setAdmin(found);
     onLoginSuccess(found.display);
+    setPhase("syncing");
+    await syncWithBackend();
     setPhase("dashboard");
   }
 
@@ -168,6 +196,16 @@ export default function AdminPanel(){
         <div className="bl" style={{animationDelay:".3s"}}>INITIALIZING SECURE SESSION...</div>
         <div className="bl" style={{animationDelay:".6s"}}>VERIFYING ACCESS CREDENTIALS...</div>
         <div className="bl" style={{animationDelay:".9s"}}>{bootLine}</div>
+      </div>
+    </div>
+  );
+
+  /* ── SYNCING ── */
+  if(phase==="syncing") return (
+    <div className="mc-root">
+      <div className="boot">
+        <div className="bl">SYNCING WITH BACKEND...</div>
+        <div className="bl" style={{animationDelay:".12s",color:"rgba(34,197,94,0.38)",fontSize:"9px",letterSpacing:"3px"}}>PULLING LATEST DATA FROM SERVER</div>
       </div>
     </div>
   );
@@ -238,6 +276,12 @@ export default function AdminPanel(){
               <div className="sb-uname">{admin?.display}</div>
               <div className="sb-urole" style={{color:roleColor}}>{admin?.role}</div>
             </div>
+          </div>
+          <div className="sb-backend">
+            <div className={`sb-backend-dot ${backendStatus}`}/>
+            <span className={`sb-backend-lbl ${backendStatus}`}>
+              {backendStatus==="online"?"BACKEND ONLINE":backendStatus==="offline"?"LOCAL MODE":"CONNECTING..."}
+            </span>
           </div>
           <nav className="sb-nav">
             {navItems.map(([ico,label,id])=>(

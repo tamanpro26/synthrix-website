@@ -311,6 +311,18 @@ body:has(.mc-root){cursor:auto!important}
 /* modal overlay */
 .mc-root .modal-overlay{position:fixed;inset:0;z-index:99000;background:rgba(0,0,0,0.88);display:flex;align-items:center;justify-content:center}
 
+/* backend status indicator */
+.mc-root .sb-backend{display:flex;align-items:center;gap:7px;padding:7px 16px;border-bottom:1px solid var(--bord);margin-bottom:4px}
+.mc-root .sb-backend-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;transition:background .4s}
+.mc-root .sb-backend-dot.online{background:var(--green);box-shadow:0 0 7px var(--green);animation:sb-pulse 2.4s ease-in-out infinite}
+.mc-root .sb-backend-dot.offline{background:rgba(226,232,228,0.22);box-shadow:none}
+.mc-root .sb-backend-dot.checking{background:var(--gold);animation:sb-pulse 0.9s ease-in-out infinite}
+@keyframes sb-pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.mc-root .sb-backend-lbl{font-size:7px;letter-spacing:2px;transition:color .4s}
+.mc-root .sb-backend-lbl.online{color:var(--green)}
+.mc-root .sb-backend-lbl.offline{color:var(--muted)}
+.mc-root .sb-backend-lbl.checking{color:var(--gold)}
+
 /* roster */
 .mc-root .roster-form{background:rgba(34,197,94,0.03);border:1px solid var(--bord);border-radius:3px;padding:14px;margin-top:10px;margin-bottom:4px}
 .mc-root .roster-row{display:flex;align-items:center;gap:12px;padding:11px 13px;background:rgba(255,255,255,0.02);border:1px solid var(--bord);border-radius:3px;transition:border-color .2s,background .2s}

@@ -15,8 +15,19 @@ from langchain_core.messages import HumanMessage, AIMessage
 app = Flask(__name__)
 CORS(app)
 
-OPENROUTER_KEY = os.environ.get("OPENROUTER_API_KEY", "")
-PORT = int(os.environ.get("PORT", 5000))
+OPENROUTER_KEY   = os.environ.get("OPENROUTER_API_KEY", "")
+INTERNAL_SECRET  = os.environ.get("INTERNAL_SECRET", "")   # set same value on Vercel + Railway
+PORT             = int(os.environ.get("PORT", 5000))
+
+
+def _check_internal_auth():
+    """Returns 401 response if secret is configured and header doesn't match."""
+    if not INTERNAL_SECRET:
+        return None   # dev mode — no secret configured, allow all
+    key = request.headers.get("X-Internal-Key", "")
+    if key != INTERNAL_SECRET:
+        return jsonify({"error": "Unauthorized"}), 401
+    return None
 
 STUDIO_DATA = {
     "name": "SYNTHRIX Studio",
@@ -420,12 +431,22 @@ def clear_memory():
     return jsonify({"status": "cleared", "session_id": session_id})
 
 
+# ── Internal Panel: Ping ────────────────────────────────────────────────────
+
+@app.route("/api/internal/ping", methods=["GET"])
+def internal_ping():
+    err = _check_internal_auth()
+    if err: return err
+    return jsonify({"ok": True, "service": "SYNTHRIX Internal Backend"})
+
+
 # ── Internal Panel: Generic Key-Value Store ───────────────────────────────────
 
 @app.route("/api/internal/store", methods=["GET", "POST", "OPTIONS"])
 def internal_store():
-    if request.method == "OPTIONS":
-        return "", 204
+    if request.method == "OPTIONS": return "", 204
+    err = _check_internal_auth()
+    if err: return err
     if request.method == "GET":
         key = request.args.get("key")
         if key:
@@ -446,10 +467,14 @@ def internal_store():
 @app.route("/api/internal/roster", methods=["GET", "OPTIONS"])
 def roster_list():
     if request.method == "OPTIONS": return "", 204
+    err = _check_internal_auth()
+    if err: return err
     return jsonify(idb.roster_all())
 
 @app.route("/api/internal/roster", methods=["POST"])
 def roster_add():
+    err = _check_internal_auth()
+    if err: return err
     data = request.get_json(force=True) or {}
     if not data.get("name"):
         return jsonify({"error": "name required"}), 400
@@ -459,18 +484,24 @@ def roster_add():
 @app.route("/api/internal/roster/<mid>", methods=["PATCH", "OPTIONS"])
 def roster_update(mid: str):
     if request.method == "OPTIONS": return "", 204
+    err = _check_internal_auth()
+    if err: return err
     idb.roster_update(mid, request.get_json(force=True) or {})
     return jsonify({"ok": True})
 
 @app.route("/api/internal/roster/<mid>", methods=["DELETE", "OPTIONS"])
 def roster_delete_route(mid: str):
     if request.method == "OPTIONS": return "", 204
+    err = _check_internal_auth()
+    if err: return err
     idb.roster_delete(mid)
     return jsonify({"ok": True})
 
 @app.route("/api/internal/roster/<mid>/rp", methods=["POST", "OPTIONS"])
 def roster_rp(mid: str):
     if request.method == "OPTIONS": return "", 204
+    err = _check_internal_auth()
+    if err: return err
     delta  = int((request.get_json(force=True) or {}).get("delta", 0))
     new_rp = idb.roster_adjust_rp(mid, delta)
     return jsonify({"rp": new_rp})
