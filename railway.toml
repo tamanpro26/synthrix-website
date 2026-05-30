@@ -1,9 +1,8 @@
 [build]
 builder = "nixpacks"
-buildCommand = "pip install -r python-ai/requirements.txt"
 
 [deploy]
-startCommand = "python python-ai/app.py"
+startCommand = "python3 python-ai/app.py"
 healthcheckPath = "/health"
 healthcheckTimeout = 30
 restartPolicyType = "on_failure"
