@@ -1,8 +1,11 @@
 [phases.setup]
-nixPkgs = ["python311", "python311Packages.pip"]
+nixPkgs = ["python311"]
 
 [phases.install]
-cmds = ["python3 -m pip install -r python-ai/requirements.txt"]
+cmds = [
+  "python3 -m venv /opt/venv",
+  "/opt/venv/bin/pip install -r python-ai/requirements.txt"
+]
 
 [start]
-cmd = "python3 python-ai/app.py"
+cmd = "/opt/venv/bin/python3 python-ai/app.py"
