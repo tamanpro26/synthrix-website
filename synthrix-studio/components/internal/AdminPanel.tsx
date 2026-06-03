@@ -582,12 +582,14 @@ function PanelRoster({notify}:{notify:(m:string)=>void}){
               <div key={m.id}>
                 <div className="roster-row">
                   <div className="roster-rank">#{String(i+1).padStart(2,"0")}</div>
-                  <div style={{flex:1,minWidth:0}}>
+                  <div style={{flex:1,minWidth:0,overflow:"hidden"}}>
                     <div className="roster-name">{m.name}</div>
                     <div className="roster-meta">
-                      {m.role&&<span>{m.role}</span>}
+                      {/* status badge inline with meta — keeps right side uncluttered */}
+                      <span style={{color:STATUS_COLORS[m.status]||"var(--muted)"}}>●</span>
+                      <span style={{color:STATUS_COLORS[m.status]||"var(--muted)"}}>{m.status.replace("_"," ").toUpperCase()}</span>
+                      {m.role&&<><span className="roster-dot">·</span><span>{m.role}</span></>}
                       {m.unit&&<><span className="roster-dot">·</span><span>{m.unit}</span></>}
-                      {m.notes&&<><span className="roster-dot">·</span><span style={{fontStyle:"italic"}}>{m.notes}</span></>}
                     </div>
                   </div>
                   {/* ── RP controls ── */}
@@ -596,11 +598,10 @@ function PanelRoster({notify}:{notify:(m:string)=>void}){
                     <div className="roster-rp">{m.rp}<span style={{fontSize:"6px",letterSpacing:"1px",color:"var(--muted)",display:"block",textAlign:"center"}}>RP</span></div>
                     <button className="rp-btn rp-add" onClick={()=>adjustRP(m.id,rpDelta)} title={`+${rpDelta} RP`}>+</button>
                   </div>
-                  <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:"5px"}}>
-                    <span style={{fontSize:"7px",letterSpacing:"2px",color:STATUS_COLORS[m.status]||"var(--muted)"}}>● {m.status.replace("_"," ").toUpperCase()}</span>
+                  <div className="roster-actions">
                     <div style={{display:"flex",gap:"5px"}}>
-                      <button className="btn outline" style={{fontSize:"6px",padding:"2px 7px"}} onClick={()=>startEdit(m)}>EDIT</button>
-                      <button className="btn d" style={{fontSize:"6px",padding:"2px 7px"}} onClick={()=>removeMember(m.id)}>✕</button>
+                      <button className="btn outline" style={{fontSize:"6px",padding:"3px 8px"}} onClick={()=>startEdit(m)}>EDIT</button>
+                      <button className="btn d" style={{fontSize:"6px",padding:"3px 8px"}} onClick={()=>removeMember(m.id)}>✕</button>
                     </div>
                   </div>
                 </div>
