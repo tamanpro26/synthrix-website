@@ -5,7 +5,7 @@ const SALT="SX_MC_SALT_V2_2026",SKEY="sx_mc_ses",EKEY="sx_users_v2",ADKEY="sx_ad
 const AKEY="sx_announcements",PKEY="sx_posts",GKEY="sx_custom_games",CKEY="sx_custom_achievements";
 const MSGKEY="sx_messages",THKEY="sx_theme",NEKEY="sx_nav_items",ANKEY="sx_analytics";
 const PBKEY="sx_pages",SNKEY="sx_snippets",FKEY="sx_mc_fails",LKEY="sx_mc_lock";
-const AHKEY="sx_ai_history";
+const AHKEY="sx_ai_history",TKEY="sx_api_token";
 const MAX=5, WAIT=15*60*1000;
 
 const ADMIN_DB=[
@@ -22,14 +22,27 @@ function ls<T>(k:string,fb:T):T{
   if(typeof window==="undefined")return fb;
   try{const v=localStorage.getItem(k);return v?JSON.parse(v):fb;}catch{return fb;}
 }
+/* Auth headers — attaches the write token issued at login */
+function apiHeaders():Record<string,string>{
+  const h:Record<string,string>={"Content-Type":"application/json"};
+  if(typeof window!=="undefined"){const t=sessionStorage.getItem(TKEY);if(t)h["Authorization"]=`Bearer ${t}`;}
+  return h;
+}
+/* Exchange credentials for a write token (called once at login) */
+async function fetchApiToken(u:string,h:string):Promise<void>{
+  try{
+    const res=await fetch("/api/internal/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({u,h}),signal:AbortSignal.timeout(6000)});
+    if(res.ok){const d=await res.json() as {token?:string};if(d.token)sessionStorage.setItem(TKEY,d.token);}
+  }catch{/* token optional — writes degrade to localStorage if missing */}
+}
 /* lsSet: write localStorage + retry-sync to backend (up to 3 attempts) */
 async function _syncToBackend(k:string,v:unknown,attempt=0):Promise<void>{
   try{
     const res=await fetch("/api/internal/store",{
-      method:"POST",headers:{"Content-Type":"application/json"},
+      method:"POST",headers:apiHeaders(),
       body:JSON.stringify({key:k,value:v}),signal:AbortSignal.timeout(5000),
     });
-    if(!res.ok&&res.status!==503&&attempt<2)
+    if(!res.ok&&res.status!==503&&res.status!==401&&attempt<2)
       setTimeout(()=>_syncToBackend(k,v,attempt+1),1500*(attempt+1));
   }catch{
     if(attempt<2)setTimeout(()=>_syncToBackend(k,v,attempt+1),1500*(attempt+1));
@@ -71,7 +84,7 @@ export default function AdminPanel(){
   /* Pull all data from backend into localStorage; returns true if backend is reachable */
   async function syncWithBackend():Promise<boolean>{
     try{
-      const res=await fetch("/api/internal/store",{signal:AbortSignal.timeout(6000)});
+      const res=await fetch("/api/internal/store",{headers:apiHeaders(),signal:AbortSignal.timeout(6000)});
       if(!res.ok){setBackendStatus("offline");return false;}
       const all=await res.json() as Record<string,unknown>;
       const skip=new Set([SKEY,FKEY,LKEY,"sx_login_count","sx_achievements"]);
@@ -178,13 +191,14 @@ export default function AdminPanel(){
     setAdmin(found);
     onLoginSuccess(found.display);
     setPhase("syncing");
+    await fetchApiToken(u,h);          // get write token before any backend writes
     await syncWithBackend();
     setPhase("dashboard");
   }
 
   function signOut(){
     if(!confirm("Sign out of Mission Control?"))return;
-    sessionStorage.removeItem(SKEY);
+    sessionStorage.removeItem(SKEY);sessionStorage.removeItem(TKEY);
     setAdmin(null);setPhase("login");setUInput("");setPInput("");
   }
 
@@ -464,7 +478,7 @@ function PanelRoster({notify}:{notify:(m:string)=>void}){
 
   async function load(){
     try{
-      const res=await fetch("/api/internal/roster",{signal:AbortSignal.timeout(5000)});
+      const res=await fetch("/api/internal/roster",{headers:apiHeaders(),signal:AbortSignal.timeout(5000)});
       if(res.ok){const data=await res.json() as RosterMember[];setMembers(data);lsSet("sx_roster",data);return;}
     }catch{}
     setMembers(ls<RosterMember[]>("sx_roster",[]));
@@ -475,7 +489,7 @@ function PanelRoster({notify}:{notify:(m:string)=>void}){
     setErr("");if(!nm.trim())return setErr("NAME REQUIRED");
     const payload={name:nm.trim().toUpperCase(),role:nr.trim().toUpperCase(),unit:nu.trim().toUpperCase(),status:ns,notes:nn.trim(),rp:0};
     try{
-      const res=await fetch("/api/internal/roster",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+      const res=await fetch("/api/internal/roster",{method:"POST",headers:apiHeaders(),body:JSON.stringify(payload)});
       if(res.ok){const m=await res.json() as RosterMember;const upd=[...members,m];setMembers(upd);lsSet("sx_roster",upd);notify("MEMBER ADDED");resetForm();return;}
     }catch{}
     const local:RosterMember={id:Date.now().toString(),...payload,joined:new Date().toISOString()};
@@ -489,13 +503,13 @@ function PanelRoster({notify}:{notify:(m:string)=>void}){
   async function saveEdit(){
     if(!editId)return;
     const changes={name:nm.trim().toUpperCase(),role:nr.trim().toUpperCase(),unit:nu.trim().toUpperCase(),status:ns,notes:nn.trim()};
-    fetch(`/api/internal/roster/${editId}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(changes)}).catch(()=>{});
+    fetch(`/api/internal/roster/${editId}`,{method:"PATCH",headers:apiHeaders(),body:JSON.stringify(changes)}).catch(()=>{});
     const upd=members.map(m=>m.id===editId?{...m,...changes}:m);setMembers(upd);lsSet("sx_roster",upd);notify("MEMBER UPDATED");resetForm();
   }
 
   async function adjustRP(id:string,delta:number){
     try{
-      const res=await fetch(`/api/internal/roster/${id}/rp`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({delta})});
+      const res=await fetch(`/api/internal/roster/${id}/rp`,{method:"POST",headers:apiHeaders(),body:JSON.stringify({delta})});
       if(res.ok){const {rp}=await res.json() as {rp:number};const upd=members.map(m=>m.id===id?{...m,rp}:m);setMembers(upd);lsSet("sx_roster",upd);notify(`RP ${delta>0?"+":""}${delta}`);return;}
     }catch{}
     const upd=members.map(m=>m.id===id?{...m,rp:Math.max(0,m.rp+delta)}:m);setMembers(upd);lsSet("sx_roster",upd);notify(`RP ${delta>0?"+":""}${delta}`);
@@ -503,7 +517,7 @@ function PanelRoster({notify}:{notify:(m:string)=>void}){
 
   async function removeMember(id:string){
     if(!confirm("Remove this member?"))return;
-    fetch(`/api/internal/roster/${id}`,{method:"DELETE"}).catch(()=>{});
+    fetch(`/api/internal/roster/${id}`,{method:"DELETE",headers:apiHeaders()}).catch(()=>{});
     const upd=members.filter(m=>m.id!==id);setMembers(upd);lsSet("sx_roster",upd);notify("MEMBER REMOVED");
   }
 

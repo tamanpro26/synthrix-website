@@ -1,10 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getRedis } from "@/lib/redis";
+import { isAuthed, verifyCredentials, signToken, authEnabled } from "@/lib/internal-auth";
 
 export const runtime = "nodejs";
 
 const STORE  = "internal_store";   // Redis hash — all panel localStorage keys
 const ROSTER = "internal_roster";  // Redis hash — member id → member object
+
+/* Keys the public site is allowed to read without a token */
+const PUBLIC_READ_KEYS = new Set([
+  "sx_posts", "sx_announcements", "sx_custom_games",
+  "sx_custom_achievements", "sx_pages", "sx_nav_items", "sx_theme",
+]);
+
+const UNAUTH = () => NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
 /* ── Types ──────────────────────────────────────────────────────────────── */
 interface RosterMember {
@@ -26,11 +35,15 @@ async function handleStore(req: NextRequest, method: string): Promise<NextRespon
   if (method === "GET") {
     const key = req.nextUrl.searchParams.get("key");
     if (key) {
+      /* Public keys are open; everything else needs a token */
+      if (!PUBLIC_READ_KEYS.has(key) && !isAuthed(req)) return UNAUTH();
       const val = await redis.hget(STORE, key);
       return val !== null
         ? NextResponse.json(parse(val))
         : NextResponse.json(null, { status: 404 });
     }
+    /* Full dump (admin sync) is always protected */
+    if (!isAuthed(req)) return UNAUTH();
     const all = await redis.hgetall(STORE);
     const out: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(all)) out[k] = parse(v);
@@ -38,6 +51,7 @@ async function handleStore(req: NextRequest, method: string): Promise<NextRespon
   }
 
   if (method === "POST") {
+    if (!isAuthed(req)) return UNAUTH();
     const body = await req.json() as { key?: string; value?: unknown };
     if (!body.key) return NextResponse.json({ error: "key required" }, { status: 400 });
     await redis.hset(STORE, body.key, JSON.stringify(body.value ?? null));
@@ -60,6 +74,7 @@ async function getAllMembers(): Promise<RosterMember[]> {
 async function handleRoster(req: NextRequest, method: string, id?: string): Promise<NextResponse> {
   const redis = getRedis();
   if (!redis) return NextResponse.json({ error: "Redis not configured" }, { status: 503 });
+  if (!isAuthed(req)) return UNAUTH();
 
   if (method === "GET") return NextResponse.json(await getAllMembers());
 
@@ -95,6 +110,7 @@ async function handleRoster(req: NextRequest, method: string, id?: string): Prom
 async function handleRP(req: NextRequest, id: string): Promise<NextResponse> {
   const redis = getRedis();
   if (!redis) return NextResponse.json({ error: "Redis not configured" }, { status: 503 });
+  if (!isAuthed(req)) return UNAUTH();
   const existing = parse<RosterMember>(await redis.hget(ROSTER, id));
   if (!existing) return NextResponse.json({ error: "not found" }, { status: 404 });
   const { delta = 0 } = await req.json() as { delta?: number };
@@ -106,12 +122,28 @@ async function handleRP(req: NextRequest, id: string): Promise<NextResponse> {
 /* ── Router ─────────────────────────────────────────────────────────────── */
 type Ctx = { params: Promise<{ path: string[] }> };
 
+/* POST /api/internal/auth — validate credentials, issue a write token */
+async function handleAuth(req: NextRequest): Promise<NextResponse> {
+  const { u, h } = await req.json() as { u?: string; h?: string };
+  if (!u || !h) return NextResponse.json({ error: "missing credentials" }, { status: 400 });
+
+  let dynamic: { u: string; passHash: string }[] = [];
+  const redis = getRedis();
+  if (redis) {
+    const raw = parse<{ u: string; passHash: string }[]>(await redis.hget(STORE, "sx_admin_accounts"));
+    if (Array.isArray(raw)) dynamic = raw;
+  }
+  if (!verifyCredentials(u, h, dynamic)) return UNAUTH();
+  return NextResponse.json({ token: signToken(u.trim().toLowerCase()) });
+}
+
 async function route(req: NextRequest, ctx: Ctx): Promise<NextResponse> {
   const path = (await ctx.params).path;
   const [segment, id, sub] = path;
 
   try {
-    if (segment === "ping")   return NextResponse.json({ ok: true, service: "ioredis", hasUrl: !!process.env.REDIS_URL });
+    if (segment === "ping")   return NextResponse.json({ ok: true, service: "ioredis", hasUrl: !!process.env.REDIS_URL, authEnabled: authEnabled() });
+    if (segment === "auth" && req.method === "POST") return handleAuth(req);
     if (segment === "store")  return handleStore(req, req.method);
     if (segment === "roster") {
       if (sub === "rp")       return handleRP(req, id);

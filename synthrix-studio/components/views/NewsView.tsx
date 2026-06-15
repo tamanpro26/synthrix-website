@@ -1,12 +1,56 @@
 "use client";
+import { useEffect, useState } from "react";
+
+interface Announcement { id: number; title: string; body: string; cat: string; date: string; }
 
 export default function NewsView({ active }: { active: boolean }) {
+  const [anns, setAnns] = useState<Announcement[]>([]);
+
+  useEffect(() => {
+    if (!active) return;
+    let cancelled = false;
+    async function load() {
+      let data: Announcement[] = [];
+      try {
+        const res = await fetch("/api/internal/store?key=sx_announcements", { signal: AbortSignal.timeout(6000) });
+        if (res.ok) { const d = await res.json(); if (Array.isArray(d)) data = d as Announcement[]; }
+      } catch { /* fall through */ }
+      if (data.length === 0) {
+        try { const raw = localStorage.getItem("sx_announcements"); if (raw) data = JSON.parse(raw) as Announcement[]; } catch { /* ignore */ }
+      }
+      if (!cancelled) setAnns(data);
+    }
+    load();
+    return () => { cancelled = true; };
+  }, [active]);
+
   if (!active) return null;
   return (
     <div>
       <section id="news">
         <div className="sec-tag">LATEST NEWS</div>
         <h2 className="sec-h2 reveal">INTEL &amp; <span style={{ color:"var(--orange)" }}>UPDATES</span></h2>
+
+        {/* ── Admin-published announcements ── */}
+        {anns.map((a) => (
+          <div key={a.id} className="news-card reveal" style={{ marginBottom: "20px" }}>
+            <div className="news-card-top" />
+            <div className="news-card-head">
+              <div className="news-badge"><span className="news-badge-dot" />{a.cat || "ANNOUNCEMENT"}</div>
+              <div className="news-date">{a.date}</div>
+            </div>
+            <div className="collab-title">// {a.cat || "STUDIO UPDATE"}</div>
+            <div className="collab-headline"><em>{a.title}</em></div>
+            <div className="news-body">
+              <div className="news-col" style={{ whiteSpace: "pre-wrap" }}>
+                {a.body}
+              </div>
+            </div>
+            <div className="news-footer">
+              {a.date} &nbsp;·&nbsp; SYNTHRIX STUDIOS &nbsp;·&nbsp; OFFICIAL ANNOUNCEMENT
+            </div>
+          </div>
+        ))}
 
         <div className="news-card reveal">
           <div className="news-card-top" />
