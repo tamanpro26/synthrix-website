@@ -54,6 +54,29 @@ function lsSet(k:string,v:unknown){
   _syncToBackend(k,v,0);
 }
 
+/* Recovery tool: push every sx_* key from THIS browser's localStorage to the
+   shared cloud store. Mirrors syncWithBackend's pull (same skip set), in reverse.
+   Used to recover data that was saved while the backend was unreachable. */
+const SYNC_SKIP=new Set([SKEY,FKEY,LKEY,TKEY,"sx_login_count","sx_achievements"]);
+async function pushAllToBackend():Promise<{ok:number;fail:number;keys:string[]}>{
+  if(typeof window==="undefined")return{ok:0,fail:0,keys:[]};
+  let ok=0,fail=0;const keys:string[]=[];
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(!k||!k.startsWith("sx_")||SYNC_SKIP.has(k))continue;
+    const raw=localStorage.getItem(k);
+    if(raw===null)continue;
+    try{
+      const res=await fetch("/api/internal/store",{
+        method:"POST",headers:apiHeaders(),
+        body:JSON.stringify({key:k,value:JSON.parse(raw)}),signal:AbortSignal.timeout(8000),
+      });
+      if(res.ok){ok++;keys.push(k);}else fail++;
+    }catch{fail++;}
+  }
+  return{ok,fail,keys};
+}
+
 type Phase="boot"|"login"|"syncing"|"dashboard";
 type Panel="overview"|"ai"|"messages"|"employees"|"roster"|"announce"|"games"|"achievements"|"posts"|"editor"|"pagebuilder"|"naveditor"|"theme"|"analytics"|"roles"|"database"|"controls";
 type Admin={u:string;display:string;role:string;level:string};
@@ -1623,8 +1646,19 @@ function PanelDatabase({notify}:{notify:(m:string)=>void}){
   const [admins,setAdmins]=useState<DynAdmin[]>([]);
   const [vSearch,setVSearch]=useState("");
   const [aSearch,setASearch]=useState("");
+  const [pushing,setPushing]=useState(false);
   const [modal,setModal]=useState<{type:string;account:Visitor|DynAdmin|null}>({type:"",account:null});
   useEffect(()=>{setVisitors(ls(EKEY,[]));setAdmins(ls(ADKEY,[]));},[]);
+  async function handlePush(){
+    if(pushing)return;
+    if(!confirm("Push ALL data saved on THIS device (posts, announcements, games, achievements, pages, roster, etc.) to the shared cloud database?\n\nUse this if you published something here that isn't showing on the public site. This will overwrite the cloud copy with what's stored on this device."))return;
+    setPushing(true);
+    const r=await pushAllToBackend();
+    setPushing(false);
+    if(r.fail===0&&r.ok>0)notify(`✅ PUSHED ${r.ok} ITEM${r.ok!==1?"S":""} TO CLOUD`);
+    else if(r.ok===0&&r.fail===0)notify("NOTHING TO PUSH — NO LOCAL DATA FOUND");
+    else notify(`PUSHED ${r.ok}, FAILED ${r.fail} — CHECK CONNECTION/LOGIN`);
+  }
   const levelBadge=(l:string)=>l==="system"?"role-badge-sys":l==="controller"?"role-badge-ctrl":l==="superadmin"?"role-badge-sa":l==="editor"?"role-badge-ed":"role-badge-mo";
   function delVisitor(id:string){if(!confirm("Delete this account?"))return;const na=visitors.filter(v=>v.id!==id);setVisitors(na);lsSet(EKEY,na);notify("ACCOUNT DELETED");}
   function delAdmin(id:string){if(!confirm("Delete this account?"))return;const na=admins.filter(a=>a.id!==id);setAdmins(na);lsSet(ADKEY,na);notify("ACCOUNT DELETED");}
@@ -1637,6 +1671,15 @@ function PanelDatabase({notify}:{notify:(m:string)=>void}){
       <div className="p-tag">// CONTROLLER ACCESS ONLY</div>
       <div className="p-title">DATABASE <span>VIEWER</span></div>
       <div className="db-access-badge">■ RESTRICTED — CONTROLLER CLEARANCE REQUIRED</div>
+      <div className="card">
+        <div className="card-title">// CLOUD SYNC RECOVERY</div>
+        <div style={{fontSize:"9px",color:"var(--muted)",lineHeight:1.7,marginBottom:"10px",letterSpacing:"0.5px"}}>
+          If something published on this device (a post, announcement, game, etc.) isn&apos;t appearing on the live site, it may only exist in this browser&apos;s local storage. Click below to push everything saved here to the shared cloud database.
+        </div>
+        <button className="btn" disabled={pushing} onClick={handlePush}>
+          {pushing?"PUSHING TO CLOUD...":"⬆ PUSH LOCAL DATA TO CLOUD"}
+        </button>
+      </div>
       <div className="card">
         <div className="card-title">// WEBSITE USER ACCOUNTS &nbsp;<span style={{color:"var(--muted)",fontWeight:"normal",fontSize:"8px"}}>{visitors.length} RECORD{visitors.length!==1?"S":""}</span></div>
         <input className="db-search" type="text" placeholder="Search by name or email..." value={vSearch} onChange={e=>setVSearch(e.target.value)}/>
