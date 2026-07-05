@@ -1,7 +1,10 @@
 "use client";
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
+import dynamic from "next/dynamic";
 import type { Tab } from "@/app/page";
+
+const ThreeHero = dynamic(() => import("@/components/hero/ThreeHero"), { ssr: false });
 
 const STATS = [
   { to: 5,    from: 0,    suffix: "+", label: "GAMES SHIPPED" },
@@ -10,66 +13,83 @@ const STATS = [
   { fixed: "BD", label: "MADE IN BANGLADESH" },
 ] as const;
 
-export default function HomeView({ active, onSwitch }: { active: boolean; onSwitch: (t: Tab) => void }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const statsRef  = useRef<HTMLDivElement>(null);
-  const numRefs   = useRef<(HTMLDivElement | null)[]>([]);
+const SECTIONS: {
+  tab: Tab;
+  label: string;
+  sub: string;
+  desc: string;
+  icon: string;
+  accent: string;
+  bg: string;
+}[] = [
+  {
+    tab: "games",
+    label: "GAMES",
+    sub: "EXPLORE OUR WORLDS",
+    desc: "Dark combat, atmospheric horror and stories worth playing. See every title the team is crafting.",
+    icon: "⬡",
+    accent: "#FF6B35",
+    bg: "linear-gradient(135deg,rgba(255,107,53,0.22) 0%,rgba(5,5,7,0) 100%)",
+  },
+  {
+    tab: "about",
+    label: "ABOUT",
+    sub: "WHO WE ARE",
+    desc: "Born in Bangladesh on pure passion. Learn our origin story, the people behind it, and where we're headed.",
+    icon: "◼",
+    accent: "#00C9B8",
+    bg: "linear-gradient(135deg,rgba(0,201,184,0.18) 0%,rgba(5,5,7,0) 100%)",
+  },
+  {
+    tab: "news",
+    label: "NEWS",
+    sub: "LATEST UPDATES",
+    desc: "Announcements, milestones, and studio news — stay in the loop as Synthrix grows.",
+    icon: "▶",
+    accent: "#F5A623",
+    bg: "linear-gradient(135deg,rgba(245,166,35,0.18) 0%,rgba(5,5,7,0) 100%)",
+  },
+  {
+    tab: "downloads",
+    label: "DOWNLOADS",
+    sub: "GET THE BUILDS",
+    desc: "Playable demos, beta clients, and special releases straight from our workshop.",
+    icon: "↓",
+    accent: "#8B5CF6",
+    bg: "linear-gradient(135deg,rgba(139,92,246,0.20) 0%,rgba(5,5,7,0) 100%)",
+  },
+  {
+    tab: "join",
+    label: "JOIN TEAM",
+    sub: "BUILD WITH US",
+    desc: "Developers, artists, writers, composers — if you have the drive, there's a seat at the table.",
+    icon: "★",
+    accent: "#E83A0A",
+    bg: "linear-gradient(135deg,rgba(232,58,10,0.20) 0%,rgba(5,5,7,0) 100%)",
+  },
+  {
+    tab: "blog",
+    label: "BLOG",
+    sub: "DEV LOGS & POSTS",
+    desc: "Behind the scenes: design decisions, technical deep-dives and candid updates from the team.",
+    icon: "⬢",
+    accent: "#FFD580",
+    bg: "linear-gradient(135deg,rgba(255,213,128,0.15) 0%,rgba(5,5,7,0) 100%)",
+  },
+  {
+    tab: "achievements",
+    label: "ACHIEVEMENTS",
+    sub: "HALL OF FAME",
+    desc: "Unlock challenges, earn badges, and track your place in the Synthrix community.",
+    icon: "◆",
+    accent: "#F5A623",
+    bg: "linear-gradient(135deg,rgba(245,166,35,0.18) 0%,rgba(5,5,7,0) 100%)",
+  },
+];
 
-  /* Particle canvas with mouse repulsion */
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    let W = 0, H = 0, raf = 0;
-    let mouseX = -9999, mouseY = -9999;
-    const resize = () => { W = canvas.width = canvas.offsetWidth; H = canvas.height = canvas.offsetHeight; };
-    resize();
-    window.addEventListener("resize", resize);
-    const onMouse = (e: MouseEvent) => {
-      const r = canvas.getBoundingClientRect();
-      mouseX = e.clientX - r.left; mouseY = e.clientY - r.top;
-    };
-    const onLeave = () => { mouseX = -9999; mouseY = -9999; };
-    window.addEventListener("mousemove", onMouse);
-    window.addEventListener("mouseleave", onLeave);
-    const COLORS = ["rgba(245,166,35,","rgba(255,107,53,","rgba(0,201,184,"];
-    type P = { x:number;y:number;size:number;speedY:number;speedX:number;life:number;maxLife:number;color:string;wobble:number;wobbleSpeed:number;reset():void };
-    const particles: P[] = [];
-    for (let i = 0; i < 55; i++) {
-      const p = {} as P;
-      p.reset = () => {
-        p.x = Math.random()*W; p.y = H+10;
-        p.size = Math.random()*2.2+0.4; p.speedY = -(Math.random()*1+0.3); p.speedX = (Math.random()-.5)*.5;
-        p.life = 0; p.maxLife = Math.random()*160+80; p.color = COLORS[Math.floor(Math.random()*COLORS.length)];
-        p.wobble = Math.random()*Math.PI*2; p.wobbleSpeed = (Math.random()-.5)*.05;
-      };
-      p.reset(); p.y = Math.random()*(H||600); p.life = Math.random()*p.maxLife;
-      particles.push(p);
-    }
-    const loop = () => {
-      ctx.clearRect(0,0,W,H);
-      particles.forEach((p) => {
-        p.life++; if (p.life>p.maxLife) p.reset();
-        p.wobble+=p.wobbleSpeed; p.x+=p.speedX+Math.sin(p.wobble)*.35; p.y+=p.speedY;
-        /* mouse repulsion */
-        const dx = p.x - mouseX, dy = p.y - mouseY;
-        const d  = Math.sqrt(dx*dx + dy*dy);
-        if (d < 100 && d > 0) { const f = (100 - d) / 100 * 2.2; p.x += (dx/d)*f; p.y += (dy/d)*f; }
-        const a = Math.sin((p.life/p.maxLife)*Math.PI)*.65;
-        ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
-        ctx.fillStyle=p.color+a+")"; ctx.fill();
-      });
-      raf = requestAnimationFrame(loop);
-    };
-    loop();
-    return () => {
-      window.removeEventListener("resize", resize);
-      window.removeEventListener("mousemove", onMouse);
-      window.removeEventListener("mouseleave", onLeave);
-      cancelAnimationFrame(raf);
-    };
-  }, []);
+export default function HomeView({ active, onSwitch }: { active: boolean; onSwitch: (t: Tab) => void }) {
+  const statsRef = useRef<HTMLDivElement>(null);
+  const numRefs  = useRef<(HTMLDivElement | null)[]>([]);
 
   /* GSAP hero letter slam */
   useEffect(() => {
@@ -120,35 +140,10 @@ export default function HomeView({ active, onSwitch }: { active: boolean; onSwit
     <div>
       {/* HERO */}
       <section className="hero" id="home">
-        <canvas ref={canvasRef} id="hero-canvas" />
+        <ThreeHero />
         <div className="hero-glow" />
         <div className="hero-scan" />
         <div className="hero-rays" />
-
-        {/* Gamepad controller rising animation */}
-        <div className="hero-controller-wrap" aria-hidden="true">
-          <svg className="ctrl-svg" viewBox="0 0 220 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M40 50 C20 50 10 75 15 100 L30 125 C36 135 50 138 60 130 L80 110 H140 L160 130 C170 138 184 135 190 125 L205 100 C210 75 200 50 180 50 L140 42 H80 Z" fill="rgba(245,166,35,0.08)" stroke="rgba(245,166,35,0.70)" strokeWidth="2"/>
-            <path d="M40 50 C38 42 45 36 55 36 L80 36 L80 42" stroke="rgba(245,166,35,0.50)" strokeWidth="1.5" fill="none"/>
-            <path d="M180 50 C182 42 175 36 165 36 L140 36 L140 42" stroke="rgba(245,166,35,0.50)" strokeWidth="1.5" fill="none"/>
-            <rect x="52" y="68" width="8" height="24" rx="2" fill="rgba(245,166,35,0.30)" stroke="rgba(245,166,35,0.60)" strokeWidth="1"/>
-            <rect x="44" y="76" width="24" height="8" rx="2" fill="rgba(245,166,35,0.30)" stroke="rgba(245,166,35,0.60)" strokeWidth="1"/>
-            <circle cx="155" cy="72" r="6" fill="rgba(0,201,184,0.20)" stroke="rgba(0,201,184,0.80)" strokeWidth="1.5"/>
-            <circle cx="171" cy="80" r="6" fill="rgba(255,107,53,0.20)" stroke="rgba(255,107,53,0.80)" strokeWidth="1.5"/>
-            <circle cx="155" cy="88" r="6" fill="rgba(245,166,35,0.20)" stroke="rgba(245,166,35,0.80)" strokeWidth="1.5"/>
-            <circle cx="139" cy="80" r="6" fill="rgba(139,92,246,0.20)" stroke="rgba(139,92,246,0.80)" strokeWidth="1.5"/>
-            <circle cx="110" cy="78" r="10" fill="rgba(245,166,35,0.10)" stroke="rgba(245,166,35,0.55)" strokeWidth="1.5"/>
-            <circle cx="110" cy="78" r="4" fill="rgba(245,166,35,0.40)"/>
-            <circle cx="80" cy="95" r="12" fill="rgba(255,255,255,0.04)" stroke="rgba(245,166,35,0.35)" strokeWidth="1.5"/>
-            <circle cx="80" cy="95" r="6" fill="rgba(245,166,35,0.15)"/>
-            <circle cx="140" cy="95" r="12" fill="rgba(255,255,255,0.04)" stroke="rgba(245,166,35,0.35)" strokeWidth="1.5"/>
-            <circle cx="140" cy="95" r="6" fill="rgba(245,166,35,0.15)"/>
-            <circle cx="155" cy="72" r="2" fill="rgba(0,201,184,0.90)"/>
-            <circle cx="171" cy="80" r="2" fill="rgba(255,107,53,0.90)"/>
-            <circle cx="155" cy="88" r="2" fill="rgba(245,166,35,0.90)"/>
-            <circle cx="139" cy="80" r="2" fill="rgba(139,92,246,0.90)"/>
-          </svg>
-        </div>
 
         {/* Side nav overlays */}
         <div className="hero-nav-left" aria-hidden="true">
@@ -200,6 +195,36 @@ export default function HomeView({ active, onSwitch }: { active: boolean; onSwit
             <div className="stat-label">{s.label}</div>
           </div>
         ))}
+      </div>
+
+      {/* SECTION TEASERS */}
+      <div className="sec-teasers">
+        <div className="sec-teasers-header">
+          <div className="sec-tag">NAVIGATE THE STUDIO</div>
+          <h2 className="sec-h2 reveal">EXPLORE <span style={{ color: "var(--orange)" }}>EVERYTHING</span></h2>
+        </div>
+        <div className="sec-teasers-grid">
+          {SECTIONS.map((s) => (
+            <div
+              key={s.tab}
+              className="stc-card reveal"
+              onClick={() => onSwitch(s.tab)}
+              style={{ "--stc-accent": s.accent } as React.CSSProperties}
+            >
+              <div className="stc-header" style={{ background: s.bg }}>
+                <div className="stc-icon">{s.icon}</div>
+                <div className="stc-lbl">{s.label}</div>
+              </div>
+              <div className="stc-body">
+                <div className="stc-sub">{s.sub}</div>
+                <p className="stc-desc">{s.desc}</p>
+                <div className="stc-cta">
+                  EXPLORE <span style={{ color: s.accent }}>→</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
